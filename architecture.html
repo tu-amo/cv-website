@@ -56,26 +56,26 @@
             </div>
 
             <div style="margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-                <div class="card">
+                <div class="card arch-card">
                     <h3>Legacy Challenges</h3>
                     <ul class="clean-list" style="margin-top: 10px;">
-                        <li><strong>Batch Dependencies:</strong> Stock updates only once per 24 hours via SAP PI files.
-                        </li>
-                        <li><strong>Siloed Forecasting:</strong> Blue Yonder operates on stale data, leading to
-                            stock-outs.</li>
-                        <li><strong>Disconnected Stores:</strong> POS data is stuck in local servers until end-of-day.
-                        </li>
+                        <li><strong>Batch Dependencies:</strong> Critical stock updates delayed by 24h due to legacy SAP
+                            PI/PO batch processing.</li>
+                        <li><strong>Siloed Forecasting:</strong> Blue Yonder forecasts based on stale "yesterday" data,
+                            causing avoidable stock-outs.</li>
+                        <li><strong>Disconnected Stores:</strong> POS servers isolated; no real-time visibility for HQ
+                            or Online channels.</li>
                     </ul>
                 </div>
-                <div class="card" style="border-color: #0369a1;">
+                <div class="card arch-card" style="border-color: #0369a1; border-width: 2px;">
                     <h3>Modern Solutions</h3>
                     <ul class="clean-list" style="margin-top: 10px;">
-                        <li><strong>Hybrid Data Fabric:</strong> High-volume transaction replication via
-                            <strong>SLT</strong>, with <strong>OData</strong> services for logic.</li>
-                        <li><strong>Event-Driven:</strong> <strong>SAP Event Mesh</strong> triggers immediate updates in
-                            CAR/UDF when stock changes.</li>
-                        <li><strong>Unified Forecast:</strong> Blue Yonder consumes granular sales data via <strong>API
-                                Management</strong> on BTP.</li>
+                        <li><strong>Hybrid Data Fabric:</strong> High-volume <strong>SLT</strong> replication for core
+                            data, paired with agile <strong>OData</strong> services for business logic.</li>
+                        <li><strong>Event-Driven Agility:</strong> <strong>SAP Event Mesh</strong> triggers instant
+                            inventory updates in CAR/UDF the moment an item is scanned.</li>
+                        <li><strong>Unified Intelligence:</strong> Blue Yonder consumes granular, real-time demand
+                            signals via BTP <strong>API Management</strong>.</li>
                     </ul>
                 </div>
             </div>

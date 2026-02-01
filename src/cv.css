@@ -904,6 +904,37 @@ body {
     .label-modern {
         color: #0369a1;
     }
+
+    /* Architecture Page Specifics */
+    .arch-card {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .arch-card h3 {
+        color: #0f172a;
+        /* Dark Blue/Slate */
+        font-size: 1.25rem;
+        margin-bottom: 15px;
+        font-weight: 700;
+    }
+
+    .arch-card li {
+        color: #334155;
+        /* Slate 700 */
+        font-size: 1.05rem;
+        line-height: 1.6;
+        margin-bottom: 12px;
+    }
+
+    .arch-card strong {
+        color: #0369a1;
+        /* Primary Blue */
+        font-weight: 600;
+    }
 }
 
 @media print {
