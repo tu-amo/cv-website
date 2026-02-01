@@ -789,3 +789,126 @@ body {
         padding-top: 15px !important;
     }
 }
+
+/* 9. ARCHITECTURE SLIDER (Screen Only) */
+@media screen {
+    .architecture-section {
+        padding: 40px 20px;
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        margin: 40px 0;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .architecture-header {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+
+    .architecture-header h2 {
+        color: var(--primary-color);
+        font-family: 'Playfair Display', serif;
+        margin-bottom: 5px;
+    }
+
+    .architecture-header p {
+        color: #666;
+        font-size: 0.95em;
+    }
+
+    .slider-container {
+        position: relative;
+        width: 100%;
+        /* Adjusted aspect ratio for typical diagram shape */
+        aspect-ratio: 4/3;
+        max-height: 600px;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ddd;
+        cursor: col-resize;
+        margin: 0 auto;
+        background: #fff;
+    }
+
+    .slider-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        /* Keep the whole diagram visible */
+        padding: 20px;
+        background: white;
+        user-select: none;
+        pointer-events: none;
+    }
+
+    .img-legacy {
+        z-index: 1;
+    }
+
+    .img-modern {
+        z-index: 2;
+        /* Start with 50% revealed */
+        clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%);
+    }
+
+    .slider-handle {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 2px;
+        background: #0369a1;
+        z-index: 3;
+        pointer-events: none;
+    }
+
+    .slider-circle {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 40px;
+        height: 40px;
+        background: #0369a1;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        box-shadow: 0 0 15px rgba(3, 105, 161, 0.4);
+        cursor: col-resize;
+        pointer-events: auto;
+        /* Make the handle clickable */
+    }
+
+    .slider-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        padding: 0 10px;
+    }
+
+    .label-legacy {
+        color: #777;
+    }
+
+    .label-modern {
+        color: #0369a1;
+    }
+}
+
+@media print {
+    .architecture-section {
+        display: none !important;
+        /* Hide interactive slider on print */
+    }
+}

@@ -39,3 +39,50 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(skill);
     });
 });
+
+// --- ARCHITECTURE SLIDER LOGIC ---
+const sliderContainer = document.querySelector('.slider-container');
+const sliderHandle = document.querySelector('.slider-handle');
+const sliderCircle = document.querySelector('.slider-circle');
+const modernImage = document.querySelector('.img-modern');
+
+if (sliderContainer && sliderHandle && modernImage) {
+    let isDragging = false;
+
+    const updateSlider = (x) => {
+        const rect = sliderContainer.getBoundingClientRect();
+        let percent = ((x - rect.left) / rect.width) * 100;
+        percent = Math.min(Math.max(percent, 0), 100);
+
+        sliderHandle.style.left = `${percent}%`;
+        // Keep circle centered on handle
+        if (sliderCircle) sliderCircle.style.left = `${percent}%`;
+
+        // Wipe Effect: 
+        // 0%  = Handle at Left  = Modern Image fully REVEALED (clip 0 -> 100) ??
+        // PROPOSAL:
+        // Left Side = LEGACY
+        // Right Side = MODERN
+        // As I drag handle to RIGHT, I reveal more Legacy? Or Reveal more Modern?
+        // "Waping away legacy" = Drag handle from Left to Right reveals Modern?
+
+        // Let's implement: Left Side is Legacy. Right Side is Modern.
+        // Clip Path polygon(X 0, 100 0, 100 100, X 100) -> Keeps right side visible
+        modernImage.style.clipPath = `polygon(${percent}% 0, 100% 0, 100% 100%, ${percent}% 100%)`;
+    };
+
+    const startDrag = () => isDragging = true;
+    const stopDrag = () => isDragging = false;
+    const doDrag = (x) => { if (isDragging) updateSlider(x); };
+
+    sliderContainer.addEventListener('mousedown', startDrag);
+    window.addEventListener('mouseup', stopDrag);
+    window.addEventListener('mousemove', (e) => doDrag(e.clientX));
+
+    sliderContainer.addEventListener('touchstart', startDrag);
+    window.addEventListener('touchend', stopDrag);
+    window.addEventListener('touchmove', (e) => doDrag(e.touches[0].clientX));
+
+    sliderContainer.addEventListener('click', (e) => updateSlider(e.clientX));
+}
+
