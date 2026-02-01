@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Retail Architecture Transformation - Jane Scott</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="./src/cv.css?v=12" />
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="background-globes">
+        <div class="globe globe-1"></div>
+        <div class="globe globe-2"></div>
+        <div class="globe globe-3"></div>
+    </div>
+
+    <div class="glass-container" style="max-width: 1200px; padding-top: 40px;">
+        <header class="cv-header" style="text-align: center; border-bottom: none;">
+            <h1 class="name" style="font-size: 3rem;">Retail Architecture Transformation</h1>
+            <p class="title">From Legacy Complexity to Modern API-First Simplicity</p>
+            <a href="cv.html" class="btn btn-secondary"
+                style="margin-top: 20px; display: inline-flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-arrow-left"></i> Back to CV
+            </a>
+        </header>
+
+        <section class="section architecture-section" style="margin-top: 20px;">
+            <div class="architecture-header">
+                <p>Interactive Demo: Drag the slider to visualize the modernization journey</p>
+            </div>
+
+            <div class="slider-container">
+                <!-- Images -->
+                <img src="./public/assets/sap_legacy.png" alt="Legacy SAP Architecture" class="slider-image img-legacy">
+                <img src="./public/assets/sap_modern.png" alt="Modern SAP BTP Architecture"
+                    class="slider-image img-modern">
+
+                <!-- Handle -->
+                <div class="slider-handle"></div>
+                <div class="slider-circle">
+                    <i class="fa-solid fa-arrows-left-right"></i>
+                </div>
+
+                <!-- Labels -->
+                <div class="slider-labels">
+                    <span class="label-legacy">Legacy (Batch/Siloed)</span>
+                    <span class="label-modern">Modern (API/Unified)</span>
+                </div>
+            </div>
+
+            <div style="margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                <div class="card">
+                    <h3>Legacy Challenges</h3>
+                    <ul class="clean-list" style="margin-top: 10px;">
+                        <li><strong>Batch Dependencies:</strong> Stock updates only once per 24 hours via SAP PI files.
+                        </li>
+                        <li><strong>Siloed Forecasting:</strong> Blue Yonder operates on stale data, leading to
+                            stock-outs.</li>
+                        <li><strong>Disconnected Stores:</strong> POS data is stuck in local servers until end-of-day.
+                        </li>
+                    </ul>
+                </div>
+                <div class="card" style="border-color: #0369a1;">
+                    <h3>Modern Solutions</h3>
+                    <ul class="clean-list" style="margin-top: 10px;">
+                        <li><strong>Real-Time APIs:</strong> Sales flow instantly to SAP CAR via BTP Integration Suite.
+                        </li>
+                        <li><strong>Unified Demand:</strong> Forecasts use live sales data for accurate replenishment.
+                        </li>
+                        <li><strong>Mobile First:</strong> Staff use Fiori apps to see global inventory in real-time.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer class="cv-footer">
+        <p>Architected & Designed by Jane Petra Scott &copy; 2026</p>
+    </footer>
+
+    <script type="module" src="./src/cv.js"></script>
+</body>
+
+</html>
