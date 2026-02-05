@@ -49,35 +49,33 @@ const sliderContainer = document.querySelector('.slider-container');
 const sliderHandle = document.querySelector('.slider-handle');
 const sliderCircle = document.querySelector('.slider-circle');
 const modernImage = document.querySelector('.img-modern');
+const sliderInput = document.getElementById('architecture-slider');
 
 if (sliderContainer && sliderHandle && modernImage) {
     let isDragging = false;
 
-    const updateSlider = (x) => {
-        const rect = sliderContainer.getBoundingClientRect();
-        let percent = ((x - rect.left) / rect.width) * 100;
+    const updateSlider = (percent) => {
         percent = Math.min(Math.max(percent, 0), 100);
 
         sliderHandle.style.left = `${percent}%`;
-        // Keep circle centered on handle
         if (sliderCircle) sliderCircle.style.left = `${percent}%`;
-
-        // Wipe Effect: 
-        // 0%  = Handle at Left  = Modern Image fully REVEALED (clip 0 -> 100) ??
-        // PROPOSAL:
-        // Left Side = LEGACY
-        // Right Side = MODERN
-        // As I drag handle to RIGHT, I reveal more Legacy? Or Reveal more Modern?
-        // "Waping away legacy" = Drag handle from Left to Right reveals Modern?
-
-        // Let's implement: Left Side is Legacy. Right Side is Modern.
-        // Clip Path polygon(X 0, 100 0, 100 100, X 100) -> Keeps right side visible
         modernImage.style.clipPath = `polygon(${percent}% 0, 100% 0, 100% 100%, ${percent}% 100%)`;
+
+        // Sync hidden input for screen readers
+        if (sliderInput && sliderInput.value != percent) {
+            sliderInput.value = percent;
+        }
     };
 
+    const getPercentFromX = (x) => {
+        const rect = sliderContainer.getBoundingClientRect();
+        return ((x - rect.left) / rect.width) * 100;
+    };
+
+    // Interaction Handlers
     const startDrag = () => isDragging = true;
     const stopDrag = () => isDragging = false;
-    const doDrag = (x) => { if (isDragging) updateSlider(x); };
+    const doDrag = (x) => { if (isDragging) updateSlider(getPercentFromX(x)); };
 
     sliderContainer.addEventListener('mousedown', startDrag);
     window.addEventListener('mouseup', stopDrag);
@@ -87,6 +85,18 @@ if (sliderContainer && sliderHandle && modernImage) {
     window.addEventListener('touchend', stopDrag);
     window.addEventListener('touchmove', (e) => doDrag(e.touches[0].clientX));
 
-    sliderContainer.addEventListener('click', (e) => updateSlider(e.clientX));
+    sliderContainer.addEventListener('click', (e) => {
+        if (!isDragging) updateSlider(getPercentFromX(e.clientX));
+    });
+
+    // Keyboard / Screen Reader Support
+    if (sliderInput) {
+        sliderInput.addEventListener('input', (e) => {
+            updateSlider(parseFloat(e.target.value));
+        });
+    }
+
+    // Set initial position
+    updateSlider(50);
 }
 

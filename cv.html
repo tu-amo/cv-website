@@ -44,6 +44,7 @@
 </head>
 
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <div class="background-globes">
         <div class="globe globe-1"></div>
         <div class="globe globe-2"></div>
@@ -58,19 +59,19 @@
 
                 <div class="contact-grid">
                     <div class="contact-item">
-                        <i class="fa-solid fa-location-dot"></i>
+                        <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
                         <span>Germany</span>
                     </div>
                     <div class="contact-item">
-                        <i class="fa-solid fa-passport"></i>
+                        <i class="fa-solid fa-passport" aria-hidden="true"></i>
                         <span>Blue Card Holder</span>
                     </div>
                     <div class="contact-item">
-                        <i class="fa-solid fa-calendar"></i>
+                        <i class="fa-solid fa-calendar" aria-hidden="true"></i>
                         <span>3 Months Notice</span>
                     </div>
                     <div class="contact-item full-width">
-                        <i class="fa-solid fa-language"></i>
+                        <i class="fa-solid fa-language" aria-hidden="true"></i>
                         <span>English (Fluent), Afrikaans (Fluent), German (B1/B2)</span>
                     </div>
                 </div>
@@ -78,18 +79,20 @@
                 <div class="action-buttons">
                     <!-- User: Replace '#' with your actual Google Doc Share URL -->
                     <a href="https://eu.docworkspace.com/d/cIIuWuZ-_AsmS_csG?utm_source=wps_office_mac&utm_medium=comp_border_bar&utm_content=link"
-                        target="_blank" class="btn btn-primary">
-                        <i class="fa-solid fa-file-word"></i> Download Word Doc
+                        target="_blank" class="btn btn-primary"
+                        aria-label="Download Jane Petra Scott's CV in Word format">
+                        <i class="fa-solid fa-file-word" aria-hidden="true"></i> Download Word Doc
                     </a>
-                    <button onclick="window.print()" class="btn btn-secondary">
-                        <i class="fa-solid fa-file-pdf"></i>
+                    <button onclick="window.print()" class="btn btn-secondary"
+                        aria-label="Save Jane Petra Scott's CV as PDF">
+                        <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
                         Save as PDF
                     </button>
                 </div>
             </div>
         </header>
 
-        <main class="cv-content">
+        <main class="cv-content" id="main-content">
             <section class="section summary-section">
                 <h2>Professional Profile</h2>
                 <p>
@@ -124,9 +127,10 @@
 
             <!-- Architecture Link -->
             <div style="text-align: center; margin: 30px 0;">
-                <a href="architecture.html" class="btn btn-secondary"
-                    style="display: inline-flex; align-items: center;">
-                    <i class="fa-solid fa-layer-group" style="margin-right: 8px;"></i> View Architecture Transformation
+                <a href="architecture.html" class="btn btn-secondary" style="display: inline-flex; align-items: center;"
+                    aria-label="View Retail Architecture Transformation Demo">
+                    <i class="fa-solid fa-layer-group" style="margin-right: 8px;" aria-hidden="true"></i> View
+                    Architecture Transformation
                     Demo
                 </a>
             </div>

@@ -42,6 +42,7 @@
 </head>
 
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <div class="background-globes">
         <div class="globe globe-1"></div>
         <div class="globe globe-2"></div>
@@ -53,17 +54,23 @@
             <h1 class="name" style="font-size: 3rem;">Retail Architecture Transformation</h1>
             <p class="title">From Legacy Complexity to Modern API-First Simplicity</p>
             <a href="cv.html" class="btn btn-secondary"
-                style="margin-top: 20px; display: inline-flex; align-items: center; gap: 8px;">
-                <i class="fa-solid fa-arrow-left"></i> Back to CV
+                style="margin-top: 20px; display: inline-flex; align-items: center; gap: 8px;"
+                aria-label="Back to Curriculum Vitae">
+                <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to CV
             </a>
         </header>
 
-        <section class="section architecture-section" style="margin-top: 20px;">
+        <main class="section architecture-section" style="margin-top: 20px;" id="main-content">
             <div class="architecture-header">
                 <p>Interactive Demo: Drag the slider to visualize the modernization journey</p>
             </div>
 
-            <div class="slider-container">
+            <div class="slider-container" role="application"
+                aria-label="Architecture Transformation Slider: Drag to compare legacy and modern SAP landscapes">
+                <!-- Accessible Screen Reader input -->
+                <label for="architecture-slider" class="sr-only">Modernization Progress</label>
+                <input type="range" id="architecture-slider" min="0" max="100" value="50"
+                    class="slider-input-accessible">
                 <!-- Images -->
                 <img src="./sap_legacy.png" alt="Legacy SAP Architecture" class="slider-image img-legacy"
                     fetchpriority="high" loading="eager">
@@ -72,7 +79,7 @@
 
                 <!-- Handle -->
                 <div class="slider-handle"></div>
-                <div class="slider-circle">
+                <div class="slider-circle" aria-hidden="true">
                     <i class="fa-solid fa-arrows-left-right"></i>
                 </div>
 
@@ -107,7 +114,7 @@
                     </ul>
                 </div>
             </div>
-        </section>
+        </main>
         <footer class="cv-footer" style="margin-top: 60px; border-top: 1px solid rgba(255,255,255,0.3);">
             <p>Architected & Designed by Jane Petra Scott &copy; 2026</p>
         </footer>
