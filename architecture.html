@@ -121,6 +121,18 @@
     </div>
 
     <script type="module" src="./src/cv.js"></script>
+    <script type="module">
+        import Analytics from './src/analytics.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const backBtn = document.querySelector('a[href="cv.html"]');
+            if (backBtn) {
+                backBtn.addEventListener('click', () => {
+                    Analytics.track('nav_click', { target: 'cv', from: 'architecture' });
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

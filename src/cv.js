@@ -1,4 +1,5 @@
-// Add some subtle interaction or animation enhancements
+import Analytics from './analytics.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('CV Loaded');
 
@@ -52,10 +53,25 @@ const modernImage = document.querySelector('.img-modern');
 const sliderInput = document.getElementById('architecture-slider');
 
 if (sliderContainer && sliderHandle && modernImage) {
+    let hasStartedTracking = false;
+    let hasCompletedTracking = false;
     let isDragging = false;
 
     const updateSlider = (percent) => {
         percent = Math.min(Math.max(percent, 0), 100);
+
+        // Tracking: Start
+        if (!hasStartedTracking && percent !== 50) {
+            Analytics.trackArchitectureSlider('start');
+            hasStartedTracking = true;
+        }
+
+        // Tracking: Completion (Threshold 15% - showing most of modern)
+        // Since dragging to the left reveals more modern, if percent < 15, they've seen most of it.
+        if (!hasCompletedTracking && percent < 15) {
+            Analytics.trackArchitectureSlider('complete');
+            hasCompletedTracking = true;
+        }
 
         sliderHandle.style.left = `${percent}%`;
         if (sliderCircle) sliderCircle.style.left = `${percent}%`;

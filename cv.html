@@ -464,6 +464,27 @@
     </div>
 
     <script type="module" src="./src/cv.js"></script>
+    <script type="module">
+        import Analytics from './src/analytics.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Track Word Download
+            const wordBtn = document.querySelector('a[href*="docworkspace"]');
+            if (wordBtn) {
+                wordBtn.addEventListener('click', () => {
+                    Analytics.trackDownload('Word');
+                });
+            }
+
+            // Track PDF Save (Print)
+            const pdfBtn = document.querySelector('button[onclick="window.print()"]');
+            if (pdfBtn) {
+                pdfBtn.addEventListener('click', () => {
+                    Analytics.trackDownload('PDF');
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>

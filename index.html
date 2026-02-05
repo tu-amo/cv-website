@@ -536,6 +536,26 @@
             <p>Architected & Designed by Jane Petra Scott © 2026</p>
         </footer>
     </main>
+    <script type="module">
+        import Analytics from './src/analytics.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const cvBtn = document.querySelector('a[href="/cv"]');
+            const archBtn = document.querySelector('a[href="/architecture"]');
+
+            if (cvBtn) {
+                cvBtn.addEventListener('click', () => {
+                    Analytics.track('cta_click', { target: 'cv', location: 'hero' });
+                });
+            }
+
+            if (archBtn) {
+                archBtn.addEventListener('click', () => {
+                    Analytics.track('cta_click', { target: 'architecture', location: 'hero' });
+                });
+            }
+        });
+    </script>
 </body>
 
 </html>
