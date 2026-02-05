@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://janeblog.com/sitemap.xml
