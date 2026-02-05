@@ -14,18 +14,34 @@
 
     <!-- Open Graph / LinkedIn -->
     <meta property="og:type" content="article" />
-    <meta property="og:url" content="https://cv.janeblog.com/architecture.html" />
+    <meta property="og:url" content="https://janeblog.com/architecture" />
     <meta property="og:title" content="Retail Architecture Transformation Demo - Jane Petra Scott" />
     <meta property="og:description"
-        content="A technical comparison of Legacy vs. Modern SAP landscapes. The visual highlights the critical role of SLT for high-volume data replication and SAP BTP for agile, OData-based integration services in a modern Retail architecture." />
-    <meta property="og:image" content="https://cv.janeblog.com/sap_modern.png" />
+        content="Interactive comparison of Legacy vs. Modern SAP landscapes. See how SLT, Event Mesh, and SAP BTP drive real-time retail agility." />
+    <meta property="og:image" content="https://janeblog.com/sap_modern.png" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://janeblog.com/architecture" />
     <meta property="twitter:title" content="Retail Architecture Transformation Demo - Jane Petra Scott" />
     <meta property="twitter:description"
-        content="A technical comparison of Legacy vs. Modern SAP landscapes. The visual highlights the critical role of SLT for high-volume data replication and SAP BTP for agile, OData-based integration services in a modern Retail architecture." />
-    <meta property="twitter:image" content="https://cv.janeblog.com/sap_modern.png" />
+        content="Interactive comparison of Legacy vs. Modern SAP landscapes. See how SLT, Event Mesh, and SAP BTP drive real-time retail agility." />
+    <meta property="twitter:image" content="https://janeblog.com/sap_modern.png" />
+
+    <!-- Schema.org Person Markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": "Jane Petra Scott",
+      "url": "https://janeblog.com",
+      "jobTitle": "Senior SAP Retail Architect",
+      "worksFor": {
+        "@type": "Organization",
+        "name": "ALDI DX (International)"
+      }
+    }
+    </script>
     <!-- Performance: Preconnect to external domains -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,13 +65,11 @@
         <div class="globe globe-3"></div>
     </div>
 
-    <div class="glass-container" style="max-width: 1200px; padding-top: 40px;">
-        <header class="cv-header" style="text-align: center; border-bottom: none;">
-            <h1 class="name" style="font-size: 3rem;">Retail Architecture Transformation</h1>
+    <div class="glass-container arch-page-container">
+        <header class="cv-header arch-header">
+            <h1 class="name">Retail Architecture Transformation</h1>
             <p class="title">From Legacy Complexity to Modern API-First Simplicity</p>
-            <a href="cv.html" class="btn btn-secondary"
-                style="margin-top: 20px; display: inline-flex; align-items: center; gap: 8px;"
-                aria-label="Back to Curriculum Vitae">
+            <a href="cv" class="btn btn-secondary nav-back-btn" aria-label="Back to Curriculum Vitae">
                 <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to CV
             </a>
         </header>
@@ -90,10 +104,10 @@
                 </div>
             </div>
 
-            <div style="margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
-                <div class="card arch-card">
+            <div class="arch-info-grid">
+                <div class="card arch-card legacy-card">
                     <h3>Legacy Challenges</h3>
-                    <ul class="clean-list" style="margin-top: 10px;">
+                    <ul class="clean-list">
                         <li><strong>Batch Dependencies:</strong> Critical stock updates delayed by 24h due to legacy SAP
                             PI/PO batch processing.</li>
                         <li><strong>Siloed Forecasting:</strong> Blue Yonder forecasts based on stale "yesterday" data,
@@ -102,13 +116,13 @@
                             or Online channels.</li>
                     </ul>
                 </div>
-                <div class="card arch-card" style="border-color: #0369a1; border-width: 2px;">
+                <div class="card arch-card modern-card highlight-card">
                     <h3>Modern Solutions</h3>
-                    <ul class="clean-list" style="margin-top: 10px;">
+                    <ul class="clean-list">
                         <li><strong>Hybrid Data Fabric:</strong> High-volume <strong>SLT</strong> replication for core
-                            data, paired with agile <strong>OData</strong> services for business logic.</li>
+                            data, paired with agile <strong>OData</strong> services.</li>
                         <li><strong>Event-Driven Agility:</strong> <strong>SAP Event Mesh</strong> triggers instant
-                            inventory updates in CAR/UDF the moment an item is scanned.</li>
+                            inventory updates in CAR/UDF.</li>
                         <li><strong>Unified Intelligence:</strong> Blue Yonder consumes granular, real-time demand
                             signals via BTP <strong>API Management</strong>.</li>
                     </ul>
