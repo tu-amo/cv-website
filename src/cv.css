@@ -26,9 +26,9 @@ body {
     color: var(--text-primary);
     min-height: 100vh;
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 60px 20px;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 60px;
     overflow-x: hidden;
 }
 
@@ -609,6 +609,35 @@ body {
     transform: translateY(-2px);
 }
 
+
+
+/* Page wrapper — back link + card stacked */
+.cv-page-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 950px;
+    gap: 1rem;
+}
+
+/* Back to home — sits above the glass card */
+.cv-back-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-family: var(--font-main);
+    transition: color 250ms ease;
+}
+
+.cv-back-home:hover {
+    color: #f8fafc;
+}
+
 /* Print Styles */
 /* Print Styles - OPTIMIZED */
 /* Print Styles - OPTIMIZED v2 */
@@ -634,6 +663,7 @@ body {
     /* Hiding UI elements for Condensed Print */
     .background-globes,
     .action-buttons,
+    .cv-back-home,
     .globe,
     .portfolio-section {
         /* Hide large portfolio section for shorthand PDF */

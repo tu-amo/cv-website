@@ -482,9 +482,47 @@
             outline-offset: 2px;
         }
 
-        .expertise-card:focus-within {
+        .expertise-card:focus-within,
+        a.expertise-card:focus-visible {
             box-shadow: var(--shadow-xl);
             border-color: var(--color-primary);
+            outline: 3px solid var(--color-primary);
+            outline-offset: 2px;
+        }
+
+        /* New expertise cards — accent colour variant */
+        .expertise-card--new {
+            border-color: rgba(139, 92, 246, 0.2);
+        }
+
+        .expertise-card--new .card-icon {
+            background: linear-gradient(135deg, var(--color-accent-soft), rgba(37, 99, 235, 0.1));
+            color: var(--color-accent);
+            border-color: rgba(139, 92, 246, 0.2);
+        }
+
+        .expertise-card--new:hover {
+            border-color: var(--color-accent);
+            box-shadow: var(--shadow-xl), 0 0 30px rgba(139, 92, 246, 0.12);
+        }
+
+        .expertise-card--new:hover .card-icon {
+            background: linear-gradient(135deg, var(--color-accent), var(--color-primary));
+            color: white;
+        }
+
+        .card-cta {
+            display: block;
+            margin-top: auto;
+            padding-top: var(--space-sm);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--color-accent);
+            transition: color var(--transition-base);
+        }
+
+        .expertise-card--new:hover .card-cta {
+            color: white;
         }
     </style>
 </head>
@@ -534,60 +572,105 @@
         <section class="expertise">
             <h2 class="section-title">Areas of Expertise</h2>
             <div class="expertise-grid">
-                <div class="expertise-card">
+
+                <!-- Existing 4 — link to CV -->
+                <a href="/cv" class="expertise-card" style="text-decoration:none;">
                     <div class="card-icon">
-                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            aria-hidden="true" role="img">
-                            <path d="M16 4L4 10L16 16L28 10L16 4Z M4 22L16 28L28 22 M4 16L16 22L28 16"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+                            <path d="M16 4L4 10L16 16L28 10L16 4Z M4 22L16 28L28 22 M4 16L16 22L28 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </div>
                     <h3 class="card-title">S/4HANA Transformation</h3>
-                    <p class="card-description">Leading enterprise-wide migrations from ECC to S/4HANA with focus on
-                        retail and supply chain optimization.</p>
-                </div>
+                    <p class="card-description">Leading enterprise-wide migrations from ECC to S/4HANA with focus on retail and supply chain optimization.</p>
+                </a>
 
-                <div class="expertise-card">
+                <a href="/cv" class="expertise-card" style="text-decoration:none;">
                     <div class="card-icon">
-                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            aria-hidden="true" role="img">
-                            <path
-                                d="M16 28C22.6274 28 28 22.6274 28 16C28 9.37258 22.6274 4 16 4C9.37258 4 4 9.37258 4 16C4 22.6274 9.37258 28 16 28Z M16 12V16L19 19"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+                            <path d="M16 28C22.6274 28 28 22.6274 28 16C28 9.37258 22.6274 4 16 4C9.37258 4 4 9.37258 4 16C4 22.6274 9.37258 28 16 28Z M16 12V16L19 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </div>
-                    <h3 class="card-title">AI & Automation</h3>
-                    <p class="card-description">Implementing AI-driven supply chain solutions and intelligent automation
-                        for demand forecasting and inventory optimization.</p>
-                </div>
+                    <h3 class="card-title">AI &amp; Automation</h3>
+                    <p class="card-description">Implementing AI-driven supply chain solutions and intelligent automation for demand forecasting and inventory optimization.</p>
+                </a>
 
-                <div class="expertise-card">
+                <a href="/cv" class="expertise-card" style="text-decoration:none;">
                     <div class="card-icon">
-                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            aria-hidden="true" role="img">
-                            <path
-                                d="M8 4H24C25.1046 4 26 4.89543 26 6V26C26 27.1046 25.1046 28 24 28H8C6.89543 28 6 27.1046 6 26V6C6 4.89543 6.89543 4 8 4Z M16 8V24 M10 14H22 M10 20H22"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+                            <path d="M8 4H24C25.1046 4 26 4.89543 26 6V26C26 27.1046 25.1046 28 24 28H8C6.89543 28 6 27.1046 6 26V6C6 4.89543 6.89543 4 8 4Z M16 8V24 M10 14H22 M10 20H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </div>
                     <h3 class="card-title">Cloud Architecture</h3>
-                    <p class="card-description">Designing scalable cloud-native solutions on SAP BTP with focus on
-                        integration, security, and performance.</p>
-                </div>
+                    <p class="card-description">Designing scalable cloud-native solutions on SAP BTP with focus on integration, security, and performance.</p>
+                </a>
 
-                <div class="expertise-card">
+                <a href="/cv" class="expertise-card" style="text-decoration:none;">
                     <div class="card-icon">
-                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            aria-hidden="true" role="img">
-                            <path
-                                d="M16 4C9.37258 4 4 9.37258 4 16C4 22.6274 9.37258 28 16 28C22.6274 28 28 22.6274 28 16C28 9.37258 22.6274 4 16 4Z M16 8C19.3137 8 22 10.6863 22 14C22 17.3137 19.3137 20 16 20C12.6863 20 10 17.3137 10 14C10 10.6863 12.6863 8 16 8Z M8 24C8 21 12 19 16 19C20 19 24 21 24 24"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+                            <path d="M16 4C9.37258 4 4 9.37258 4 16C4 22.6274 9.37258 28 16 28C22.6274 28 28 22.6274 28 16C28 9.37258 22.6274 4 16 4Z M16 8C19.3137 8 22 10.6863 22 14C22 17.3137 19.3137 20 16 20C12.6863 20 10 17.3137 10 14C10 10.6863 12.6863 8 16 8Z M8 24C8 21 12 19 16 19C20 19 24 21 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </div>
-                    <h3 class="card-title">Leadership & Strategy</h3>
-                    <p class="card-description">Driving digital transformation initiatives across global teams in Europe
-                        and APAC with proven delivery excellence.</p>
-                </div>
+                    <h3 class="card-title">Leadership &amp; Strategy</h3>
+                    <p class="card-description">Driving digital transformation initiatives across global teams in Europe and APAC with proven delivery excellence.</p>
+                </a>
+
+                <!-- 4 New expertise landing pages -->
+                <a href="/expertise/knowledge-systems.html" class="expertise-card expertise-card--new" style="text-decoration:none;">
+                    <div class="card-icon">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+                            <circle cx="16" cy="10" r="3" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="7" cy="24" r="3" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="25" cy="24" r="3" stroke="currentColor" stroke-width="2"/>
+                            <line x1="16" y1="13" x2="7" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <line x1="16" y1="13" x2="25" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <line x1="10" y1="24" x2="22" y2="24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">Knowledge Systems Design</h3>
+                    <p class="card-description">Designing personal and organisational knowledge systems that turn chaotic inputs into durable, navigable insight.</p>
+                    <span class="card-cta">Explore &rarr;</span>
+                </a>
+
+                <a href="/expertise/cognitive-workflows.html" class="expertise-card expertise-card--new" style="text-decoration:none;">
+                    <div class="card-icon">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+                            <rect x="4" y="6" width="8" height="6" rx="1.5" stroke="currentColor" stroke-width="2"/>
+                            <rect x="14" y="13" width="8" height="6" rx="1.5" stroke="currentColor" stroke-width="2"/>
+                            <rect x="20" y="20" width="8" height="6" rx="1.5" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 9H14M14 9V16M14 16H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">Cognitive Workflow Engineering</h3>
+                    <p class="card-description">Building workflows where humans and AI collaborate effectively across research, synthesis, decision-making, and delivery.</p>
+                    <span class="card-cta">Explore &rarr;</span>
+                </a>
+
+                <a href="/expertise/sensemaking.html" class="expertise-card expertise-card--new" style="text-decoration:none;">
+                    <div class="card-icon">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+                            <path d="M16 4C9.4 4 4 9.4 4 16s5.4 12 12 12 12-5.4 12-12S22.6 4 16 4z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M16 10v6l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M10 16h2M20 16h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">Organisational Sensemaking</h3>
+                    <p class="card-description">Structuring how teams frame problems, align mental models, and convert ambiguity into decision-ready narratives.</p>
+                    <span class="card-cta">Explore &rarr;</span>
+                </a>
+
+                <a href="/expertise/ai-decision-support.html" class="expertise-card expertise-card--new" style="text-decoration:none;">
+                    <div class="card-icon">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+                            <path d="M6 26L13 16l5 6 4-8 4 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="24" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
+                            <path d="M24 6v2l1.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">AI-Augmented Strategy</h3>
+                    <p class="card-description">Designing AI-supported decision loops: framing, evidence, options, tradeoffs, and recommendations.</p>
+                    <span class="card-cta">Explore &rarr;</span>
+                </a>
+
             </div>
         </section>
 
