@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concern to Measure | Architecture Practice</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="no-print">
+            <div class="toolbar">
+                <h1>Concern to Measure</h1>
+                <div class="actions">
+                    <button id="clearBtn" class="secondary">Clear Form</button>
+                    <button id="printBtn" class="primary">Export to PDF</button>
+                </div>
+            </div>
+            <p class="intro">Convert stakeholder language into structured concerns, scenarios, and measurable
+                requirement instances.</p>
+        </header>
+
+        <form id="worksheetForm" class="sheet">
+            <section class="doc-header">
+                <div class="title-block">
+                    <h2>Concern to Measure</h2>
+                    <hr class="accent-rule">
+                    <p class="subtitle">Convert stakeholder language into structured concerns, scenarios, and measurable
+                        requirement instances. Follows ISO/IEC/IEEE 42010:2011 and TOGAF / BCS guidance. Allow 10–20
+                        minutes per statement.</p>
+                </div>
+
+                <div class="process-flow">
+                    <div class="step start"><strong>A</strong><span>Raw statement (verbatim)</span></div>
+                    <div class="step"><strong>B</strong><span>Classify concern type</span></div>
+                    <div class="step"><strong>C</strong><span>Reframe as a concern</span></div>
+                    <div class="step"><strong>D</strong><span>Measure (metric + evidence)</span></div>
+                    <div class="step end"><strong>E</strong><span>Requirement instance (SMART)</span></div>
+                </div>
+                <p class="caption">Figure: Raw statement → Classify → Reframe → Measure → Requirement
+                    instance</p>
+            </section>
+
+            <!-- 1. Raw Statement -->
+            <section class="content-section">
+                <header class="section-banner">
+                    <div class="header-with-info">
+                        <h3>1 · Raw Statement</h3>
+                        <div class="info-popout no-print">
+                            <span class="info-icon">i</span>
+                            <div class="popout-content">
+                                <p><strong>Instructions:</strong> Capture the statement verbatim, classify it without
+                                    debating solutions, reframe it neutrally as a concern, then make
+                                    it measurable (a requirement instance + evidence).</p>
+                                <p class="citation">Source: <a
+                                        href="https://cdn.standards.iteh.ai/samples/50508/ec3d9367f48e4b28a7ac8dddaeca5a3f/ISO-IEC-IEEE-42010-2011.pdf"
+                                        target="_blank">ISO-IEC-IEEE-42010-2011</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+                <div class="grid-3-col meta-header">
+                    <div class="field">
+                        <label>Who / role:</label>
+                        <input type="text" name="who_role" placeholder="___________________________">
+                    </div>
+                    <div class="field">
+                        <label>Date:</label>
+                        <input type="date" name="date">
+                    </div>
+                    <div class="field">
+                        <label>System / service:</label>
+                        <input type="text" name="system_service" placeholder="___________________________">
+                    </div>
+                </div>
+
+                <div class="field full-width">
+                    <label>Raw statement (verbatim):</label>
+                    <textarea name="raw_statement" rows="3"></textarea>
+                </div>
+
+                <div class="field full-width">
+                    <label>Context – when / where / which user journey or business scenario:</label>
+                    <textarea name="context" rows="3"></textarea>
+                    <p class="field-note">Include environment assumptions: peak / normal / degraded · locations · user
+                        groups.</p>
+                </div>
+
+                <div class="field full-width">
+                    <label>Impact – what is at risk (harm / cost / delay / compliance / operations):</label>
+                    <textarea name="impact" rows="3"></textarea>
+                </div>
+            </section>
+
+            <!-- 2. Classify -->
+            <section class="content-section">
+                <header class="section-banner">
+                    <div class="header-with-info">
+                        <h3>2 · Classify Concern Type</h3>
+                        <div class="info-popout no-print">
+                            <span class="info-icon">i</span>
+                            <div class="popout-content">
+                                <p><strong>Instructions:</strong> Use the ISO/IEC 25010 product quality characteristics
+                                    as primary labels, and map to BCS NFR terms for concrete discussion. (If you use
+                                    ISO/IEC 25010:2023, characteristics may be revised; verify against your licensed
+                                    copy—this mapping assumes the widely used 2011 model names.)</p>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="classification-grid">
+                    <div class="class-group">
+                        <h4>Functional attributes – what the system must do</h4>
+                        <div class="check-list">
+                            <label><input type="checkbox" name="attr_functional" value="workflow"> Workflow / process
+                                step (create, approve, fulfil, reconcile)</label>
+                            <label><input type="checkbox" name="attr_functional" value="data"> Data capture / validation
+                                / calculations</label>
+                            <label><input type="checkbox" name="attr_functional" value="reporting"> Reporting /
+                                analytics output</label>
+                            <label><input type="checkbox" name="attr_functional" value="integration"> Integration / API
+                                / interface behaviour</label>
+                            <label><input type="checkbox" name="attr_functional" value="roles"> Roles / permissions /
+                                approvals (as a functional need)</label>
+                            <label><input type="checkbox" name="attr_functional" value="notifications"> Notifications /
+                                messaging</label>
+                            <label><input type="checkbox" name="attr_functional" value="search"> Search /
+                                retrieval</label>
+                            <label><input type="checkbox" name="attr_functional" value="audit"> Audit trail as a feature
+                                (who did what, when)</label>
+                            <label><input type="checkbox" name="attr_functional" value="other"> Other: <input
+                                    type="text" name="attr_functional_other" class="inline-input"></label>
+                        </div>
+                    </div>
+
+                    <div class="class-group">
+                        <h4>Quality attributes / NFR types – how well it must do it</h4>
+                        <p class="field-note">(ISO/IEC 25010 primary labels → BCS NFR terms)</p>
+                        <div class="check-list">
+                            <label><input type="checkbox" name="attr_quality" value="performance"> Performance
+                                efficiency → Performance (throughput/response)</label>
+                            <label><input type="checkbox" name="attr_quality" value="reliability"> Reliability →
+                                Availability / reliability / recoverability</label>
+                            <label><input type="checkbox" name="attr_quality" value="security"> Security → Security /
+                                privacy / information assurance</label>
+                            <label><input type="checkbox" name="attr_quality" value="usability"> Usability → Usability /
+                                customer experience (accessibility)</label>
+                            <label><input type="checkbox" name="attr_quality" value="compatibility"> Compatibility →
+                                Interoperability / integratability</label>
+                            <label><input type="checkbox" name="attr_quality" value="maintainability"> Maintainability →
+                                Maintainability / modifiability / evolvability</label>
+                            <label><input type="checkbox" name="attr_quality" value="portability"> Portability →
+                                Portability</label>
+                            <p class="tip">Tip: keep type vs instance clear – e.g. "throughput" as type vs "100 tps" as
+                                instance (Avancier).</p>
+                        </div>
+                    </div>
+
+                    <div class="class-group">
+                        <h4>Planning & governance attributes – constraints, risks, controls</h4>
+                        <div class="check-list">
+                            <label><input type="checkbox" name="attr_gov" value="cost"> Cost / affordability</label>
+                            <label><input type="checkbox" name="attr_gov" value="schedule"> Schedule / deadline /
+                                time-to-market</label>
+                            <label><input type="checkbox" name="attr_gov" value="feasibility"> Feasibility / known
+                                limitations</label>
+                            <label><input type="checkbox" name="attr_gov" value="regulatory"> Regulatory / compliance
+                                constraint</label>
+                            <label><input type="checkbox" name="attr_gov" value="raid"> Risk / assumptions / issues /
+                                dependencies (RAID)</label>
+                            <label><input type="checkbox" name="attr_gov" value="standards"> Standards / policy /
+                                principles constraint</label>
+                            <label><input type="checkbox" name="attr_gov" value="authority"> Decision authority required
+                                (who must sign off)</label>
+                            <label><input type="checkbox" name="attr_gov" value="supplier"> Supplier / contract /
+                                governance control</label>
+                            <label><input type="checkbox" name="attr_gov" value="other"> Other: <input type="text"
+                                    name="attr_gov_other" class="inline-input"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="conflict-check">
+                    <label>Possible conflict (forces)?
+                        <input type="radio" name="conflict" value="yes"> Yes
+                        <input type="radio" name="conflict" value="no"> No
+                    </label>
+                    <div class="field full-width">
+                        <textarea name="conflict_details" rows="1"
+                            placeholder="If yes, name competing concerns (treat as forces rather than personal disagreement)."></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Reframe -->
+            <section class="content-section">
+                <header class="section-banner">
+                    <div class="header-with-info">
+                        <h3>3 · Reframe as a Concern [neutral, actionable]</h3>
+                        <div class="info-popout no-print">
+                            <span class="info-icon">i</span>
+                            <div class="popout-content">
+                                <p><strong>Template:</strong> “Our concern is [topic] so that [stakeholder outcome],
+                                    under [context].”</p>
+                                <p>(ISO 42010 defines concern as a stakeholder interest; TOGAF framing emphasises
+                                    concerns as roots of requirements decomposition.)</p>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+                <p class="field-note">Template: “Our concern is [topic] so that [stakeholder outcome], under [context].”
+                </p>
+                <div class="field full-width">
+                    <textarea name="reframed_concern" rows="3"></textarea>
+                </div>
+            </section>
+
+
+
+            <!-- 4. Measure -->
+            <section class="content-section">
+                <header class="section-banner">
+                    <div class="header-with-info">
+                        <h3>4 · Measure [requirement instance + evidence]</h3>
+                        <div class="info-popout no-print">
+                            <span class="info-icon">i</span>
+                            <div class="popout-content">
+                                <p><strong>Instructions:</strong> BCS defines non-functional requirements as usually
+                                    quantitatively measurable, and links SMART requirements to acceptance tests.</p>
+                                <hr class="thin-rule">
+                                <p><strong>SMART Goals:</strong></p>
+                                <p>• <strong>Specific:</strong> Clearly defined and unambiguous, answering what, why,
+                                    and who.</p>
+                                <p>• <strong>Measurable:</strong> Include concrete criteria for measuring progress to
+                                    know when the goal is achieved.</p>
+                                <p>• <strong>Achievable:</strong> Goals should be realistic and attainable, stretching
+                                    capabilities without causing overwhelm.</p>
+                                <p>• <strong>Relevant:</strong> The goal should align with broader objectives and be
+                                    worthwhile.</p>
+                                <p>• <strong>Time-bound:</strong> Establish a clear deadline or timeframe to create
+                                    urgency.</p>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="field full-width">
+                    <label>Requirement instance (SMART “shall” statement):</label>
+                    <textarea name="shall_statement" rows="2" placeholder="The system shall..."></textarea>
+                </div>
+
+                <div class="grid-2-col">
+                    <div class="field">
+                        <label>Metric(s) & target(s):</label>
+                        <textarea name="metric_targets" rows="2"></textarea>
+                    </div>
+                    <div class="field">
+                        <label>Measurement point:</label>
+                        <textarea name="measure_point" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <div class="grid-2-col">
+                    <div class="field">
+                        <label>Time window / conditions:</label>
+                        <textarea name="time_window" rows="2"></textarea>
+                    </div>
+                    <div class="field">
+                        <label>Ownership & Timing:</label>
+                        <div class="sub-grid">
+                            <input type="text" name="owner" placeholder="Owner">
+                            <input type="text" name="due_gate" placeholder="Due / Gate">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="evidence-block">
+                    <label>Evidence method:</label>
+                    <div class="check-row">
+                        <label><input type="checkbox" name="evidence" value="test"> Test</label>
+                        <label><input type="checkbox" name="evidence" value="monitoring"> Monitoring</label>
+                        <label><input type="checkbox" name="evidence" value="audit"> Audit</label>
+                        <label><input type="checkbox" name="evidence" value="drill"> Drill</label>
+                        <label><input type="checkbox" name="evidence" value="other"> Other: <input type="text"
+                                name="evidence_other" class="inline-input"></label>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="doc-footer">
+                <hr class="thin-rule">
+                <p>References: ISO/IEC/IEEE 42010:2011 · ISO/IEC 25010:2011 · TOGAF® · BCS NFR guide · SEI QAW/ATAM ·
+                    Avancier Ltd.</p>
+            </footer>
+        </form>
+    </div>
+    <script src="app.js"></script>
+</body>
+
+</html>
