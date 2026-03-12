@@ -61,6 +61,52 @@
       "knowsAbout": ["SAP CAR", "SAP S/4 Retail", "AI-Driven Demand Forecasting", "Order to Cash", "Cloud Architecture"]
     }
     </script>
+    <style>
+        /* ===== NAV BAR (Consistent with Home/Booking) ===== */
+        .cv-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-xl);
+            width: 100%;
+            padding: 0 var(--space-md);
+        }
+
+        .nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color var(--transition-base);
+        }
+
+        .nav-link:hover {
+            color: var(--color-text-primary);
+        }
+
+        .nav-label {
+            font-size: 0.875rem;
+            color: var(--color-text-muted);
+            font-weight: 400;
+        }
+
+        /* ===== HEADER ENHANCEMENTS ===== */
+        .cv-eyebrow {
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--color-primary);
+            background: var(--color-primary-soft);
+            padding: 0.35em 0.9em;
+            border-radius: var(--radius-full);
+            margin-bottom: var(--space-md);
+        }
+    </style>
 </head>
 
 <body>
@@ -72,424 +118,452 @@
     </div>
 
     <div class="cv-page-wrap">
-        <a href="/" class="cv-back-home" aria-label="Back to home">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Back to home
-        </a>
+        <nav class="cv-nav" aria-label="Page navigation">
+            <a href="/" class="nav-link" aria-label="Back to home">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                Back to home
+            </a>
+            <span class="nav-label">Curriculum Vitae</span>
+        </nav>
 
         <div class="glass-container">
-        <header class="cv-header">
-            <div class="header-content">
-                <h1 class="name">Jane Petra Scott</h1>
-                <p class="title">Senior SAP Retail Architect & Transformation Lead</p>
+            <header class="cv-header">
+                <div class="header-content">
+                    <span class="cv-eyebrow">Professional Experience</span>
+                    <h1 class="name">Jane Petra Scott</h1>
+                    <p class="title">Senior SAP Retail Architect & Transformation Lead</p>
 
-                <div class="contact-grid">
-                    <div class="contact-item">
-                        <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
-                        <span>Germany</span>
+                    <div class="contact-grid">
+                        <div class="contact-item">
+                            <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+                            <span>Germany</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fa-solid fa-passport" aria-hidden="true"></i>
+                            <span>Blue Card Holder</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fa-solid fa-calendar" aria-hidden="true"></i>
+                            <span>3 Months Notice</span>
+                        </div>
+                        <div class="contact-item full-width">
+                            <i class="fa-solid fa-language" aria-hidden="true"></i>
+                            <span>English (Fluent), Afrikaans (Fluent), German (B1/B2)</span>
+                        </div>
                     </div>
-                    <div class="contact-item">
-                        <i class="fa-solid fa-passport" aria-hidden="true"></i>
-                        <span>Blue Card Holder</span>
-                    </div>
-                    <div class="contact-item">
-                        <i class="fa-solid fa-calendar" aria-hidden="true"></i>
-                        <span>3 Months Notice</span>
-                    </div>
-                    <div class="contact-item full-width">
-                        <i class="fa-solid fa-language" aria-hidden="true"></i>
-                        <span>English (Fluent), Afrikaans (Fluent), German (B1/B2)</span>
+
+                    <div class="action-buttons">
+                        <!-- User: Replace '#' with your actual Google Doc Share URL -->
+                        <a href="https://eu.docworkspace.com/d/cIIuWuZ-_AsmS_csG?utm_source=wps_office_mac&utm_medium=comp_border_bar&utm_content=link"
+                            target="_blank" class="btn btn-primary"
+                            aria-label="Download Jane Petra Scott's CV in Word format (approximately 250 KB)">
+                            <i class="fa-solid fa-file-word" aria-hidden="true"></i> Download Word Doc <span
+                                style="font-size: 0.8em; opacity: 0.8; margin-left: 5px;">(250KB)</span>
+                        </a>
+                        <a href="/booking.html" class="btn btn-secondary"
+                            aria-label="Book a session with Jane Petra Scott (Calendly)">
+                            <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
+                            Book a Session
+                        </a>
+                        <button onclick="window.print()" class="btn btn-secondary"
+                            aria-label="Save Jane Petra Scott's CV as PDF (Generates custom branded PDF)">
+                            <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
+                            Save as PDF <span style="font-size: 0.8em; opacity: 0.8; margin-left: 5px;">(Print)</span>
+                        </button>
                     </div>
                 </div>
+            </header>
 
-                <div class="action-buttons">
-                    <!-- User: Replace '#' with your actual Google Doc Share URL -->
-                    <a href="https://eu.docworkspace.com/d/cIIuWuZ-_AsmS_csG?utm_source=wps_office_mac&utm_medium=comp_border_bar&utm_content=link"
-                        target="_blank" class="btn btn-primary"
-                        aria-label="Download Jane Petra Scott's CV in Word format (approximately 250 KB)">
-                        <i class="fa-solid fa-file-word" aria-hidden="true"></i> Download Word Doc <span
-                            style="font-size: 0.8em; opacity: 0.8; margin-left: 5px;">(250KB)</span>
+            <main class="cv-content" id="main-content">
+                <section class="section summary-section">
+                    <h2>Professional Profile</h2>
+                    <p>
+                        <strong>Senior SAP Retail Architect</strong> and <strong>Digital Transformation Lead</strong>
+                        with a
+                        proven track record of modernizing enterprise systems.
+                        High-value specialist bridging the gap between technical execution and business strategy,
+                        specializing in <strong>SAP CAR</strong>, <strong>S/4 HANA Retail</strong>, and
+                        <strong>AI-Driven
+                            Analytics</strong>.
+                    </p>
+                    <p style="margin-top: 10px;">
+                        Expert in steering complex, global template designs across Europe, USA, and APAC regions.
+                        Combines deep technical expertise in API-first architectures and data modernization with an
+                        entrepreneurial mindset to deliver scalable, compliant, and future-proof solutions.
+                    </p>
+                </section>
+
+                <section class="section skills-section">
+                    <h2>Core Competencies</h2>
+                    <div class="skills-grid">
+                        <div class="skill-tag">SAP CARAB 5.0</div>
+                        <div class="skill-tag">SAP S/4 Retail</div>
+                        <div class="skill-tag">AI-Driven Demand Forecasting (UDF)</div>
+                        <div class="skill-tag">Order to Cash (O2C) Global Template</div>
+                        <div class="skill-tag">Cloud Architecture & APIM</div>
+                        <div class="skill-tag">POSDTA & Real-Time Analytics</div>
+                        <div class="skill-tag">ITIL 4 Strategic Leader</div>
+                        <div class="skill-tag">Agile & Scrum (PSPO I)</div>
+                        <div class="skill-tag">Process Modelling (Signavio)</div>
+                        <div class="skill-tag">Omnichannel Strategy</div>
+                    </div>
+                </section>
+
+                <!-- Architecture Link -->
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="architecture.html" class="btn btn-secondary"
+                        style="display: inline-flex; align-items: center;"
+                        aria-label="View Retail Architecture Transformation Demo">
+                        <i class="fa-solid fa-layer-group" style="margin-right: 8px;" aria-hidden="true"></i> View
+                        Architecture Transformation
+                        Demo
                     </a>
-                    <button onclick="window.print()" class="btn btn-secondary"
-                        aria-label="Save Jane Petra Scott's CV as PDF (Generates custom branded PDF)">
-                        <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
-                        Save as PDF <span style="font-size: 0.8em; opacity: 0.8; margin-left: 5px;">(Print)</span>
-                    </button>
                 </div>
-            </div>
-        </header>
 
-        <main class="cv-content" id="main-content">
-            <section class="section summary-section">
-                <h2>Professional Profile</h2>
-                <p>
-                    <strong>Senior SAP Retail Architect</strong> and <strong>Digital Transformation Lead</strong> with a
-                    proven track record of modernizing enterprise systems.
-                    High-value specialist bridging the gap between technical execution and business strategy,
-                    specializing in <strong>SAP CAR</strong>, <strong>S/4 HANA Retail</strong>, and <strong>AI-Driven
-                        Analytics</strong>.
-                </p>
-                <p style="margin-top: 10px;">
-                    Expert in steering complex, global template designs across Europe, USA, and APAC regions.
-                    Combines deep technical expertise in API-first architectures and data modernization with an
-                    entrepreneurial mindset to deliver scalable, compliant, and future-proof solutions.
-                </p>
-            </section>
+                <section class="section experience-section">
+                    <h2>Work History</h2>
+                    <div class="timeline">
 
-            <section class="section skills-section">
-                <h2>Core Competencies</h2>
-                <div class="skills-grid">
-                    <div class="skill-tag">SAP CARAB 5.0</div>
-                    <div class="skill-tag">SAP S/4 Retail</div>
-                    <div class="skill-tag">AI-Driven Demand Forecasting (UDF)</div>
-                    <div class="skill-tag">Order to Cash (O2C) Global Template</div>
-                    <div class="skill-tag">Cloud Architecture & APIM</div>
-                    <div class="skill-tag">POSDTA & Real-Time Analytics</div>
-                    <div class="skill-tag">ITIL 4 Strategic Leader</div>
-                    <div class="skill-tag">Agile & Scrum (PSPO I)</div>
-                    <div class="skill-tag">Process Modelling (Signavio)</div>
-                    <div class="skill-tag">Omnichannel Strategy</div>
-                </div>
-            </section>
-
-            <!-- Architecture Link -->
-            <div style="text-align: center; margin: 30px 0;">
-                <a href="architecture.html" class="btn btn-secondary" style="display: inline-flex; align-items: center;"
-                    aria-label="View Retail Architecture Transformation Demo">
-                    <i class="fa-solid fa-layer-group" style="margin-right: 8px;" aria-hidden="true"></i> View
-                    Architecture Transformation
-                    Demo
-                </a>
-            </div>
-
-            <section class="section experience-section">
-                <h2>Work History</h2>
-                <div class="timeline">
-
-                    <!-- ALDI DX -->
-                    <div class="timeline-item">
-                        <div class="timeline-line"></div>
-                        <div class="timeline-marker"></div>
-                        <div class="timeline-content">
-                            <div class="role-header">
-                                <h3>Senior Functional Consultant</h3>
-                                <span class="company">ALDI DX (International)</span>
-                                <span class="date">Jul 2023 - Present</span>
+                        <!-- ALDI DX -->
+                        <div class="timeline-item">
+                            <div class="timeline-line"></div>
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <div class="role-header">
+                                    <h3>Senior Functional Consultant</h3>
+                                    <span class="company">ALDI DX (International)</span>
+                                    <span class="date">Jul 2023 - Present</span>
+                                </div>
+                                <p class="description">
+                                    Driving digital transformation for ALDI International by migrating legacy systems to
+                                    a
+                                    unified <strong>SAP S/4 HANA</strong> landscape across Europe, USA, and APAC.
+                                    Responsible for harmonizing regional requirements into a scalable Global Template.
+                                </p>
+                                <div class="projects-list">
+                                    <div class="project-item">
+                                        <strong>Global O2C Template (AHEAD - HOFER):</strong> Team Lead for full
+                                        life-cycle
+                                        implementation of Order-to-Cash template, successfully rolling out
+                                        country-specific
+                                        requirements for South East Europe.
+                                    </div>
+                                    <div class="project-item">
+                                        <strong>API-First Modernization (FIT):</strong> Architected the migration from
+                                        legacy SAP PI (SOAP) to a modern <strong>APIM REST</strong> architecture,
+                                        enabling
+                                        scalable, cloud-native integrations.
+                                    </div>
+                                    <div class="project-item">
+                                        <strong>Process Optimization:</strong> L3/L4 Process Modeller using SAP Signavio
+                                        to
+                                        design and optimize complex O2C workflows.
+                                    </div>
+                                </div>
                             </div>
-                            <p class="description">
-                                Driving digital transformation for ALDI International by migrating legacy systems to a
-                                unified <strong>SAP S/4 HANA</strong> landscape across Europe, USA, and APAC.
-                                Responsible for harmonizing regional requirements into a scalable Global Template.
+                        </div>
+
+                        <!-- Shoprite -->
+                        <div class="timeline-item">
+                            <div class="timeline-line"></div>
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <div class="role-header">
+                                    <h3>Senior Functional Analyst</h3>
+                                    <span class="company">The Shoprite Group</span>
+                                    <span class="date">Nov 2016 - Jul 2023</span>
+                                </div>
+                                <p class="description">
+                                    Led innovations for Africa's largest retailer (2000+ stores), leveraging SAP HANA to
+                                    revolutionize inventory visibility, forecasting, and omnichannel sales.
+                                </p>
+                                <div class="projects-list">
+                                    <div class="project-item">
+                                        <strong>AI-Driven Forecasting (UDF):</strong> Implemented Unified Demand
+                                        Forecast on
+                                        SAP CAR, utilizing real-time sales data to drive predictive inventory planning
+                                        and
+                                        reduce stockouts.
+                                    </div>
+                                    <div class="project-item">
+                                        <strong>Sixty60 (Unified Commerce):</strong> Enabled the award-winning "Sixty60"
+                                        on-demand grocery app by delivering real-time, on-shelf availability data via
+                                        HANA
+                                        analytics.
+                                    </div>
+                                    <div class="project-item">
+                                        <strong>Xtra Savings (Loyalty):</strong> Architected real-time data pipelines to
+                                        SAP
+                                        Hybris, powering hyper-personalized marketing for millions of loyal customers.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Managing Partner -->
+                        <div class="timeline-item">
+                            <div class="timeline-line"></div>
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <div class="role-header">
+                                    <h3>Managing Partner</h3>
+                                    <span class="company">Consulting Business (C'Alliance Consulting)</span>
+                                    <span class="date">2014 - 2016</span>
+                                </div>
+                                <p class="description">
+                                    Founded and operated a specialized SAP consulting firm. Successfully managed full
+                                    P&L,
+                                    business development, and "rapid implementation" delivery models.
+                                    Demonstrated entrepreneurial mindset by navigating complex regulatory frameworks and
+                                    securing Critical Skills Visas.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Datacentrix / Lotterywest -->
+                        <div class="timeline-item">
+                            <div class="timeline-line"></div>
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <div class="role-header">
+                                    <h3>IT Consultant</h3>
+                                    <span class="company">Datacentrix (Lotterywest)</span>
+                                    <span class="date">Nov 2012 - Mar 2014</span>
+                                </div>
+                                <p class="description">
+                                    <strong>Location: Perth, Australia & South Africa.</strong><br>
+                                    Executed a high-compliance migration for Lotterywest (NGO) to SAP Record Management,
+                                    ensuring strict adherence to National Archives directives.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- EOH -->
+                        <div class="timeline-item">
+                            <div class="timeline-line"></div>
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <div class="role-header">
+                                    <h3>IT Consultant</h3>
+                                    <span class="company">EOH</span>
+                                    <span class="date">Feb 2010 - Nov 2012</span>
+                                </div>
+                                <p class="description">
+                                    Delivered critical public sector solutions for the <strong>City of
+                                        Johannesburg</strong>
+                                    (Billing Support) and <strong>City of Cape Town</strong> (Transport Dashboard),
+                                    integrating SAP CRM with diverse external systems.
+                                </p>
+                            </div>
+                        </div>
+                        <!-- Znix -->
+                        <div class="timeline-item">
+                            <div class="timeline-line"></div>
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <div class="role-header">
+                                    <h3>Customer Representative</h3>
+                                    <span class="company">ZNIX Consulting</span>
+                                    <span class="date">Jan 2009 - Jan 2010</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </section> <!-- End Experience Section -->
+
+                <section class="section portfolio-section">
+                    <h2>Detailed Project Portfolio</h2>
+                    <div class="projects-grid">
+
+                        <!-- AHEAD O2C -->
+                        <div class="project-card-detailed">
+                            <div class="project-header-detailed">
+                                <span class="project-title">Global O2C Template (AHEAD)</span>
+                                <span class="project-company">ALDI DX International</span>
+                            </div>
+                            <p class="project-desc">
+                                Led the full life-cycle implementation of a Global Order-to-Cash template. Successfully
+                                rolled out country-specific requirements for South East Europe while maintaining strict
+                                global governance.
                             </p>
-                            <div class="projects-list">
-                                <div class="project-item">
-                                    <strong>Global O2C Template (AHEAD - HOFER):</strong> Team Lead for full life-cycle
-                                    implementation of Order-to-Cash template, successfully rolling out country-specific
-                                    requirements for South East Europe.
-                                </div>
-                                <div class="project-item">
-                                    <strong>API-First Modernization (FIT):</strong> Architected the migration from
-                                    legacy SAP PI (SOAP) to a modern <strong>APIM REST</strong> architecture, enabling
-                                    scalable, cloud-native integrations.
-                                </div>
-                                <div class="project-item">
-                                    <strong>Process Optimization:</strong> L3/L4 Process Modeller using SAP Signavio to
-                                    design and optimize complex O2C workflows.
-                                </div>
+                            <div class="project-tech-stack">
+                                <span class="tech-badge">SAP S/4 Retail</span>
+                                <span class="tech-badge">Order-to-Cash (O2C)</span>
+                                <span class="tech-badge">Global Template Governance</span>
+                                <span class="tech-badge">Team Leadership</span>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Shoprite -->
-                    <div class="timeline-item">
-                        <div class="timeline-line"></div>
-                        <div class="timeline-marker"></div>
-                        <div class="timeline-content">
-                            <div class="role-header">
-                                <h3>Senior Functional Analyst</h3>
-                                <span class="company">The Shoprite Group</span>
-                                <span class="date">Nov 2016 - Jul 2023</span>
+                        <!-- API Modernization -->
+                        <div class="project-card-detailed">
+                            <div class="project-header-detailed">
+                                <span class="project-title">API-First Modernization Strategy</span>
+                                <span class="project-company">ALDI DX International</span>
                             </div>
-                            <p class="description">
-                                Led innovations for Africa's largest retailer (2000+ stores), leveraging SAP HANA to
-                                revolutionize inventory visibility, forecasting, and omnichannel sales.
+                            <p class="project-desc">
+                                Architected and executed the critical migration from legacy SAP Process Integration
+                                (SOAP)
+                                to a modern APIM REST architecture. This reduced interface complexity by 40% and enabled
+                                real-time cloud integrations.
                             </p>
-                            <div class="projects-list">
-                                <div class="project-item">
-                                    <strong>AI-Driven Forecasting (UDF):</strong> Implemented Unified Demand Forecast on
-                                    SAP CAR, utilizing real-time sales data to drive predictive inventory planning and
-                                    reduce stockouts.
-                                </div>
-                                <div class="project-item">
-                                    <strong>Sixty60 (Unified Commerce):</strong> Enabled the award-winning "Sixty60"
-                                    on-demand grocery app by delivering real-time, on-shelf availability data via HANA
-                                    analytics.
-                                </div>
-                                <div class="project-item">
-                                    <strong>Xtra Savings (Loyalty):</strong> Architected real-time data pipelines to SAP
-                                    Hybris, powering hyper-personalized marketing for millions of loyal customers.
-                                </div>
+                            <div class="project-tech-stack">
+                                <span class="tech-badge">SAP BTP</span>
+                                <span class="tech-badge">APIM (API Management)</span>
+                                <span class="tech-badge">REST Architectures</span>
+                                <span class="tech-badge">Cloud Integration</span>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Managing Partner -->
-                    <div class="timeline-item">
-                        <div class="timeline-line"></div>
-                        <div class="timeline-marker"></div>
-                        <div class="timeline-content">
-                            <div class="role-header">
-                                <h3>Managing Partner</h3>
-                                <span class="company">Consulting Business (C'Alliance Consulting)</span>
-                                <span class="date">2014 - 2016</span>
+                        <!-- Sixty60 -->
+                        <div class="project-card-detailed">
+                            <div class="project-header-detailed">
+                                <span class="project-title">Sixty60 Unified Commerce App</span>
+                                <span class="project-company">The Shoprite Group</span>
                             </div>
-                            <p class="description">
-                                Founded and operated a specialized SAP consulting firm. Successfully managed full P&L,
-                                business development, and "rapid implementation" delivery models.
-                                Demonstrated entrepreneurial mindset by navigating complex regulatory frameworks and
-                                securing Critical Skills Visas.
+                            <p class="project-desc">
+                                Enabled the backend architecture for South Africa's #1 grocery app. Delivered real-time
+                                "On-Shelf Availability" and "Sales" data from SAP CAR to the customer facing app,
+                                ensuring
+                                99.5% stock accuracy for online orders.
                             </p>
-                        </div>
-                    </div>
-
-                    <!-- Datacentrix / Lotterywest -->
-                    <div class="timeline-item">
-                        <div class="timeline-line"></div>
-                        <div class="timeline-marker"></div>
-                        <div class="timeline-content">
-                            <div class="role-header">
-                                <h3>IT Consultant</h3>
-                                <span class="company">Datacentrix (Lotterywest)</span>
-                                <span class="date">Nov 2012 - Mar 2014</span>
+                            <div class="project-tech-stack">
+                                <span class="tech-badge">SAP CARAB 5.0</span>
+                                <span class="tech-badge">OAA (Omnichannel Availability)</span>
+                                <span class="tech-badge">Real-Time Analytics</span>
+                                <span class="tech-badge">App Integration</span>
                             </div>
-                            <p class="description">
-                                <strong>Location: Perth, Australia & South Africa.</strong><br>
-                                Executed a high-compliance migration for Lotterywest (NGO) to SAP Record Management,
-                                ensuring strict adherence to National Archives directives.
+                        </div>
+
+                        <!-- AI Forecasting -->
+                        <div class="project-card-detailed">
+                            <div class="project-header-detailed">
+                                <span class="project-title">AI-Driven Demand Forecasting (UDF)</span>
+                                <span class="project-company">The Shoprite Group</span>
+                            </div>
+                            <p class="project-desc">
+                                Implemented Unified Demand Forecast (UDF) on SAP CAR. Utilized machine learning
+                                algorithms
+                                on 2 years of historical sales data to automate replenishment, reducing waste and
+                                out-of-stocks.
                             </p>
-                        </div>
-                    </div>
-
-                    <!-- EOH -->
-                    <div class="timeline-item">
-                        <div class="timeline-line"></div>
-                        <div class="timeline-marker"></div>
-                        <div class="timeline-content">
-                            <div class="role-header">
-                                <h3>IT Consultant</h3>
-                                <span class="company">EOH</span>
-                                <span class="date">Feb 2010 - Nov 2012</span>
+                            <div class="project-tech-stack">
+                                <span class="tech-badge">SAP UDF</span>
+                                <span class="tech-badge">Demand Planning</span>
+                                <span class="tech-badge">AI/ML</span>
+                                <span class="tech-badge">Big Data</span>
                             </div>
-                            <p class="description">
-                                Delivered critical public sector solutions for the <strong>City of Johannesburg</strong>
-                                (Billing Support) and <strong>City of Cape Town</strong> (Transport Dashboard),
-                                integrating SAP CRM with diverse external systems.
+                        </div>
+
+                        <!-- Process Modelling -->
+                        <div class="project-card-detailed">
+                            <div class="project-header-detailed">
+                                <span class="project-title">Process Mining & Modernization</span>
+                                <span class="project-company">ALDI DX International</span>
+                            </div>
+                            <p class="project-desc">
+                                Utilized SAP Signavio to map, analyze, and optimize L3/L4 business processes. Identified
+                                bottlenecks in the Order-to-Cash cycle and implemented automated workflows to resolve
+                                them.
                             </p>
-                        </div>
-                    </div>
-                    <!-- Znix -->
-                    <div class="timeline-item">
-                        <div class="timeline-line"></div>
-                        <div class="timeline-marker"></div>
-                        <div class="timeline-content">
-                            <div class="role-header">
-                                <h3>Customer Representative</h3>
-                                <span class="company">ZNIX Consulting</span>
-                                <span class="date">Jan 2009 - Jan 2010</span>
+                            <div class="project-tech-stack">
+                                <span class="tech-badge">SAP Signavio</span>
+                                <span class="tech-badge">BPMN 2.0</span>
+                                <span class="tech-badge">Process Mining</span>
+                                <span class="tech-badge">Workflow Automation</span>
                             </div>
                         </div>
+
                     </div>
+                </section>
 
-                </div>
-
-            </section> <!-- End Experience Section -->
-
-            <section class="section portfolio-section">
-                <h2>Detailed Project Portfolio</h2>
-                <div class="projects-grid">
-
-                    <!-- AHEAD O2C -->
-                    <div class="project-card-detailed">
-                        <div class="project-header-detailed">
-                            <span class="project-title">Global O2C Template (AHEAD)</span>
-                            <span class="project-company">ALDI DX International</span>
+                <section class="section">
+                    <h2>Education & Accreditations</h2>
+                    <div class="grid-2-col">
+                        <div class="card">
+                            <h3>Certifications</h3>
+                            <ul class="clean-list">
+                                <li><strong>BCS</strong> Foundation Cert. in Architecture Concepts (2026)</li>
+                                <li><strong>ITIL® 4 Leader</strong>: Digital (2025-2028)</li>
+                                <li><strong>ITIL® 4 Strategist</strong>: Direct, Plan & Improve (2025-2028)</li>
+                                <li><strong>PSPO I</strong>: Professional Scrum Product Owner (Feb 2025)</li>
+                                <li><strong>ITIL® 4 Foundation</strong> (2024-2028)</li>
+                                <li><strong>SAP Fiori Overview</strong> (2020)</li>
+                            </ul>
                         </div>
-                        <p class="project-desc">
-                            Led the full life-cycle implementation of a Global Order-to-Cash template. Successfully
-                            rolled out country-specific requirements for South East Europe while maintaining strict
-                            global governance.
-                        </p>
-                        <div class="project-tech-stack">
-                            <span class="tech-badge">SAP S/4 Retail</span>
-                            <span class="tech-badge">Order-to-Cash (O2C)</span>
-                            <span class="tech-badge">Global Template Governance</span>
-                            <span class="tech-badge">Team Leadership</span>
+                        <div class="card">
+                            <h3>Education</h3>
+                            <p class="edu-title">Cyber Security Certificate</p>
+                            <p class="edu-school">F’SATI & CPUT (2018)</p>
                         </div>
                     </div>
+                </section>
 
-                    <!-- API Modernization -->
-                    <div class="project-card-detailed">
-                        <div class="project-header-detailed">
-                            <span class="project-title">API-First Modernization Strategy</span>
-                            <span class="project-company">ALDI DX International</span>
+                <section class="section references-section">
+                    <h2>References</h2>
+                    <div class="references-grid">
+                        <!-- Ravi Mugi -->
+                        <div class="ref-card">
+                            <span class="ref-name">Ravi Mugi</span>
+                            <span class="ref-role">
+                                SAP CAR Functional Consultant | SAP IS-Retail | POS Integration Consultant at Infosys
+                                <br><span
+                                    style="font-size: 0.85em; opacity: 0.8; margin-top: 5px; display: inline-block;">January
+                                    31, 2023</span>
+                            </span>
+                            <a href="https://www.linkedin.com/in/0000japs/details/recommendations/?detailScreenTabIndex=0"
+                                target="_blank" class="ref-link">View Recommendation</a>
                         </div>
-                        <p class="project-desc">
-                            Architected and executed the critical migration from legacy SAP Process Integration (SOAP)
-                            to a modern APIM REST architecture. This reduced interface complexity by 40% and enabled
-                            real-time cloud integrations.
-                        </p>
-                        <div class="project-tech-stack">
-                            <span class="tech-badge">SAP BTP</span>
-                            <span class="tech-badge">APIM (API Management)</span>
-                            <span class="tech-badge">REST Architectures</span>
-                            <span class="tech-badge">Cloud Integration</span>
-                        </div>
-                    </div>
 
-                    <!-- Sixty60 -->
-                    <div class="project-card-detailed">
-                        <div class="project-header-detailed">
-                            <span class="project-title">Sixty60 Unified Commerce App</span>
-                            <span class="project-company">The Shoprite Group</span>
+                        <!-- Haydn Rust -->
+                        <div class="ref-card">
+                            <span class="ref-name">Haydn Rust</span>
+                            <span class="ref-role">
+                                Senior IT Professional (SAP) at ALDI DX
+                                <br><span
+                                    style="font-size: 0.85em; opacity: 0.8; margin-top: 5px; display: inline-block;">January
+                                    17, 2023</span>
+                            </span>
+                            <a href="https://www.linkedin.com/in/0000japs/details/recommendations/?detailScreenTabIndex=0"
+                                target="_blank" class="ref-link">View Recommendation</a>
                         </div>
-                        <p class="project-desc">
-                            Enabled the backend architecture for South Africa's #1 grocery app. Delivered real-time
-                            "On-Shelf Availability" and "Sales" data from SAP CAR to the customer facing app, ensuring
-                            99.5% stock accuracy for online orders.
-                        </p>
-                        <div class="project-tech-stack">
-                            <span class="tech-badge">SAP CARAB 5.0</span>
-                            <span class="tech-badge">OAA (Omnichannel Availability)</span>
-                            <span class="tech-badge">Real-Time Analytics</span>
-                            <span class="tech-badge">App Integration</span>
-                        </div>
-                    </div>
 
-                    <!-- AI Forecasting -->
-                    <div class="project-card-detailed">
-                        <div class="project-header-detailed">
-                            <span class="project-title">AI-Driven Demand Forecasting (UDF)</span>
-                            <span class="project-company">The Shoprite Group</span>
+                        <!-- Arnold Okkenburg -->
+                        <div class="ref-card">
+                            <span class="ref-name">Arnold Okkenburg (PMP)</span>
+                            <span class="ref-role">
+                                Senior Project Manager & PMO Consultant
+                                <br><span
+                                    style="font-size: 0.85em; opacity: 0.8; margin-top: 5px; display: inline-block;">January
+                                    5, 2023</span>
+                            </span>
+                            <a href="https://www.linkedin.com/in/0000japs/details/recommendations/?detailScreenTabIndex=0"
+                                target="_blank" class="ref-link">View Recommendation</a>
                         </div>
-                        <p class="project-desc">
-                            Implemented Unified Demand Forecast (UDF) on SAP CAR. Utilized machine learning algorithms
-                            on 2 years of historical sales data to automate replenishment, reducing waste and
-                            out-of-stocks.
-                        </p>
-                        <div class="project-tech-stack">
-                            <span class="tech-badge">SAP UDF</span>
-                            <span class="tech-badge">Demand Planning</span>
-                            <span class="tech-badge">AI/ML</span>
-                            <span class="tech-badge">Big Data</span>
-                        </div>
-                    </div>
 
-                    <!-- Process Modelling -->
-                    <div class="project-card-detailed">
-                        <div class="project-header-detailed">
-                            <span class="project-title">Process Mining & Modernization</span>
-                            <span class="project-company">ALDI DX International</span>
-                        </div>
-                        <p class="project-desc">
-                            Utilized SAP Signavio to map, analyze, and optimize L3/L4 business processes. Identified
-                            bottlenecks in the Order-to-Cash cycle and implemented automated workflows to resolve them.
-                        </p>
-                        <div class="project-tech-stack">
-                            <span class="tech-badge">SAP Signavio</span>
-                            <span class="tech-badge">BPMN 2.0</span>
-                            <span class="tech-badge">Process Mining</span>
-                            <span class="tech-badge">Workflow Automation</span>
+                        <!-- Henk Brand -->
+                        <div class="ref-card">
+                            <span class="ref-name">Henk Brand</span>
+                            <span class="ref-role">
+                                Program Manager / Delivery Manager at The Shoprite Group
+                                <br><span
+                                    style="font-size: 0.85em; opacity: 0.8; margin-top: 5px; display: inline-block;">October
+                                    7, 2022</span>
+                            </span>
+                            <a href="https://www.linkedin.com/in/0000japs/details/recommendations/?detailScreenTabIndex=0"
+                                target="_blank" class="ref-link">View Recommendation</a>
                         </div>
                     </div>
+                </section>
+            </main>
 
-                </div>
-            </section>
-
-            <section class="section">
-                <h2>Education & Accreditations</h2>
-                <div class="grid-2-col">
-                    <div class="card">
-                        <h3>Certifications</h3>
-                        <ul class="clean-list">
-                            <li><strong>BCS</strong> Foundation Cert. in Architecture Concepts (2026)</li>
-                            <li><strong>ITIL® 4 Leader</strong>: Digital (2025-2028)</li>
-                            <li><strong>ITIL® 4 Strategist</strong>: Direct, Plan & Improve (2025-2028)</li>
-                            <li><strong>PSPO I</strong>: Professional Scrum Product Owner (Feb 2025)</li>
-                            <li><strong>ITIL® 4 Foundation</strong> (2024-2028)</li>
-                            <li><strong>SAP Fiori Overview</strong> (2020)</li>
-                        </ul>
-                    </div>
-                    <div class="card">
-                        <h3>Education</h3>
-                        <p class="edu-title">Cyber Security Certificate</p>
-                        <p class="edu-school">F’SATI & CPUT (2018)</p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="section references-section">
-                <h2>References</h2>
-                <div class="references-grid">
-                    <!-- Ravi Mugi -->
-                    <div class="ref-card">
-                        <span class="ref-name">Ravi Mugi</span>
-                        <span class="ref-role">
-                            SAP CAR Functional Consultant | SAP IS-Retail | POS Integration Consultant at Infosys
-                            <br><span
-                                style="font-size: 0.85em; opacity: 0.8; margin-top: 5px; display: inline-block;">January
-                                31, 2023</span>
-                        </span>
-                        <a href="https://www.linkedin.com/in/0000japs/details/recommendations/?detailScreenTabIndex=0"
-                            target="_blank" class="ref-link">View Recommendation</a>
-                    </div>
-
-                    <!-- Haydn Rust -->
-                    <div class="ref-card">
-                        <span class="ref-name">Haydn Rust</span>
-                        <span class="ref-role">
-                            Senior IT Professional (SAP) at ALDI DX
-                            <br><span
-                                style="font-size: 0.85em; opacity: 0.8; margin-top: 5px; display: inline-block;">January
-                                17, 2023</span>
-                        </span>
-                        <a href="https://www.linkedin.com/in/0000japs/details/recommendations/?detailScreenTabIndex=0"
-                            target="_blank" class="ref-link">View Recommendation</a>
-                    </div>
-
-                    <!-- Arnold Okkenburg -->
-                    <div class="ref-card">
-                        <span class="ref-name">Arnold Okkenburg (PMP)</span>
-                        <span class="ref-role">
-                            Senior Project Manager & PMO Consultant
-                            <br><span
-                                style="font-size: 0.85em; opacity: 0.8; margin-top: 5px; display: inline-block;">January
-                                5, 2023</span>
-                        </span>
-                        <a href="https://www.linkedin.com/in/0000japs/details/recommendations/?detailScreenTabIndex=0"
-                            target="_blank" class="ref-link">View Recommendation</a>
-                    </div>
-
-                    <!-- Henk Brand -->
-                    <div class="ref-card">
-                        <span class="ref-name">Henk Brand</span>
-                        <span class="ref-role">
-                            Program Manager / Delivery Manager at The Shoprite Group
-                            <br><span
-                                style="font-size: 0.85em; opacity: 0.8; margin-top: 5px; display: inline-block;">October
-                                7, 2022</span>
-                        </span>
-                        <a href="https://www.linkedin.com/in/0000japs/details/recommendations/?detailScreenTabIndex=0"
-                            target="_blank" class="ref-link">View Recommendation</a>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <footer class="cv-footer">
-            <p>Curriculum Vitae &copy; 2026 Jane Petra Scott</p>
-        </footer>
+            <footer class="cv-footer">
+                <p>Curriculum Vitae &copy; 2026 Jane Petra Scott</p>
+            </footer>
         </div>
     </div>
 
