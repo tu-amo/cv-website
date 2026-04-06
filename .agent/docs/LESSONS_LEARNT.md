@@ -163,6 +163,77 @@ export const supabaseAdmin = new Proxy({}, { get(_, prop) { return getInstance()
 
 ---
 
+
+---
+
+### LL-025 · Supabase Email Templates Bypass /auth/callback by Default
+**Date:** 2026-04-06
+**Type:** 🐛 Bug (auth) — ✅ Resolved
+**Symptom:** User clicks magic link or verification email, arrives on the site but is NOT logged in. They see the public page and get redirected to /login. No error is shown.
+**Root Cause:** Supabase's default email templates use `{{ .ConfirmationURL }}` which routes through Supabase's own servers and redirects to the bare Site URL (`https://app.com`). The session tokens arrive as URL hash fragments (`#access_token=...`) which Next.js SSR cannot read server-side — the session exchange never happens.
+**Solution:** Update all three Supabase email templates (Confirm Signup, Magic Link, Reset Password) to use direct `/auth/callback` links:
+```
+{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=email
+{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=magiclink
+{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=recovery
+```
+The `/auth/callback` route handles `token_hash + type` correctly via `supabase.auth.verifyOtp()`.
+**Pattern:** Supabase email templates must be customised to route through your app's auth callback. Never rely on the default `{{ .ConfirmationURL }}` in an SSR Next.js app.
+
+---
+
+### LL-026 · Supabase Built-in Email Service Has a 3-Email/Hour Rate Limit
+**Date:** 2026-04-06
+**Type:** 🐛 Bug (operations) — ✅ Resolved
+**Symptom:** User tries to reset password; Supabase returns `email rate limit exceeded`. User never receives verification, magic link, or reset emails. No error in the app — just silent nothing in the user's inbox.
+**Root Cause:** Supabase's free-tier built-in email service caps at **3 emails per hour per project** across all users. In a real incident: signup verification + magic link + password reset = quota exhausted. The error only surfaces if you check Supabase Auth Logs or actually call the API and read the response.
+**Solution:** Replace Supabase's built-in mailer with a proper SMTP provider (Resend). One-time setup; zero rate limits on 3,000 emails/month free tier.
+**Emergency bypass:** When rate-limited and a user is stuck, set their password directly via the Supabase admin REST API — no email required:
+```bash
+curl -X PATCH "https://[project].supabase.co/auth/v1/admin/users/[user-uuid]" \
+  -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"password": "TempPass999!"}'
+```
+**Pattern:** Never ship a production app on Supabase's built-in email service. Configure a real SMTP provider on day one.
+
+---
+
+### LL-027 · Resend SMTP Setup with Cloudflare DNS
+**Date:** 2026-04-06
+**Type:** 💡 Pattern
+**Context:** Setting up transactional email for a production app via Resend + Cloudflare DNS + Supabase SMTP.
+**Steps:**
+1. Create Resend account → Add domain → Resend provides 3 DNS records (DKIM TXT, MX, SPF TXT)
+2. In Cloudflare: DNS → Records → Add each record with **Proxy = DNS only (grey cloud)** — email records CANNOT be proxied
+3. Cloudflare propagates in <5 minutes (much faster than other registrars)
+4. Resend: API Keys → Create with "Sending access" permission
+5. Supabase: Project Settings → Auth → SMTP Settings → Host: `smtp.resend.com`, Port: `465`, Username: `resend`, Password: `re_...`
+**Gotcha:** Set Proxy to DNS only on ALL email records. If orange cloud (proxied) is left on, domain verification fails silently.
+**Gotcha:** API keys are shown only once in Resend. Paste directly into the Supabase SMTP password field before doing anything else.
+**Free tier:** 3,000 emails/month, 100/day. More than sufficient for a small household app.
+
+---
+
+### LL-028 · Magic Link Users Have No Password
+**Date:** 2026-04-06
+**Type:** 💡 Pattern
+**Symptom:** User logged in via magic link. Later tries to log in normally or follow a household invite link — gets redirected to /login. They have no password to enter. Password reset email may not arrive (LL-026). They are stuck.
+**Root Cause:** Supabase magic links authenticate a user without setting a password. The user account is valid but passwordless. If the session expires and no SMTP is configured, recovery is very difficult.
+**Solution:** After a user logs in via magic link, direct them immediately to `/login/reset-password` to set a permanent password. The page calls `supabase.auth.updateUser({ password })` which works for any authenticated session — no recovery token required.
+**Pattern:** The `/login/reset-password` page works for ANY logged-in user, not just those who came via a recovery email link. This is the universal "set password" screen.
+**Prevention:** In the welcome/onboarding flow for any new user, add a visible prompt: "Set a password to avoid needing a magic link each time".
+
+---
+
+### LL-029 · Supabase Site URL Default Points to localhost
+**Date:** 2026-04-06
+**Type:** 🐛 Bug (configuration) — ✅ Resolved
+**Symptom:** Production users receive auth emails whose links point to `http://localhost:3000` instead of the live site. Clicking the link either times out or opens the developer's machine (if it happens to be running).
+**Root Cause:** Supabase's default Site URL is `http://localhost:3000` — set during initial project creation. It is never automatically updated when you deploy to production.
+**Solution:** Supabase Dashboard → Authentication → URL Configuration → Site URL → set to the production URL (e.g. `https://your-app.vercel.app`). Also add both URLs to the Redirect URLs allow list with `/**` wildcard.
+**Prevention:** Add Supabase URL Configuration to the production launch checklist. This must be set before any user attempts to verify their email.
+
 ## Patterns & Anti-Patterns Emerging
 
 | Pattern | Anti-Pattern |
@@ -176,6 +247,60 @@ export const supabaseAdmin = new Proxy({}, { get(_, prop) { return getInstance()
 | **Run `git status` before every deploy** | Assuming local dev server = committed code |
 | Init Supabase admin client lazily (Proxy / factory) | Calling `createClient()` at module top-level with runtime-only secrets |
 | Check `git status --short` as Step 0 of every production deploy | Merging to main without confirming working tree is clean |
+| Customise Supabase email templates to use `/auth/callback?token_hash=...` | Using default `{{ .ConfirmationURL }}` in SSR Next.js apps |
+| Configure real SMTP (Resend) before first real user | Relying on Supabase built-in email (3/hour rate limit) |
+| Direct magic link users to `/login/reset-password` to set a password | Leaving passwordless users with no recovery path |
+| Set Supabase Site URL to production domain before launch | Leaving default `http://localhost:3000` in production |
+
+---
+
+### LL-030 · Schema Snapshot FK Ordering
+**Date:** 2026-04-06  
+**Type:** 🐛 Bug  
+**Symptom:** Running `schema_snapshot.sql` on a fresh Supabase project failed with `relation "groups" does not exist` — the `recipes` table references `groups(id)` but `groups` was defined later in the file.  
+**Root Cause:** The schema snapshot was documented in a different order than the original tables were created (they were created gradually in the dashboard, so there was no FK ordering constraint at the time).  
+**Solution:** Created `supabase/staging_setup.sql` with tables in strict dependency order: `groups` → `profiles` → `recipes` → child tables.  
+**Prevention:** Any new setup SQL file must be tested against a blank project before being committed. FK ordering: create referenced tables first.
+
+---
+
+### LL-031 · Supabase Table Editor Creates BIGINT IDs by Default
+**Date:** 2026-04-06  
+**Type:** 🐛 Bug  
+**Symptom:** Schema snapshot documented `recipes.id`, `recipe_ingredients.id` etc. as `UUID` — but real production columns are `BIGINT`. Every attempt to insert UUID-keyed data into staging failed with `invalid input syntax for type uuid: "989"`.  
+**Root Cause:** Supabase's table editor (UI-based table creation) defaults to `bigint GENERATED ALWAYS AS IDENTITY` for primary keys. The schema snapshot was written by inspection rather than `pg_dump`, so the type was incorrectly inferred as UUID.  
+**Solution:** Updated `staging_setup.sql` with `BIGINT GENERATED ALWAYS AS IDENTITY` for `recipes` and all FK columns referencing it. Seed script remaps IDs via prod→staging Map.  
+**Prevention:** Run `SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'X'` in production to get the true types before documenting schema.
+
+---
+
+### LL-032 · supabase Client Has No Session at Signup Time
+**Date:** 2026-04-06  
+**Type:** 🐛 Bug  
+**Symptom:** Sign-up correctly collected `display_name` and attempted to `upsert` it to `profiles` — but the profiles table was always empty for new users. No error was thrown.  
+**Root Cause:** The regular `supabase` client uses the current session cookie. At sign-up time, the user has not confirmed their email yet — so there is no session. The `profiles_insert` RLS policy (`WITH CHECK (id = auth.uid())`) compares against `auth.uid()` which evaluates to `null` → silent rejection.  
+**Solution:** Use `supabaseAdmin` (service role) for the profile `upsert` immediately after `signUp()`. The `id` comes from `signUpData.user.id` (Supabase-generated, never user-supplied), so bypassing RLS is safe here.  
+**Prevention:** Any DB write at signup time that targets an RLS-protected table must use the admin client. Use auth `options.data` to also store the name in user metadata as a belt-and-suspenders fallback.
+
+---
+
+### LL-033 · PostgREST Schema Cache Doesn’t Auto-Refresh After Schema Changes
+**Date:** 2026-04-06  
+**Type:** 🐛 Bug  
+**Symptom:** After dropping and recreating the `ingredients` table and adding a FK back, the app threw `"Could not find a relationship between 'recipe_ingredients' and 'ingredients' in the schema cache"`.  
+**Root Cause:** PostgREST pre-loads the DB schema at startup and caches it. DDL changes (DROP TABLE, ALTER TABLE ADD CONSTRAINT) are not reflected until the cache is reloaded.  
+**Solution:** Run `NOTIFY pgrst, 'reload schema';` in the Supabase SQL Editor, or trigger via Supabase Dashboard → API → Reload.  
+**Prevention:** After any schema change (migration, staging setup, manual ALTER), reload the PostgREST schema cache before testing the app.
+
+---
+
+### LL-034 · Seed Script Must Be Idempotency-Guarded
+**Date:** 2026-04-06  
+**Type:** 💡 Pattern  
+**Symptom:** Seed script was run twice (second run followed a failed first run that had already inserted recipes). Resulted in 12 recipes (6 with ingredients, 6 without) — a partially-seeded state that was harder to recover from than an empty database.  
+**Root Cause:** First run failed mid-way (after inserting recipes but before recipe_ingredients). Second run inserted 6 more recipes. Deleting the duplicate set left orphaned recipe rows with no child data.  
+**Solution:** Added a pre-flight check at the top of the seed script: if `recipes` table has any rows, abort with an instructions message to `DELETE FROM recipes` first. Also: fix schema BEFORE running seed — don't iterate on schema and seed simultaneously.  
+**Prevention:** All seed scripts must: (1) check for existing data and abort or truncate first; (2) be idempotent via `ON CONFLICT DO NOTHING` or explicit truncate+reseed pattern.
 
 ---
 
@@ -183,7 +308,8 @@ export const supabaseAdmin = new Proxy({}, { get(_, prop) { return getInstance()
 
 | Skill | Source Entries | Covers |
 |---|---|---|
-| `supabase-rls-patterns` | LL-001, 002, 015 | SECURITY DEFINER, audit queries, cleaning legacy policies |
-| `nextjs-supabase-auth` | LL-003, 007, 012, 023 | SSR client, `usePathname` auth tracking, email OTP callback, lazy admin client |
+| `supabase-rls-patterns` | LL-001, 002, 015, 032 | SECURITY DEFINER, audit queries, cleaning legacy policies, signup-time RLS bypass |
+| `nextjs-supabase-auth` | LL-003, 007, 012, 023, 025, 028, 029 | SSR client, `usePathname` auth tracking, email OTP callback, lazy admin client, email template fix, magic link password, site URL config |
 | `food-photo-display` | LL-006, 016 | Aspect ratio strategy, object-fit contain vs cover, future research goals |
 | `vercel-deployment-checklist` | LL-020, 022, 023 | Pre-flight git status, eager init crash, env var availability at build time |
+| `supabase-staging-setup` | LL-030, 031, 033, 034 | Schema ordering, bigint vs UUID IDs, PostgREST cache reload, idempotent seeds |
