@@ -2,8 +2,8 @@
 name: nextjs-supabase-auth
 version: 2.0.0
 description: "Production-grade Supabase Auth integration with Next.js App Router. Covers SSR client setup, middleware, auth callback (both email OTP and PKCE), persistent layout auth tracking, profiles table, password reset, and invite link flows. Use when: supabase auth next.js, login supabase, auth middleware, protected routes, email confirmation, forgot password, invite link, display name."
-source: living-cookbook project (tu-amo) — distilled from LESSONS_LEARNT.md LL-003, LL-007, LL-008, LL-012, LL-013
-supersedes: nextjs-supabase-auth v1 (global)
+source: living-cookbook project (tu-amo) — distilled from LESSONS_LEARNT.md LL-003, LL-007, LL-008, LL-012, LL-013, LL-032
+supersedes: nextjs-supabase-auth v2.0.0
 ---
 
 # Next.js + Supabase Auth — v2
@@ -231,9 +231,17 @@ export async function signup(formData) {
   })
   if (error) redirect(`/login?error=${encodeURIComponent(error.message)}`)
 
-  // Save display name immediately — the DB trigger sets a fallback from email
+  // ⚠️ IMPORTANT: Use supabaseAdmin for the profile upsert, NOT the session client.
+  // supabase.auth.signUp() does NOT issue a session before email confirmation.
+  // Without a session, auth.uid() returns null and any RLS-protected INSERT
+  // on profiles is silently rejected. The user.id is safe — it comes from
+  // Supabase's own signUp() response, not user-supplied. (LL-032, ADR-014)
   if (data?.user && displayName) {
-    await supabase.from('profiles').upsert({ id: data.user.id, display_name: displayName })
+    const { supabaseAdmin } = await import('@/lib/supabase/admin')
+    await supabaseAdmin.from('profiles').upsert(
+      { id: data.user.id, display_name: displayName },
+      { onConflict: 'id' }
+    )
   }
 
   // ← Don't redirect to /. User must confirm email first.
@@ -328,15 +336,21 @@ For household/org invite systems:
 | `.update()` on a row that may not exist | Always use `.upsert()` for profile writes |
 | Trigger INSERT blocked by RLS (`auth.uid()` is NULL in trigger context) | Wrap trigger body in `EXCEPTION WHEN OTHERS` — never let a trigger block signup |
 | Dropping an INSERT policy to fix a trigger | Drop + re-add after making trigger exception-safe; audit all dependants of any policy change |
-| **⚠️ Middleware file named `proxy.js`, `handler.js`, or anything other than `middleware.js`** | **MUST be `src/middleware.js` with `export function middleware`. Next.js will silently ignore any other filename. Sessions will NOT refresh, routes will NOT be protected — no error is thrown. This was discovered in production (v4.0.0 session) where `proxy.js` was silently skipped for the entire feature branch lifecycle.** |
+| **⚠️ Middleware file named `proxy.js`, `handler.js`, or anything other than `middleware.js`** | **MUST be `src/middleware.js` with `export function middleware`. Next.js will silently ignore any other filename. Sessions will NOT refresh, routes will NOT be protected — no error is thrown.** |
+| **⚠️ Using default `{{ .ConfirmationURL }}` in Supabase email templates** | **Redirects to bare Site URL; tokens arrive as hash fragments that SSR cannot read. Use `{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=[TYPE]` in all three templates (LL-025)** |
+| **⚠️ Relying on Supabase built-in email service for production** | **3 emails/hour rate limit. Use Resend (or any real SMTP provider) from day one. Rate limit causes silent delivery failure with no app-side error (LL-026)** |
+| Magic link user has no path to set a password | After magic link login, direct user to `/login/reset-password` — `supabase.auth.updateUser({ password })` works for any authenticated session, no recovery token required (LL-028) |
+| **⚠️ Profile upsert in signup using the session client** | **`supabase.auth.signUp()` does NOT issue a session before email confirmation. `auth.uid()` returns null; the INSERT is silently rejected by RLS. Use `supabaseAdmin` with the user ID from `signUpData.user.id` (LL-032, ADR-014)** |
 
 ---
 
 ## Supabase Dashboard Checklist
 
-- [x] Site URL set correctly (dev: `http://localhost:3000`)
+- [x] Site URL set correctly — **must be the production URL before first real user** (`http://localhost:3000` is the Supabase default — update it on launch day; LL-029)
 - [x] Redirect URLs include both `http://localhost:3000/**` and production URL
 - [x] Email confirmation enabled in Auth settings
 - [x] `profiles` table created with trigger and RLS policies
 - [x] `get_my_group_ids()` SECURITY DEFINER function active
-- [ ] **Email template branded** — Supabase Dashboard → Authentication → Email Templates → Confirm signup *(pending — do before production launch)*
+- [x] **Email templates updated** — ALL THREE templates (Confirm Signup, Magic Link, Reset Password) must use `{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=[TYPE]` NOT the default `{{ .ConfirmationURL }}` (LL-025)
+- [x] **Custom SMTP configured** — Supabase built-in email has a 3/hour rate limit. Configure Resend or equivalent before any real users attempt signup (LL-026)
+- [ ] **Email template branded** — update copy and styling in Supabase Dashboard → Authentication → Email Templates

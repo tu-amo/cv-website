@@ -3,7 +3,7 @@ description: how to publish / deploy the site to production
 ---
 
 # 🚀 Publishing Workflow
-**Last Reviewed:** 2026-04-05
+**Last Reviewed:** 2026-04-07
 
 > ⚠️ **Production deploys only happen via merge from `feature/collab-kitchen-v2` → `main`.** Never push changes directly to `main`.
 
@@ -50,6 +50,18 @@ If either command shows changes → **stop, commit them first.**
 1. Confirm checklist in `/regression` Step 4 is fully checked
 2. Update `CHANGELOG.md` — move `[Unreleased]` to a version number
 3. Verify Vercel environment variables are set (see below)
+
+### Step 1.5 — Apply pending SQL migrations to production
+
+> ⚠️ **Critical.** Every migration in `supabase/migrations/` committed since the last production deploy must be applied to **production** before `git push origin main`. Pushing code that depends on a schema change without syncing production first causes silent data blackouts (LL-033).
+
+1. Check which migrations are new since the last deploy:
+   ```bash
+   git log --oneline --diff-filter=A -- supabase/migrations/ origin/main..HEAD
+   ```
+2. For each new migration file, run its SQL in the [Production SQL Editor](https://supabase.com/dashboard/project/hiuhjnodzodcgwltweoc/sql)
+3. Verify with the RLS audit query from `/db-migration` Step 2
+4. Only then proceed to Step 2
 
 ### Step 2 — Merge and push
 ```bash

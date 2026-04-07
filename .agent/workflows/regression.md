@@ -3,7 +3,7 @@ description: Automated Regression Suite + Production Deployment
 ---
 
 # Grandmaster Regression & Deployment Workflow v4.0
-**Last Reviewed:** 2026-04-04
+**Last Reviewed:** 2026-04-07
 
 This workflow validates all logical, visual, and security layers of the Living Cookbook before production deployment. **Must pass 100% before any `git push`.**
 
@@ -13,12 +13,18 @@ This workflow validates all logical, visual, and security layers of the Living C
 
 Before running anything, confirm the live database is in sync:
 
+> ⚠️ `localhost:3000` runs against **staging** (`hbgxotjjpapdqlqrofqz` / living-cookbook-dev).
+> Confirm any schema changes needed for the regression have been applied to staging.
+> After a production deploy (Step 4), also confirm production has the same schema.
+
 - [ ] `is_public` column exists on `recipes`
 - [ ] `updated_by` column exists on `recipes`
 - [ ] `recipes_updated_by_fkey` FK constraint is active
 - [ ] `"Anyone can see public recipes"` RLS policy is active
+- [ ] `nutrition_flags` table exists with `auth_insert_nutrition_flags` policy
+- [ ] `auth_insert_ingredients` INSERT policy exists on `ingredients` table
 
-Run this in Supabase SQL Editor to confirm:
+Run this in the [Staging SQL Editor](https://supabase.com/dashboard/project/hbgxotjjpapdqlqrofqz/sql) to confirm:
 ```sql
 SELECT column_name FROM information_schema.columns
 WHERE table_name = 'recipes' AND column_name IN ('is_public', 'updated_by');
@@ -149,3 +155,4 @@ Check the live Vercel URL:
 - [ ] Public recipe at `/public/recipe/[id]` loads without login on production
 - [ ] Images load from live Supabase storage (signed URLs, not expired)
 - [ ] Login and household sharing functional on production
+- [ ] Confirm production Supabase schema matches staging: run the drift query from Pre-Flight in the [Production SQL Editor](https://supabase.com/dashboard/project/hiuhjnodzodcgwltweoc/sql) and compare
