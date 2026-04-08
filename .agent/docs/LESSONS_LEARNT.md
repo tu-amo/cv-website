@@ -313,3 +313,137 @@ curl -X PATCH "https://[project].supabase.co/auth/v1/admin/users/[user-uuid]" \
 | `food-photo-display` | LL-006, 016 | Aspect ratio strategy, object-fit contain vs cover, future research goals |
 | `vercel-deployment-checklist` | LL-020, 022, 023 | Pre-flight git status, eager init crash, env var availability at build time |
 | `supabase-staging-setup` | LL-030, 031, 033, 034 | Schema ordering, bigint vs UUID IDs, PostgREST cache reload, idempotent seeds |
+| `recipe-seed-data` | LL-031, 035, 036, 037 | Correct column names, bigint ids, ingredient_id=null pattern, DO block debugging |
+
+---
+
+### LL-035 · recipe_ingredients Uses bigint FKs, Not UUID (2026-04-07)
+**Date:** 2026-04-07
+**Type:** 🐛 Bug (schema) — ✅ Resolved
+**Symptom:** Seed SQL declared `r1 uuid` to capture `RETURNING id` from recipes, causing FK type mismatch when passed to `recipe_ingredients.recipe_id`.
+**Root Cause:** As documented in LL-031, `recipes.id` is `bigint`, and so are all FK columns referencing it in child tables. The schema_snapshot still incorrectly shows these as UUID.
+**Canonical column types (verified 2026-04-07):**
+- `recipes.id` → `bigint` (identity)
+- `recipe_ingredients.recipe_id` → `bigint` nullable
+- `recipe_ingredients.ingredient_id` → `bigint` nullable
+- `instruction_steps.recipe_id` → `bigint` nullable
+- `instruction_steps.instruction_text` → `text` (NOT `instruction`)
+
+---
+
+### LL-036 · Seeding Recipes — Skip ingredient_id, Use display_name (2026-04-07)
+**Date:** 2026-04-07
+**Type:** 💡 Pattern — ✅ Established
+**Context:** Seeding recipes via SQL without knowing `ingredients.id` values.
+**Solution:** `recipe_ingredients.ingredient_id` is nullable. The app renders ingredients from `display_name` alone. Skip the catalog JOIN entirely — avoids type mismatches and constraint errors.
+```sql
+INSERT INTO recipe_ingredients (recipe_id, quantity, unit, sort_order, display_name) VALUES
+(r1, 400, 'g', 1, 'Flour'),   -- ingredient_id omitted (NULL)
+(r1, 2, 'tsp', 2, 'Salt');
+```
+**Template:** `supabase/seeds/recipe_seed_template.sql`
+
+---
+
+### LL-037 · DO Block Silent Rollback With No Visible Error (2026-04-07)
+**Date:** 2026-04-07
+**Type:** 🐛 Bug (debugging) — ✅ Resolved
+**Symptom:** `DO $$` block showed "Success" in the SQL editor but no rows appeared in the table.
+**Root Cause:** A type mismatch inside the block triggered a rollback. The Supabase SQL editor sometimes swallows mid-block errors and shows "Success" for the outer `DO` statement.
+**Debug Method:** Run the failing INSERT outside the DO block as a bare statement to surface the real error.
+**Prevention:** Always run `SELECT ... ORDER BY created_at DESC LIMIT 5` immediately after to confirm rows were actually committed.
+
+---
+
+### LL-038 · Null User Guard in Auth Mutation Handlers (2026-04-07)
+**Date:** 2026-04-07
+**Type:** 🐛 Bug — ✅ Resolved
+**Symptom:** `Cannot read properties of null (reading 'id')` at `user.id` immediately after a successful Supabase write (creating a second group right after the first).
+**Root Cause:** `supabase.auth.getUser()` returned `{ user: null }` during a brief network hiccup. No guard existed before accessing `user.id`.
+**Rule:** Every async mutation handler that calls `getUser()` must null-check before using `user.id`:
+```js
+const { data: { user }, error: authError } = await supabase.auth.getUser();
+if (authError || !user) { setError("Session unavailable — please refresh."); return; }
+```
+Apply to: createGroup, joinGroup, leaveGroup, and any future mutation handler.
+
+---
+
+### LL-039 · recipe_ingredients Actual Columns (No row_type, No preparation_note) (2026-04-07)
+**Date:** 2026-04-07
+**Type:** 🐛 Bug (schema drift) — ✅ Resolved
+**Symptom:** Editing any recipe threw `Could not find the 'preparation_note' column` on every ingredient save.
+**Root Cause:** `add/page.js` used `preparation_note` and `row_type` in its INSERT, but neither column exists. The actual columns are `preparation` and `section`.
+**Verified columns for recipe_ingredients (2026-04-07):**
+
+| Column | Type |
+|---|---|
+| `id` | uuid |
+| `recipe_id` | bigint |
+| `display_name` | text |
+| `quantity` | numeric |
+| `unit` | text |
+| `preparation` | text |
+| `section` | text |
+| `sort_order` | integer |
+| `ingredient_id` | bigint |
+
+**Pattern for section headers:** No `row_type` column exists. Section headers are saved as ingredient rows with `section = '__header__'`. Regular ingredient rows inherit the `section` label of their nearest preceding header.
+
+---
+
+### LL-040 · PostgREST .neq() Excludes NULL Rows (2026-04-07)
+**Date:** 2026-04-07
+**Type:** 🐛 Bug (data) — ✅ Resolved
+**Symptom:** Stock check page showed "No ingredients found" for all seeded recipes despite the rows existing in the DB.
+**Root Cause:** PostgREST `.neq("section", "__header__")` translates to SQL `WHERE section != '__header__'`. In SQL, `NULL != '__header__'` evaluates to `NULL` (not `TRUE`), so rows where `section IS NULL` are silently excluded.
+**Solution:** Fetch all rows from Supabase, then filter client-side:
+```js
+// ❌ Excludes NULL rows:
+.neq("section", "__header__")
+
+// ✅ Correct — filter in JS where null !== '__header__' is true:
+ings.filter(i => i.section !== "__header__")
+```
+**Rule:** Never use `.neq()` when the column can be NULL and you want to include the NULL rows. Always filter nullable columns client-side or use `.or("col.is.null,col.neq.value")`.
+
+---
+
+### LL-041 · NutritionPanel Silent Failure When ingredient_id Is NULL (2026-04-08)
+**Date:** 2026-04-08
+**Type:** 🐛 Bug (data) — ✅ Resolved
+**Symptom:** NutritionPanel did not render at all on staging for newly seeded recipes, despite ingredient rows existing in the DB.
+**Root Cause:** The recipe page fetches `recipe_ingredients` with `select("*, ingredients(name)")`. When `ingredient_id IS NULL` (all manually-added/seed recipes), the Supabase join returns `ing.ingredients = null`. NutritionPanel then tried `ing.ingredients?.name` (null) then `ing.name` (column doesn't exist — it's `display_name`). All names came back as `""`, so `names.length === 0` → early return → `results` stayed `[]` → panel returned `null`.
+**Solution:** Added `ing.display_name` as intermediate fallback in both name-extraction lines:
+```js
+// Before
+ing.ingredients?.name || ing.name || ''
+
+// After
+ing.ingredients?.name || ing.display_name || ing.name || ''
+```
+**Rule:** Always include `display_name` as fallback when reading ingredient names. `ingredient_id` may be null for any recipe not imported via the ingredients master table. Never rely solely on `ing.name` — that column does not exist on `recipe_ingredients`.
+
+---
+
+### LL-042 · Schema Changes Without a Numbered Migration File Are Invisible at Deploy Time (2026-04-08)
+**Date:** 2026-04-08
+**Type:** 🔧 Process — ✅ Resolved
+**Symptom:** After deploying v5.0.0 (Pro Kitchen sprint), a schema comparison revealed that production was missing `groups.group_type`, `recipe_ingredients.section`, and the entire `production_plans` table — all of which had been in dev/staging for weeks.
+**Root Cause:** The F-001 migration (`group_type`) and PK1/PK2 schema (`production_plans`, `section`) were implemented directly in the staging init script (`staging_setup.sql`) and never written into a numbered file under `supabase/migrations/`. When deploying, we only check `supabase/migrations/` for new SQL to apply — anything outside that folder is invisible and silently never reaches production.
+**Solution:** Applied the missing SQL manually to production and wrote a catch-up migration file `20260408_prod_catchup_group_type_section_plans.sql` for tracking. Updated OBS-009 schema-check snapshot to include the affected columns so future drift is caught by the daily cron.
+**Rule:** **Every schema change — no matter how small — must get a numbered migration file in `supabase/migrations/` at the time of implementation.** The `staging_setup.sql` is an init-only convenience script; it is not a migration tracking mechanism. No migration file = no prod deploy.
+
+```
+✅ Correct flow:
+  1. Write SQL as supabase/migrations/YYYYMMDD_describe_change.sql
+  2. Apply to staging
+  3. Apply to production at deploy time
+
+❌ Wrong:
+  - Edit staging_setup.sql only
+  - Run SQL directly in Supabase dashboard without committing a migration file
+  - "I'll write the migration file later"
+```
+
+---
