@@ -447,3 +447,27 @@ ing.ingredients?.name || ing.display_name || ing.name || ''
 ```
 
 ---
+
+---
+
+### LL-043 · Delete-Before-Insert on recipe_ingredients Caused Silent Data Wipe (2026-04-08)
+**Date:** 2026-04-08
+**Type:** 🔴 Data Loss — ✅ Resolved
+**Severity:** Critical — affected all 4 production recipes (full ingredient history wiped)
+**Symptom:** User moved a recipe to another household and saved. Multiple "⚠️ Could not save ingredient" toasts appeared. On reload, all ingredients were gone. All 4 production recipes found to have empty ingredient lists.
+**Root Cause (two layered):**
+1. **Schema mismatch**: prod `recipe_ingredients` has `preparation_note` (original schema); code inserts `preparation` (dev schema name). PostgREST returned HTTP 400 on every ingredient row. The `section` column was also missing from prod until 2026-04-08.
+2. **Unsafe delete-first pattern**: Save ran `DELETE WHERE recipe_id = editId` *before* the inserts. Once any insert fails, the old rows are gone and no new rows were inserted. The per-ingredient toast fired but did not abort the save.
+
+**Fix:**
+- Snapshot existing `recipe_ingredients` *before* delete. If ANY insert fails after the delete: remove partial rows, re-insert the snapshot, abort navigation with ❌ error.
+- Applied `ALTER TABLE recipe_ingredients ADD COLUMN IF NOT EXISTS preparation TEXT` to production.
+- Recovered ingredient data for recipes 2, 5, 6 from staging. Recipe 1 (Classic Lemon Garlic Pasta) required manual re-entry.
+
+**Rule:** Never run DELETE before INSERT on child rows without a snapshot-restore guard. Safe pattern:
+```
+snapshot → update parent → delete children → insert new children
+→ on any insert failure: delete partials, restore snapshot, abort
+```
+
+---
