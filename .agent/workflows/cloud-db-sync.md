@@ -3,13 +3,14 @@ description: Cloud Database Sync — Deliver SQL before code when touching Supab
 ---
 
 # ☁️ Cloud Database Sync Workflow
-**Last Reviewed:** 2026-04-07
+**Last Reviewed:** 2026-04-08
 
 ## When to Use This Workflow
 
-Run this procedure whenever a code change requires a **new column, table, constraint, or RLS policy** in Supabase Cloud. Because the AI cannot touch the live database directly, the user must manually apply SQL before the code takes effect.
+Run this procedure whenever a code change requires a **new column, table, constraint, or RLS policy** in Supabase Cloud.
 
-> ⚠️ Failing to sync first will cause silent data blackouts or 400 errors in production.
+> ⚠️ Failing to sync the schema first will cause silent data blackouts or 400 errors in production (see LL-043).
+> The Supabase CLI (`npm run db:push`) is now the delivery mechanism — manual SQL editor sessions are no longer required.
 
 ---
 
@@ -36,10 +37,11 @@ Before touching any component or page file, create a `.sql` artifact with:
 - `UPDATE ... WHERE ... IS NULL` for backfilling existing rows
 
 ### Step 2: Apply to Staging First
-Explicitly prompt the user with:
-> "Before I update the frontend code, please run this SQL in your **Staging** [Supabase SQL Editor](https://supabase.com/dashboard/project/hbgxotjjpapdqlqrofqz/sql). Let me know once it's done."
-
-Wait for user confirmation before proceeding to Step 3.
+Apply the migration via the CLI:
+```bash
+npm run db:push:staging
+```
+Then test locally at `localhost:3000` against staging. Only proceed to Step 3 after smoke-testing.
 
 ### Step 3: Apply the Frontend Code Changes
 Only after the user confirms the SQL has been applied to **staging**, update:
@@ -50,10 +52,13 @@ Only after the user confirms the SQL has been applied to **staging**, update:
 Test locally at `localhost:3000` against staging.
 
 ### Step 4: Apply to Production at Deploy Time
-When merging to `main`, prompt the user to apply the same SQL to **production** before or at the same time as `git push origin main`:
-> "Before pushing to main, please run this same SQL in your **Production** [Supabase SQL Editor](https://supabase.com/dashboard/project/hiuhjnodzodcgwltweoc/sql)."
+Apply to production **before or at the same time as `git push origin main`**:
+```bash
+npm run db:push:prod     # apply migrations to production
+git push origin main     # trigger Vercel deploy
+```
 
-> ⚠️ Never push code that depends on a schema change without applying it to production first.
+> ⚠️ Never push code that depends on a schema change without running `db:push:prod` first.
 
 ### Step 5: Verify with the DB Migration Checklist
 Run `/db-migration` Step 2 (RLS audit) to confirm no silent data blackouts were introduced by the new schema. Run on **both** environments.
