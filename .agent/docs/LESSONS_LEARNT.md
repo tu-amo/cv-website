@@ -242,7 +242,7 @@ curl -X PATCH "https://[project].supabase.co/auth/v1/admin/users/[user-uuid]" \
 | Use SSR-aware Supabase client everywhere | Using the static legacy client in any component |
 | Use `object-fit: contain` for food photography | Forcing `object-fit: cover` on artistic/food shots |
 | Treat 'Public' as a Toggle, not a Category | Forcing users to choose between 'Household' and 'Public' |
-| Deliver SQL Sync FIRST in Cloud DB environments | Updating code without providing the manual schema sync |
+| Deliver SQL Sync FIRST in Cloud DB environments | Updating code before providing the manual schema sync |
 | Guard fire-and-forget cache writes with a confidence check | Writing any API response to a long-TTL cache without validating it matches the request |
 | **Run `git status` before every deploy** | Assuming local dev server = committed code |
 | Init Supabase admin client lazily (Proxy / factory) | Calling `createClient()` at module top-level with runtime-only secrets |
@@ -251,6 +251,10 @@ curl -X PATCH "https://[project].supabase.co/auth/v1/admin/users/[user-uuid]" \
 | Configure real SMTP (Resend) before first real user | Relying on Supabase built-in email (3/hour rate limit) |
 | Direct magic link users to `/login/reset-password` to set a password | Leaving passwordless users with no recovery path |
 | Set Supabase Site URL to production domain before launch | Leaving default `http://localhost:3000` in production |
+| **Fix CSS specificity at the source — never add a FIX block** | Adding `!important` to override a rule that already used `!important` |
+| **Use `next/font` for all typefaces — never duplicate with CDN `@import`** | Adding `@import url(fonts.googleapis.com/...)` when `layout.js` already loads that font |
+| **All UI icon affordances use `Icon.*` from `icons.js`** | Using emoji (🛒, 🗑, 🏠) as button/nav/status icons |
+| **Brand docs reference CSS token names, not hardcoded hex values** | Writing `#1a2421` in a brand guide that will become stale after the next palette change |
 
 ---
 
@@ -314,6 +318,7 @@ curl -X PATCH "https://[project].supabase.co/auth/v1/admin/users/[user-uuid]" \
 | `vercel-deployment-checklist` | LL-020, 022, 023 | Pre-flight git status, eager init crash, env var availability at build time |
 | `supabase-staging-setup` | LL-030, 031, 033, 034 | Schema ordering, bigint vs UUID IDs, PostgREST cache reload, idempotent seeds |
 | `recipe-seed-data` | LL-031, 035, 036, 037 | Correct column names, bigint ids, ingredient_id=null pattern, DO block debugging |
+| `css-architecture` | LL-044, 045, 046, 047, 048 | M3 token system, !important elimination, icon library, font double-load, brand doc freshness |
 
 ---
 
@@ -469,5 +474,60 @@ ing.ingredients?.name || ing.display_name || ing.name || ''
 snapshot → update parent → delete children → insert new children
 → on any insert failure: delete partials, restore snapshot, abort
 ```
+
+---
+
+### LL-044 · !important Cascade Debt Compounds Until It's Unworkable (2026-04-11)
+**Date:** 2026-04-11  
+**Type:** 💡 Pattern  
+**Symptom:** `globals.css` had 360 `!important` declarations. Adding any new style required adding another `!important` to override an existing one. Small style changes caused unexpected layout regressions across unrelated components.  
+**Root Cause:** Every time a style didn't work as expected, a developer added `!important` to force it — rather than identifying which CSS rule was winning the specificity race. Over many sessions, this created a cascade arms-race where the only way to win was to escalate.  
+**Fix:** FIX override blocks (blocks of `!important` rules added later to correct earlier rules) must be merged back into their source component rules. Fix the selector hierarchy, not the declaration.  
+**Outcome:** 360 `!important` reduced to 23 legitimate uses (94% reduction) over 5 targeted passes. The 23 remaining are all architecturally valid: `@media print`, `@media (prefers-reduced-motion)`, JS-driven animation overrides.  
+**Rule:** The presence of a FIX block in CSS is a debt signal. Each one should trigger a source fix within the same session, not deferred.
+
+---
+
+### LL-045 · Font Double-Load via next/font + Google Fonts CDN (2026-04-11)
+**Date:** 2026-04-11  
+**Type:** 🐛 Bug (performance) — ✅ Resolved  
+**Symptom:** Poppins and Nunito were loading twice on every page: once via `next/font` in `layout.js` (self-hosted, optimal) and again via a `@import url('https://fonts.googleapis.com/...')` at the top of `globals.css`. This doubled font request count and caused a flash of unstyled text (FOUT) on the CDN load.  
+**Root Cause:** `next/font` handles font self-hosting silently at build time. A developer (or initial CSS scaffold) added an `@import` to `globals.css` without knowing `layout.js` already loaded the same fonts.  
+**Solution:** Removed the `@import` from `globals.css`. `next/font` continues to serve self-hosted fonts with no change needed.  
+**Rule:** If `layout.js` uses `next/font` for a typeface, that font **must not** appear in any `@import` in `globals.css`. Check `layout.js` font declarations before adding any CDN font import. The comment at the top of `§A — Fonts` in `globals.css` now includes a warning: `Poppins & Nunito are self-hosted via next/font in layout.js — do NOT add @import`.
+
+---
+
+### LL-046 · Emoji as UI Icons Create Accessibility and Consistency Gaps (2026-04-11)
+**Date:** 2026-04-11  
+**Type:** 💡 Pattern  
+**Context:** The app used ~60 UI-visible emoji (🛒, 📋, 🗑, 🏠, 🍳, 👥, 👑, 🔔) as button labels, status indicators, and interactive affordances across all pages.  
+**Problems discovered:**  
+1. **Cross-platform rendering inconsistency** — emoji render at different sizes, shapes, and colours on macOS vs Windows vs Android. The same 🏠 emoji looks completely different on iOS vs Chrome on Android.  
+2. **Cannot be styled** — emoji ignore `color`, `font-size` (inconsistently), `stroke`, `fill`. You cannot change their colour to match a design system token.  
+3. **Accessibility gaps** — emoji are read by screen readers in full ("house emoji", "pot of food") with no control over the aria label. An SVG icon with `aria-hidden="true"` defers to the button's text label instead.  
+4. **No design system governance** — any developer can add any emoji for any purpose with no shared library to enforce consistency.  
+**Solution:** Created `src/components/icons.js` — a shared inline SVG library (28 icons, Lucide paths, MIT). All UI-visible emoji replaced. Toast string emoji (🎉, 📋) intentionally kept — they are content, not affordances.  
+**Rule:** Emoji are permitted only in: toast/success/error strings, WhatsApp share text, and the 🥨 brand mark. All interactive icon affordances must use `Icon.*` from `icons.js`.
+
+---
+
+### LL-047 · Escaped Quotes in Import Paths Break the Next.js Parser (2026-04-11)
+**Date:** 2026-04-11  
+**Type:** 🐛 Bug (build) — ✅ Resolved  
+**Symptom:** Build failed with `Parsing ecmascript source code failed` / `Expected unicode escape` pointing to the import line in `add/page.js`. Dev server also refused to compile the file.  
+**Root Cause:** An automated sed replacement script used escaped single quotes (`\'`) in the replacement string, which produced `import { Icon } from \'@/components/icons\'` in the file. The Next.js ECMAScript parser (SWC/Babel) rejected this as invalid syntax — it expected a proper string literal, not escaped quotes.  
+**Solution:** Replaced the escaped-quote import with a standard double-quoted import: `import { Icon } from "@/components/icons"`  
+**Prevention:** Always verify file output immediately after any automated find-replace script with `grep -n "import.*icons" src/app/add/page.js`. If the file uses escaped quotes, the script's quoting logic is wrong. Never use `\'` inside a replacement string that targets JavaScript source code.
+
+---
+
+### LL-048 · Brand Guide Drifts From Implementation When CSS Evolves (2026-04-11)
+**Date:** 2026-04-11  
+**Type:** 🔲 Gap (documentation)  
+**Symptom:** `BRAND_GUIDE.md` listed **DM Sans** as the body font and `#1a2421` (deep olive green) as the background — but the actual app used **Nunito** (body) + **Poppins** (headings) and `#121010` (near-black charcoal). CSS token names were also wrong (`--color-bg-deep-olive` doesn't exist; the token is `--color-bg`). The guide had never been updated since it was first extracted from the codebase in March 2026.  
+**Root Cause:** Brand guide hex values and token names were documented at a point in time. The M3 CSS token migration changed the palette (olive → charcoal), renamed tokens, and corrected font choices — but the brand guide was not on the update checklist for that session.  
+**Fix:** Updated `BRAND_GUIDE.md` v1.1 to reflect actual tokens, correct fonts, and the new icon system reference.  
+**Rule:** The `/update-docs` workflow must include `BRAND_GUIDE.md` as a check whenever the CSS token system or typography changes. Brand docs that reference hex values are inherently fragile — they should reference CSS token names, not hardcoded values, and point to `CSS_ARCHITECTURE.md` as the canonical source.
 
 ---
