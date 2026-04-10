@@ -214,7 +214,136 @@ The file `src/app/themes/pretzelprep.css` is imported **after** `globals.css` in
 
 ---
 
-## Lessons Learned (Source Entries)
+## CSS Modules — The Forward Strategy
+
+**Rule:** All new components get a `.module.css` file. Existing components stay in `globals.css` until there is a specific reason to migrate them.
+
+### File structure
+
+```
+src/components/
+  ui/                          ← shared UI primitives (Badge, Alert, etc.)
+    Badge.js
+    Badge.module.css
+    Alert.js
+    Alert.module.css
+    index.js                   ← barrel export — always import from here
+  MyFeatureComponent.js        ← page-specific component
+  MyFeatureComponent.module.css
+```
+
+### Creating a new component
+
+```bash
+# 1. Create the component file
+touch src/components/ui/MyComponent.js
+touch src/components/ui/MyComponent.module.css
+
+# 2. Export from the barrel
+# Add to src/components/ui/index.js:
+export { MyComponent } from './MyComponent';
+```
+
+### Writing styles in a module
+
+```css
+/* MyComponent.module.css */
+/* Tokens from globals.css :root still work — they are global */
+
+.wrapper {
+  background: var(--color-surface);      /* ✓ token — fine */
+  border-radius: var(--radius-md);        /* ✓ token — fine */
+  padding: 20px;
+}
+
+.title {
+  font-family: var(--font-brand);         /* ✓ token — fine */
+  color: var(--color-text-papyrus);
+}
+```
+
+### Importing and using
+
+```jsx
+import styles from './MyComponent.module.css';
+
+export function MyComponent({ active }) {
+  return (
+    <div className={`${styles.wrapper} ${active ? styles.active : ''}`}>
+      <h2 className={styles.title}>...</h2>
+    </div>
+  );
+}
+```
+
+### Importing from the barrel (consuming code)
+
+```jsx
+// ✓ Correct — always import from the barrel index
+import { Badge, RoleBadge, Alert } from '@/components/ui';
+
+// ✗ Avoid — direct file import bypasses the barrel
+import { Badge } from '@/components/ui/Badge';
+```
+
+### Using global classes inside a module (the :global() escape hatch)
+
+Needed when you want to apply a `globals.css` utility class inside a module:
+
+```css
+/* Rare — only when you genuinely need a global class inside a module */
+.wrapper :global(.pp-overline) {
+  margin-bottom: 8px;
+}
+```
+
+### What stays in globals.css — never in a module
+
+| Stays global | Why |
+|---|---|
+| `:root` token definitions | Must be accessible everywhere |
+| `@keyframes` animations | Must be referenceable by name |
+| `body`, `*`, base resets | Must apply before any component renders |
+| `.hidden`, `.pp-overline`, `.pp-hint`, `.pp-flex-col` | Utility classes used across many components |
+| `@media print`, `@media (prefers-reduced-motion)` | Must override any component style |
+| `.pp-page-card`, `.btn-add`, `.form-control` | Structural layout classes used site-wide |
+
+### Available UI components (src/components/ui/)
+
+| Component | Exports | Replaces |
+|---|---|---|
+| `Badge` | `Badge`, `RoleBadge`, `GroupTypeBadge` | Inline role colours + group type pills |
+| `Alert` | `Alert` | Repeated inline error/success div pattern |
+
+### Migration priority for existing pages
+
+Do **not** migrate existing pages unless you are actively editing them. When you DO edit a page, opportunistically replace:
+
+```jsx
+// Before (inline — replace when you touch this page)
+{error && (
+  <div style={{ color: "#ff6b6b", background: "rgba(255,107,107,0.1)",
+    padding: "15px", borderRadius: "12px", marginBottom: "24px" }}>
+    {error}
+  </div>
+)}
+
+// After (module component)
+import { Alert } from '@/components/ui';
+{error && <Alert variant="error">{error}</Alert>}
+```
+
+```jsx
+// Before (inline role badge)
+<span style={{ color: m.role === "owner" ? amber : "var(--color-text-muted)" }}>
+  {m.role === "owner" ? Icon.crown : Icon.users}
+</span>
+
+// After (module component)
+import { RoleBadge } from '@/components/ui';
+<RoleBadge role={m.role} />
+```
+
 
 | ID | Lesson |
 |---|---|
