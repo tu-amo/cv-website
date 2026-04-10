@@ -3,7 +3,7 @@ description: Automated Regression Suite + Production Deployment
 ---
 
 # Grandmaster Regression & Deployment Workflow v4.0
-**Last Reviewed:** 2026-04-07
+**Last Reviewed:** 2026-04-10
 
 This workflow validates all logical, visual, and security layers of the Living Cookbook before production deployment. **Must pass 100% before any `git push`.**
 
@@ -64,7 +64,7 @@ Manually verify at `http://localhost:3000`:
 
 ### 📝 Recipe Add/Edit
 - [ ] Clicking **+ Add Recipe** opens the add form
-- [ ] Visibility UI shows "Personal" / "Household" scope buttons
+- [ ] Visibility UI shows toggle rows: Personal + one row per household + Public toggle — each is an independent pill switch (no dropdown, no scope buttons)
 - [ ] "🌍 Publish to Global Gallery" toggle is independent and animated
 - [ ] Toggling "Global Gallery" ON + saving stores `is_public = true` in DB
 - [ ] "Last modified by [name]" appears on a recipe detail after saving
@@ -110,7 +110,7 @@ git commit -m "feat: [describe what you built] — Regression 18/18 PASS"
 
 // turbo
 ```bash
-git push origin feature/collab-kitchen-v2
+git push origin main
 ```
 
 ✅ **Your work is now backed up to GitHub.**  

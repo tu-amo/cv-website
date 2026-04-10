@@ -3,9 +3,9 @@ description: how to publish / deploy the site to production
 ---
 
 # 🚀 Publishing Workflow
-**Last Reviewed:** 2026-04-07
+**Last Reviewed:** 2026-04-10
 
-> ⚠️ **Production deploys only happen via merge from `feature/collab-kitchen-v2` → `main`.** Never push changes directly to `main`.
+> ⚠️ **All work is committed and pushed directly to `main`.** Never push broken or untested changes to `main`.
 
 > 🔴 **Critical lesson (LL-022):** `npm run dev` reads from disk. Vercel reads from Git. Uncommitted changes are **invisible to Vercel** — always verify with `git status` before any deploy.
 
@@ -29,7 +29,7 @@ git status
    git add .
    git status  # confirm — nothing should remain unstaged
    git commit -m "feat: [describe what changed]"
-   git push origin feature/collab-kitchen-v2
+   git push origin main
    ```
 4. Work is backed up to GitHub. Production is untouched.
 
@@ -63,10 +63,8 @@ If either command shows changes → **stop, commit them first.**
 3. Verify with the RLS audit query from `/db-migration` Step 2
 4. Only then proceed to Step 2
 
-### Step 2 — Merge and push
+### Step 2 — Push to main
 ```bash
-git checkout main
-git merge feature/collab-kitchen-v2
 git push origin main
 ```
 
