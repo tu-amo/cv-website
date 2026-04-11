@@ -46,13 +46,13 @@ Layer 3 — PP compat     --pp-surface (maps back to --color-surface)
 | Page background | `--color-bg` |
 | Card / surface | `--color-surface` |
 | Hovered surface | `--color-surface-container` |
-| Primary text | `--color-text-papyrus` |
-| Muted/secondary text | `--color-text-muted` |
-| Amber accent (borders, highlights) | `--color-accent-amber` |
+| Primary text | `--color-on-surface` |
+| Muted/secondary text | `--color-on-surface-muted` |
+| Primary accent (borders, highlights) | `--color-primary` |
 | Page heading font | `--font-brand` (Poppins 600) |
 | Body / label font | `--font-body` (Nunito) |
 | Recipe hero title | `--font-editorial` (Playfair Display) |
-| Divider / hairline | `--color-divider` |
+| Divider / hairline | `--color-hairline` |
 | Standard border radius | `--radius-md` (16px), `--radius-sm` (8px) |
 | Fast transition | `--motion-fast` (0.2s ease) |
 
@@ -251,16 +251,29 @@ export { MyComponent } from './MyComponent';
 /* Tokens from globals.css :root still work — they are global */
 
 .wrapper {
-  background: var(--color-surface);      /* ✓ token — fine */
-  border-radius: var(--radius-md);        /* ✓ token — fine */
+  background: var(--color-surface);        /* ✓ canonical §A token */
+  border-radius: var(--radius-md);          /* ✓ canonical §A token */
   padding: 20px;
 }
 
 .title {
-  font-family: var(--font-brand);         /* ✓ token — fine */
-  color: var(--color-text-papyrus);
+  font-family: var(--font-brand);           /* ✓ canonical §A token */
+  color: var(--color-on-surface);           /* ✓ NOT --color-text-papyrus (legacy §B) */
 }
 ```
+
+> **Token rule for CSS Modules:** Only use §A canonical tokens inside `.module.css` files.
+> **Never use §B deprecated aliases** (`--color-text-papyrus`, `--color-text-muted`,
+> `--color-accent-amber`, `--color-divider`). These exist only for backward compat
+> with old page code. New module files must be clean.
+>
+> | Deprecated (§B — DO NOT USE) | Canonical replacement (§A — use this) |
+> |---|---|
+> | `--color-text-papyrus` | `--color-on-surface` |
+> | `--color-text-muted` | `--color-on-surface-muted` |
+> | `--color-accent-amber` | `--color-primary` |
+> | `--color-divider` | `--color-hairline` |
+> | `--color-accent-amber-glow` | `--color-primary-glow` |
 
 ### Importing and using
 
@@ -314,6 +327,7 @@ Needed when you want to apply a `globals.css` utility class inside a module:
 |---|---|---|
 | `Badge` | `Badge`, `RoleBadge`, `GroupTypeBadge` | Inline role colours + group type pills |
 | `Alert` | `Alert` | Repeated inline error/success div pattern |
+| `PageHeader` | `PageHeader` | Per-page h1 with overline, subtitle, actions slot |
 
 ### Migration priority for existing pages
 
@@ -335,7 +349,7 @@ import { Alert } from '@/components/ui';
 
 ```jsx
 // Before (inline role badge)
-<span style={{ color: m.role === "owner" ? amber : "var(--color-text-muted)" }}>
+<span style={{ color: m.role === "owner" ? "var(--color-primary)" : "var(--color-on-surface-muted)" }}>
   {m.role === "owner" ? Icon.crown : Icon.users}
 </span>
 
