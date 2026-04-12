@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Knowledge Sharing — Jane Petra Scott</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description"
+        content="Exploring organizational 'desire lines' and the metamorphosis of knowledge in the digital workplace. A strategic look at the SECI model and epistemic injustice." />
+    <meta name="author" content="Jane Petra Scott" />
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --color-primary: #d4a373; /* Wheat */
+            --color-primary-hover: #faedcd;
+            --color-secondary: #7b906f; /* Sage */
+            --color-text-primary: #f8fafc;
+            --color-text-secondary: #cbd5e1;
+            --color-text-muted: #94a3b8;
+            --color-background: #0d1a16; /* Deep Forest Green */
+            --color-surface: rgba(30, 41, 59, 0.7);
+            --color-border: rgba(255, 255, 255, 0.1);
+            --color-accent: #ccd5ae; /* Moss */
+            --color-primary-soft: rgba(212, 163, 115, 0.15);
+
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-display: 'Playfair Display', Georgia, serif;
+
+            --space-xs: 0.5rem;
+            --space-sm: 1rem;
+            --space-md: 1.5rem;
+            --space-lg: 2rem;
+            --space-xl: 3rem;
+            --space-2xl: 4rem;
+            --space-3xl: 6rem;
+
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+            --radius-full: 9999px;
+
+            --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        /* ===== RESET & BASE ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-sans);
+            color: var(--color-text-primary);
+            background: var(--color-background);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* ===== BACKGROUND GLOBES ===== */
+        .background-globes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .globe {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(212, 163, 115, 0.15), rgba(123, 144, 111, 0.1));
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 25s infinite ease-in-out;
+        }
+
+        .globe-1 { width: 600px; height: 600px; top: -100px; right: -100px; }
+        .globe-2 { width: 500px; height: 500px; bottom: -100px; left: -100px; animation-delay: -5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(40px, -40px) scale(1.05); }
+            66% { transform: translate(-30px, 30px) scale(0.95); }
+        }
+
+        /* ===== ARTICLE LAYOUT ===== */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: var(--space-3xl);
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: var(--space-3xl) var(--space-md);
+        }
+
+        @media (max-width: 1024px) {
+            .main-layout { grid-template-columns: 1fr; }
+            .sidebar { order: 2; }
+        }
+
+        .article-content { max-width: 800px; }
+
+        .nav { margin-bottom: var(--space-2xl); }
+        .nav-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--color-text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color var(--transition-base);
+        }
+        .nav-back:hover { color: var(--color-primary); }
+
+        /* ===== TYPOGRAPHY ===== */
+        .article-header { margin-bottom: var(--space-3xl); }
+        .article-eyebrow {
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--color-primary);
+            background: var(--color-primary-soft);
+            padding: 0.4rem 1rem;
+            border-radius: var(--radius-full);
+            margin-bottom: var(--space-md);
+        }
+        .article-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.25rem, 6vw, 3.5rem);
+            line-height: 1.1;
+            margin-bottom: var(--space-md);
+            color: #fff;
+        }
+        .article-subtitle {
+            font-size: 1.25rem;
+            color: var(--color-text-secondary);
+            max-width: 600px;
+            font-weight: 400;
+        }
+
+        .content h2 {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            margin: var(--space-2xl) 0 var(--space-md);
+            color: var(--color-text-primary);
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 0.5rem;
+        }
+        .content p { margin-bottom: var(--space-md); font-size: 1.1rem; color: var(--color-text-secondary); }
+        .content blockquote {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-style: italic;
+            border-left: 4px solid var(--color-primary);
+            padding-left: var(--space-lg);
+            margin: var(--space-xl) 0;
+            color: var(--color-text-primary);
+        }
+
+        /* ===== DIAGNOSTIC SUITE ===== */
+        .diagnostic-suite {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--color-primary-soft);
+            padding: var(--space-2xl);
+            border-radius: var(--radius-xl);
+            margin: var(--space-3xl) 0;
+            backdrop-filter: blur(15px);
+        }
+        .diagnostic-title {
+            color: var(--color-primary);
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            margin-bottom: var(--space-md);
+        }
+        .diagnostic-grid {
+            display: grid;
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+        }
+        .diagnostic-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            cursor: pointer;
+            padding: var(--space-sm);
+            border-radius: var(--radius-md);
+            transition: background var(--transition-base);
+        }
+        .diagnostic-item:hover { background: rgba(212, 163, 115, 0.05); }
+        .diagnostic-item input {
+            width: 1.25rem;
+            height: 1.25rem;
+            accent-color: var(--color-primary);
+        }
+        .diagnostic-results {
+            display: none;
+            padding: var(--space-lg);
+            background: rgba(212, 163, 115, 0.08);
+            border-radius: var(--radius-lg);
+            border-left: 4px solid var(--color-primary);
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .result-item { margin-bottom: var(--space-md); }
+        .result-item strong { color: var(--color-primary); display: block; margin-bottom: 0.25rem; }
+
+        /* ===== CASE STUDIES ===== */
+        .case-study {
+            background: rgba(123, 144, 111, 0.05);
+            border: 1px solid rgba(123, 144, 111, 0.2);
+            padding: var(--space-lg);
+            border-radius: var(--radius-lg);
+            margin: var(--space-xl) 0;
+        }
+        .case-study h5 { color: var(--color-secondary); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+        .case-study .stat { font-size: 1.5rem; font-weight: 700; color: #fff; margin-bottom: 0.25rem; }
+
+        /* ===== AUDIT CHECKLIST ===== */
+        .audit-section {
+            background: var(--color-primary-soft);
+            padding: var(--space-2xl);
+            border-radius: var(--radius-xl);
+            margin-top: var(--space-3xl);
+        }
+        .audit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+            padding: var(--space-sm);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .audit-item input { margin-top: 0.35rem; }
+
+        /* ===== CALLOUTS & SIDEBARS ===== */
+
+        .sidebar {
+            padding-top: var(--space-3xl);
+            position: sticky;
+            top: 0;
+            height: fit-content;
+        }
+        .sidebar-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            padding: var(--space-lg);
+            border-radius: var(--radius-xl);
+            backdrop-filter: blur(10px);
+        }
+        .sidebar-title {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--color-primary);
+            margin-bottom: var(--space-md);
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 0.5rem;
+        }
+        .sidebar-list { list-style: none; }
+        .sidebar-item {
+            font-size: 0.85rem;
+            color: var(--color-text-muted);
+            margin-bottom: var(--space-md);
+            line-height: 1.4;
+        }
+        .sidebar-item strong { color: var(--color-text-secondary); display: block; }
+
+        /* ===== FRAMEWORKS ===== */
+        .seci-matrix {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-sm);
+            margin: var(--space-xl) 0;
+        }
+        @media (max-width: 640px) { .seci-matrix { grid-template-columns: 1fr; } }
+        .seci-cell {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            padding: var(--space-lg);
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+        .seci-cell:hover {
+            transform: translateY(-5px);
+            border-color: var(--color-primary);
+            box-shadow: 0 10px 30px -10px rgba(212, 163, 115, 0.3);
+        }
+        .seci-cell::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212, 163, 115, 0.05), transparent);
+            transition: 0.5s;
+        }
+        .seci-cell:hover::after { left: 100%; }
+        .seci-cell h4 { color: var(--color-primary); margin-bottom: 0.5rem; font-size: 1rem; }
+        .seci-cell p { font-size: 0.9rem; margin-bottom: 0; }
+
+        .value-ladder {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+            margin: var(--space-xl) 0;
+        }
+        .ladder-step {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            background: rgba(212, 163, 115, 0.05);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            border-left: 3px solid var(--color-primary);
+            transition: transform var(--transition-base);
+        }
+        .ladder-step:hover { transform: translateX(5px); background: rgba(212, 163, 115, 0.1); }
+        .step-label { font-weight: 700; color: var(--color-primary); min-width: 140px; font-size: 0.9rem; text-transform: uppercase; }
+
+        /* ===== CALLOUTS ===== */
+        .callout {
+            background: rgba(123, 144, 111, 0.1);
+            border: 1px solid rgba(123, 144, 111, 0.2);
+            padding: var(--space-xl);
+            border-radius: var(--radius-xl);
+            margin: var(--space-2xl) 0;
+        }
+        .callout h4 { color: var(--color-secondary); margin-bottom: var(--space-sm); font-size: 1.1rem; }
+
+        .desire-line {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: var(--space-md);
+            margin-bottom: var(--space-md);
+            padding: var(--space-sm);
+            background: rgba(255,255,255,0.02);
+            border-radius: var(--radius-md);
+        }
+        .desire-icon { color: var(--color-primary); font-family: monospace; font-size: 1.25rem; font-weight: bold; }
+
+        .footer {
+            margin-top: var(--space-3xl);
+            padding-top: var(--space-xl);
+            border-top: 1px solid var(--color-border);
+            text-align: center;
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+        }
+
+        .highlight { color: var(--color-primary); font-weight: 600; }
+        .sage { color: var(--color-secondary); font-weight: 600; }
+
+    </style>
+</head>
+
+<body>
+    <div class="background-globes" aria-hidden="true">
+        <div class="globe globe-1"></div>
+        <div class="globe globe-2"></div>
+    </div>
+
+    <main class="main-layout">
+        <div class="article-content">
+            <nav class="nav">
+                <a href="/blog.html" class="nav-back">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    Back to Blog
+                </a>
+            </nav>
+
+            <header class="article-header">
+                <span class="article-eyebrow">Digital Culture</span>
+                <h1 class="article-title">Knowledge Sharing in the Digital Workplace</h1>
+                <p class="article-subtitle">Listening to "Desire Lines" and bridging the gap between what people know and what systems can hold.</p>
+            </header>
+
+            <section class="content">
+                <blockquote>
+                    "My mission is to encourage everyone to listen, learn, sketch and share ideas frequently. Because these ideas are the seeds of our collective intelligence."
+                </blockquote>
+
+                <h2>The Park Beside the Dam</h2>
+                <p>Imagine a public park with a clearly defined gravel path. Signs urge visitors to follow the route: “Please stay on the trail.” And yet, over time, the grass beside the path wears down. A new path leads to some shaded trees, and quiet spots near the water’s edge.</p>
+                <p>These are <span class="highlight">desire lines</span>—the trails people create when official routes don’t reflect their real needs. Organizations have desire lines too. If you listen closely, you might hear:</p>
+
+                <div class="desire-line">
+                    <span class="desire-icon">→</span>
+                    <p>“I usually just ping her on Teams, she always knows where things really live.” <br><small class="sage">Points to informal knowledge brokers filling critical roles.</small></p>
+                </div>
+                <div class="desire-line">
+                    <span class="desire-icon">→</span>
+                    <p>“I’m not sure who owns that now, it used to be handled by another team.” <br><small class="sage">Points to ownership drift and institutional memory loss.</small></p>
+                </div>
+                <div class="desire-line">
+                    <span class="desire-icon">→</span>
+                    <p>“We have a process, but it’s so complex no one really follows it.” <br><small class="sage">Signals a gap between designed intent and lived reality.</small></p>
+                </div>
+
+                <div class="diagnostic-suite">
+                    <h3 class="diagnostic-title">Desire Line Diagnostic Suite</h3>
+                    <p style="margin-bottom: var(--space-md); font-size: 0.9rem; color: var(--color-text-muted);">Identify the "weak signals" in your team. Select the phrases you hear most often:</p>
+                    <div class="diagnostic-grid">
+                        <label class="diagnostic-item">
+                            <input type="checkbox" onchange="updateDiagnosis()" data-symptom="ping">
+                            <span>"I usually just ping [Name] on Teams, they know where things live."</span>
+                        </label>
+                        <label class="diagnostic-item">
+                            <input type="checkbox" onchange="updateDiagnosis()" data-symptom="drift">
+                            <span>"I'm not sure who owns that now, it used to be Team X."</span>
+                        </label>
+                        <label class="diagnostic-item">
+                            <input type="checkbox" onchange="updateDiagnosis()" data-symptom="bureaucracy">
+                            <span>"We could fix it in 5 mins, but we have to raise a formal request."</span>
+                        </label>
+                        <label class="diagnostic-item">
+                            <input type="checkbox" onchange="updateDiagnosis()" data-symptom="silo">
+                            <span>"Wait, the marketing team already built a template for this?"</span>
+                        </label>
+                    </div>
+
+                    <div id="diag-results" class="diagnostic-results">
+                        <h4 style="margin-bottom: var(--space-md);">Architect's Diagnosis:</h4>
+                        <div id="results-content"></div>
+                    </div>
+                </div>
+
+                <p>These desire lines are signals to learn from—shortcuts that often outperform rigid, top-down systems.</p>
+
+                <div class="case-study">
+                    <h5>The Price of Silence</h5>
+                    <div class="stat">$4.2 Million</div>
+                    <p><small>The estimated annual productivity loss for a 500-person firm due to "Searching for Knowledge" (based on McKinsey & LinkedIn metrics).</small></p>
+                </div>
+
+                <h2>Doorways or Dead Ends?</h2>
+                <p>Most knowledge isn't lost through forgetting—it's lost through <span class="highlight">failing to expose it</span>. Paul Merino identifies the <strong>"doorway"</strong> as the smallest operational unit of knowledge transfer. It is the moment you choose to walk through when you share an insight, or let it fade.</p>
+
+                <h3>The SECI Model: Tacit to Explicit</h3>
+                <p>Nonaka & Takeuchi argue that organizational learning happens through a dynamic cycle of conversion. If we don’t convert tacit (intuitive) knowledge into explicit (shareable) forms, we cannot scale innovation.</p>
+
+                <div class="seci-matrix">
+                    <div class="seci-cell">
+                        <h4>Socialization</h4>
+                        <p><small>(Tacit → Tacit)</small><br>Sharing through direct interaction, mentoring, and shared experience.</p>
+                    </div>
+                    <div class="seci-cell">
+                        <h4>Externalization</h4>
+                        <h4>Combination</h4>
+                        <p><small>(Explicit → Explicit)</small><br>Integrating disparate sources into complex systems, reports, and databases.</p>
+                    </div>
+                    <div class="seci-cell">
+                        <h4>Internalization</h4>
+                        <p><small>(Explicit → Tacit)</small><br>Learning by doing—absorbing codified knowledge back into intuition.</p>
+                    </div>
+                </div>
+
+                <h2>Epistemic Injustice</h2>
+                <p>Philosopher Miranda Fricker coined the term <strong>epistemic injustice</strong> to describe the structural exclusion of certain kinds of knowers. In a corporate context, insight expressed informally (on a whiteboard or in a Teams chat) is often disqualified because it doesn't follow official channels.</p>
+                <p>When we give all credit to the name on the PDF report and ignore the people who sparked the ideas during the whiteboard session, we commit a cultural error that leads directly to <span class="sage">talent attrition</span>.</p>
+
+                <h2>Re-framing Value Creation</h2>
+                <p>Wenger, Trayner, & de Laat break down how we can reframe the value people bring to a network. It isn't just about the final deliverable; it’s about the potential capital built along the way.</p>
+
+                <div class="value-ladder">
+                    <div class="ladder-step">
+                        <span class="step-label">Immediate</span>
+                        <p>The tangible benefits of participation—showing up to solve a problem.</p>
+                    </div>
+                    <div class="ladder-step">
+                        <span class="step-label">Potential</span>
+                        <p>Building knowledge capital—assets and memories stored for future use.</p>
+                    </div>
+                    <div class="ladder-step">
+                        <span class="step-label">Applied</span>
+                        <p>Learning new things and applying that intuition back into real-world contexts.</p>
+                    </div>
+                    <div class="ladder-step">
+                        <span class="step-label">Realized</span>
+                        <p>The deliverables—measured benefits and final outcomes.</p>
+                    </div>
+                    <div class="ladder-step">
+                        <span class="step-label">Reframed</span>
+                        <p>Reconsidering goals and strategies based on emergent insights.</p>
+                    </div>
+                </div>
+
+                <h2>The Silent Tax of Isolation</h2>
+                <p>The impact of knowledge silos is measurable and severe:</p>
+                <ul>
+                    <li><strong>Time Drain:</strong> Workers spend up to <span class="highlight">19% of their week</span> searching for internal context.</li>
+                    <li><strong>Knowledge Loss:</strong> A large portion of institutional memory vanishes during offboarding.</li>
+                    <li><strong>Redundant Effort:</strong> Teams unknowingly recreate frameworks that already exist in personal vaults.</li>
+                </ul>
+
+                <div class="callout">
+                    <h4>Building for the Edge</h4>
+                    <p>Organizations are not machines—they’re ecosystems. Innovation emerges at the "Edge of Chaos," where certainty meets surprise. By embracing decentralization and emergence, we can rethink how knowledge thrives at the edge, not in the center.</p>
+                </div>
+
+                <h2>Our Knowledge Strategy</h2>
+                <p>To create a culture where knowledge flows, we follow six core movements:</p>
+                <div class="seci-matrix" style="grid-template-columns: 1fr; gap:0.5rem;">
+                    <p><strong>1. Seek Knowledge:</strong> Reach out, be curious, and be present.</p>
+                    <p><strong>2. Share Early:</strong> Share drafts, sketches, and half-formed thoughts.</p>
+                    <p><strong>3. Acknowledge Others:</strong> Attribute insights and build on each other’s thinking.</p>
+                    <p><strong>4. Make it Explicit:</strong> Put what you know in the wiki, even if it's messy.</p>
+                    <p><strong>5. Introduce Networks:</strong> Your connections are knowledge capital.</p>
+                    <p><strong>6. Use the Tools:</strong> Use LLMs to synthesize and recombine disparate seeds.</p>
+                </div>
+
+                <blockquote>
+                    "You don’t need a final product to make a meaningful contribution. You just need a doorway."
+                </blockquote>
+
+                <div class="audit-section">
+                    <h3 class="diagnostic-title">The 30-Minute Knowledge Audit</h3>
+                    <p style="margin-bottom: var(--space-lg);">A tactical checklist for leaders to reclaim the flow.</p>
+                    
+                    <label class="audit-item">
+                        <input type="checkbox">
+                        <p><strong>Identify a Desire Line:</strong> Find one shortcut your team takes. Instead of correcting it, document it as a process improvement.</p>
+                    </label>
+                    <label class="audit-item">
+                        <input type="checkbox">
+                        <p><strong>The 'Ping' Test:</strong> If everyone pings one person for info, ask that person to create one 5-minute Loom or Wiki entry today.</p>
+                    </label>
+                    <label class="audit-item">
+                        <input type="checkbox">
+                        <p><strong>Attribute the Spark:</strong> In your next meeting, explicitly credit the person who had the "messy whiteboard idea" that led to the final plan.</p>
+                    </label>
+                    <label class="audit-item">
+                        <input type="checkbox">
+                        <p><strong>Open a Doorway:</strong> Share one half-finished draft or sketch with the team to invite early collaboration.</p>
+                    </label>
+                </div>
+            </section>
+
+
+            <footer class="footer">
+                <p>Architected & Designed by Jane Petra Scott © 2026</p>
+            </footer>
+        </div>
+
+        <aside class="sidebar">
+            <div class="sidebar-card">
+                <h3 class="sidebar-title">Bibliography & References</h3>
+                <div class="sidebar-list">
+                    <div class="sidebar-item" title="Key Insight: Externalizing tacit knowledge is the ONLY way to scale innovation.">
+                        <strong>Davenport & Prusak (1998)</strong>
+                        Working Knowledge: How Organizations Manage What They Know.
+                    </div>
+                    <div class="sidebar-item" title="Key Insight: Knowledge isn't a thing, it's a process of conversion.">
+                        <strong>Nonaka & Takeuchi (1995)</strong>
+                        The Knowledge-Creating Company (SECI Model).
+                    </div>
+                    <div class="sidebar-item" title="Key Insight: Master your own knowledge first to contribute to the whole.">
+                        <strong>Harold Jarche</strong>
+                        Personal Knowledge Mastery (PKM) Framework.
+                    </div>
+                    <div class="sidebar-item" title="Key Insight: Knowledge is Energy; don't let it drift.">
+                        <strong>Paul Merino</strong>
+                        The Merino’s Eye: How to turn Knowledge into Energy.
+                    </div>
+                    <div class="sidebar-item" title="Key Insight: Formal format obsession kills informal genius.">
+                        <strong>Miranda Fricker</strong>
+                        Epistemic Injustice: Power and the Ethics of Knowing.
+                    </div>
+                    <div class="sidebar-item" title="Key Insight: Value is built at the immediate, potential, and applied levels.">
+                        <strong>Wenger & Trayner (2011)</strong>
+                        Value Creation in Communities and Networks.
+                    </div>
+                    <div class="sidebar-item" title="Key Insight: 19% of time is lost to 'Knowledge Hunting'.">
+                        <strong>McKinsey Global (2012)</strong>
+                        The Social Economy: Unlocking value and productivity.
+                    </div>
+                    <div class="sidebar-item" title="Key Insight: Your tools are part of your brain.">
+                        <strong>Clark & Chalmers (1998)</strong>
+                        The Extended Mind.
+                    </div>
+                    <div class="sidebar-item" title="Key Insight: Organizations are living ecosystems, not machines.">
+                        <strong>Holland & Kauffman</strong>
+                        Complex Adaptive Systems and Self-Organization.
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <script>
+        const advice = {
+            ping: {
+                title: "Individual Dependency Risk",
+                desc: "Status: Critical. You have 'Informal Knowledge Brokers' who are single points of failure. If they leave, your institutional memory vanishes."
+            },
+            drift: {
+                title: "Institutional Memory Drift",
+                desc: "Status: Vulnerability. Ownership has become ambiguous, leading to slow 'Knowledge Decay' and system instability."
+            },
+            bureaucracy: {
+                title: "Bureaucratic Paralysis",
+                desc: "Status: Innovation Block. High friction is forcing teams to create risky 'dark paths' just to get work done."
+            },
+            silo: {
+                title: "Redundant Effort Tax",
+                desc: "Status: Efficiency Drain. Your teams are paying a 'Silent Tax' by recreating work that already exists elsewhere."
+            }
+        };
+
+        function updateDiagnosis() {
+            const checkboxes = document.querySelectorAll('.diagnostic-grid input');
+            const resultsDiv = document.getElementById('diag-results');
+            const contentDiv = document.getElementById('results-content');
+            
+            let selected = [];
+            checkboxes.forEach(cb => {
+                if (cb.checked) selected.push(cb.getAttribute('data-symptom'));
+            });
+
+            if (selected.length > 0) {
+                resultsDiv.style.display = 'block';
+                contentDiv.innerHTML = selected.map(sym => `
+                    <div class="result-item">
+                        <strong>${advice[sym].title}</strong>
+                        <p style="font-size: 0.9rem; margin:0;">${advice[sym].desc}</p>
+                    </div>
+                `).join('');
+            } else {
+                resultsDiv.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+
+</html>
