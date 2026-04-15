@@ -6,12 +6,24 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:status": "supabase migration list",
+    "db:diff": "supabase db diff --linked --schema public",
+    "db:new": "supabase migration new",
+    "db:push:prod": "supabase db push --linked",
+    "db:push:staging": "supabase link --project-ref hbgxotjjpapdqlqrofqz && supabase db push --linked",
+    "db:link:prod": "supabase link --project-ref hiuhjnodzodcgwltweoc",
+    "db:link:staging": "supabase link --project-ref hbgxotjjpapdqlqrofqz",
+    "db:repair:prod": "supabase link --project-ref hiuhjnodzodcgwltweoc && supabase migration repair --status applied 20260317154720 && supabase migration repair --status applied 20260317182500 && supabase migration repair --status applied 20260325103000 && supabase migration repair --status applied 20260330120000 && supabase migration repair --status applied 20260330140000 && supabase migration repair --status applied 20260403232959 && supabase migration repair --status applied 20260404220000 && supabase migration repair --status applied 20260404221500 && supabase migration repair --status applied 20260406193000 && supabase migration repair --status applied 20260406200000 && supabase migration repair --status applied 20260407100000 && supabase migration repair --status applied 20260407110000 && supabase migration repair --status applied 20260407120000 && supabase migration repair --status applied 20260408100000 && supabase migration repair --status applied 20260408110000 && supabase migration repair --status applied 20260408120000 && supabase migration repair --status applied 20260414210000 && supabase migration repair --status applied 20260415140000 && supabase migration list",
+    "db:repair:staging": "supabase link --project-ref hbgxotjjpapdqlqrofqz && supabase migration repair --status applied 20260317154720 && supabase migration repair --status applied 20260317182500 && supabase migration repair --status applied 20260325103000 && supabase migration repair --status applied 20260330120000 && supabase migration repair --status applied 20260330140000 && supabase migration repair --status applied 20260403232959 && supabase migration repair --status applied 20260404220000 && supabase migration repair --status applied 20260404221500 && supabase migration repair --status applied 20260406193000 && supabase migration repair --status applied 20260406200000 && supabase migration repair --status applied 20260407100000 && supabase migration repair --status applied 20260407110000 && supabase migration repair --status applied 20260407120000 && supabase migration repair --status applied 20260408100000 && supabase migration repair --status applied 20260408110000 && supabase migration repair --status applied 20260408120000 && supabase migration repair --status applied 20260414210000 && supabase migration repair --status applied 20260415140000 && supabase migration list",
+    "prepare": "husky"
   },
   "dependencies": {
-    "@google/genai": "^1.45.0",
+    "@google/generative-ai": "^0.24.1",
+    "@sentry/nextjs": "^10.47.0",
+    "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.99.1",
-    "next": "16.1.6",
+    "next": "^16.2.3",
     "openai": "^6.29.0",
     "react": "19.2.3",
     "react-dom": "19.2.3"
@@ -20,6 +32,8 @@
     "@tailwindcss/postcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "husky": "^9.0.0",
+    "supabase": "^2.88.1",
     "tailwindcss": "^4"
   }
 }

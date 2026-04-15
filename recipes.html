@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Living Cookbook</title>
+    <!-- Modern Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+    <!-- CSS -->
+    <link rel="stylesheet" href="src/recipes.css">
+</head>
+
+<body>
+
+    <div id="app">
+
+        <!-- =====================================
+         GALLERY VIEW
+         ===================================== -->
+        <div id="view-gallery" class="view-gallery">
+            <header class="gallery-header">
+                <h1 class="gallery-title font-heading">The Living Cookbook</h1>
+                <div class="gallery-actions" style="display:flex; gap:15px; align-items:center;">
+                    <div class="gallery-search">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" style="margin-right:10px; opacity:0.6;">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" placeholder="Search recipes...">
+                    </div>
+                    <a href="add_recipe.html" class="btn-add-recipe">+ Add Recipe</a>
+                </div>
+            </header>
+
+            <div class="recipe-grid" id="recipe-grid">
+                <!-- Recipe Cards will be populated dynamically via JavaScript -->
+            </div>
+        </div>
+
+
+        <!-- =====================================
+         COOKING MODE VIEW
+         ===================================== -->
+        <div id="view-cooking" class="view-cooking">
+
+            <!-- Left Split: Image -->
+            <div class="cooking-left">
+                <img src="" id="view-img" class="cooking-img" alt="Recipe Image">
+                <div class="cooking-img-overlay"></div>
+                <button class="btn-back" onclick="closeCookingMode()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                    Library
+                </button>
+            </div>
+
+            <!-- Right Split: Content -->
+            <div class="cooking-right">
+
+                <header class="cooking-header">
+                    <span class="cooking-reference" id="view-reference"></span>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <h1 class="cooking-title font-heading" id="view-title" style="margin-bottom:0;"></h1>
+                        <a id="btn-edit-recipe" href="#" class="btn-scan"
+                            style="font-size: 0.9rem; padding: 8px 16px; text-decoration: none; border-radius: 20px;">
+                            ✏️ Edit Recipe
+                        </a>
+                    </div>
+                    <div class="cooking-meta-row" id="view-meta" style="margin-top:20px;">
+                    </div>
+                </header>
+
+                <!-- Ingredients Checklist -->
+                <section>
+                    <h2 class="section-title font-heading">Ingredients</h2>
+                    <ul class="ingredients-list" id="view-ingredients">
+                        <!-- Populated by JS -->
+                    </ul>
+                </section>
+
+                <!-- Steps Tracker -->
+                <section>
+                    <h2 class="section-title font-heading">Method</h2>
+                    <div class="steps-list" id="view-steps">
+                        <!-- Populated by JS -->
+                    </div>
+                </section>
+
+            </div> <!-- end right split -->
+        </div> <!-- end view-cooking -->
+
+        <!-- =====================================
+         TIMER WIDGET
+         ===================================== -->
+        <div id="timer-widget" class="timer-widget hidden">
+            <div id="timer-ring" class="timer-ring"></div>
+            <div id="timer-display" class="timer-time font-heading">00:00</div>
+            <div id="timer-label" class="timer-label">Timer</div>
+            <div class="timer-controls">
+                <button class="btn-timer" onclick="pauseResetTimer()">Pause/Reset</button>
+            </div>
+        </div>
+
+    </div> <!-- end app -->
+
+    <script src="src/recipes.js"></script>
+</body>
+
+</html>

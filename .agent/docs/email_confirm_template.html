@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confirm your kitchen — The Living Cookbook</title>
+</head>
+
+<body style="margin: 0; padding: 0; background-color: #0f1a16; font-family: Georgia, 'Times New Roman', serif;">
+
+  <!-- Email wrapper -->
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+    style="background-color: #0f1a16; padding: 32px 0;">
+    <tr>
+      <td align="center">
+
+        <!-- Card container (max 600px) -->
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0"
+          style="max-width: 600px; width: 100%; background-color: #1a2421; border-radius: 16px; overflow: hidden; border: 1px solid rgba(212,175,55,0.2);">
+
+          <!-- ── HERO IMAGE ─────────────────────────────────────────────── -->
+          <tr>
+            <td style="padding: 0; margin: 0; line-height: 0;">
+              <!--
+                SETUP REQUIRED:
+                1. Upload your dinner-table photo to Supabase Storage
+                   (Storage → New bucket "brand-assets" → set to PUBLIC → upload)
+                2. Copy the public URL and replace the src below
+              -->
+              <img
+                src="https://hiuhjnodzodcgwltweoc.supabase.co/storage/v1/object/public/brand-assets/living%20cookbook%20invitation%202.png"
+                alt="The Living Cookbook — a beautifully set table" width="600"
+                style="display: block; width: 100%; max-width: 600px; height: 280px; object-fit: cover; object-position: center top;" />
+            </td>
+          </tr>
+
+          <!-- ── AMBER ACCENT BAR ───────────────────────────────────────── -->
+          <tr>
+            <td style="background-color: #d4af37; height: 3px; line-height: 3px; font-size: 3px;">&nbsp;</td>
+          </tr>
+
+          <!-- ── HEADER ────────────────────────────────────────────────── -->
+          <tr>
+            <td align="center" style="padding: 40px 48px 8px 48px;">
+              <p
+                style="margin: 0 0 10px 0; font-family: 'DM Sans', Arial, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #d4af37;">
+                The Living Cookbook
+              </p>
+              <h1
+                style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 32px; font-weight: 400; line-height: 1.25; color: #ebdcb2; font-style: italic;">
+                Your kitchen is ready.
+              </h1>
+            </td>
+          </tr>
+
+          <!-- ── BODY COPY ──────────────────────────────────────────────── -->
+          <tr>
+            <td align="center" style="padding: 20px 48px 32px 48px;">
+              <p
+                style="margin: 0 0 16px 0; font-family: Arial, sans-serif; font-size: 15px; line-height: 1.7; color: rgba(235,220,178,0.75); text-align: center;">
+                Welcome, chef. Your personal recipe library is one click away.
+                Confirm your email address to activate your account and start
+                building your living cookbook.
+              </p>
+              <p
+                style="margin: 0; font-family: Arial, sans-serif; font-size: 13px; color: rgba(235,220,178,0.45); text-align: center; font-style: italic;">
+                Signed up as {{ .Email }}
+              </p>
+            </td>
+          </tr>
+
+          <!-- ── CTA BUTTON ─────────────────────────────────────────────── -->
+          <tr>
+            <td align="center" style="padding: 0 48px 40px 48px;">
+              <!--[if mso]>
+              <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word"
+                href="{{ .ConfirmationURL }}"
+                style="height:52px; v-text-anchor:middle; width:240px;" arcsize="30%" stroke="f" fillcolor="#d4af37">
+                <w:anchorlock/>
+                <center style="color:#1a2421; font-family:Arial,sans-serif; font-size:14px; font-weight:bold; letter-spacing:0.05em; text-transform:uppercase;">
+                  Confirm Your Kitchen
+                </center>
+              </v:roundrect>
+              <![endif]-->
+              <!--[if !mso]><!-->
+              <a href="{{ .ConfirmationURL }}"
+                style="display: inline-block; background-color: #d4af37; color: #1a2421; font-family: Arial, sans-serif; font-size: 13px; font-weight: 700; text-decoration: none; text-transform: uppercase; letter-spacing: 0.1em; padding: 16px 36px; border-radius: 32px; box-shadow: 0 8px 24px rgba(212,175,55,0.3);">
+                Confirm Your Kitchen →
+              </a>
+              <!--<![endif]-->
+            </td>
+          </tr>
+
+          <!-- ── DIVIDER ───────────────────────────────────────────────── -->
+          <tr>
+            <td style="padding: 0 48px;">
+              <div style="height: 1px; background-color: rgba(212,175,55,0.15);"></div>
+            </td>
+          </tr>
+
+          <!-- ── FOOTER ────────────────────────────────────────────────── -->
+          <tr>
+            <td align="center" style="padding: 28px 48px 36px 48px;">
+              <p
+                style="margin: 0 0 8px 0; font-family: Arial, sans-serif; font-size: 12px; color: rgba(235,220,178,0.35); text-align: center; line-height: 1.6;">
+                This link expires in 24 hours. If you didn't create an account,
+                you can safely ignore this email.
+              </p>
+              <p
+                style="margin: 8px 0 0 0; font-family: Georgia, 'Times New Roman', serif; font-size: 13px; color: rgba(212,175,55,0.6); font-style: italic;">
+                — The Living Cookbook
+              </p>
+            </td>
+          </tr>
+
+        </table>
+        <!-- /Card -->
+
+        <!-- Outer footer note -->
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0"
+          style="max-width: 600px; width: 100%; margin-top: 20px;">
+          <tr>
+            <td align="center" style="padding: 0 24px;">
+              <p
+                style="margin: 0; font-family: Arial, sans-serif; font-size: 11px; color: rgba(235,220,178,0.2); text-align: center; line-height: 1.6;">
+                You're receiving this because you signed up at The Living Cookbook.<br />
+                <a href="{{ .SiteURL }}/login"
+                  style="color: rgba(212,175,55,0.4); text-decoration: underline;">Unsubscribe</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+
+</html>

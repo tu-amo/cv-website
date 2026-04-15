@@ -1,0 +1,40 @@
+name: Post-Deploy Health Checks
+
+# Triggered automatically by Vercel via the GitHub Deployments API.
+# Fires when a Vercel deployment finishes — success or failure.
+# We only run checks when Vercel reports a SUCCESSFUL Production deploy.
+on:
+  deployment_status:
+
+jobs:
+  health-check:
+    name: Verify live deployment
+    # Only run on successful Production deploys (not Preview branches)
+    if: |
+      github.event.deployment_status.state == 'success' &&
+      (
+        github.event.deployment.environment == 'Production' ||
+        github.event.deployment.environment == 'production'
+      )
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run post-deploy health checks
+        env:
+          BASE_URL: ${{ github.event.deployment_status.environment_url }}
+          KNOWN_PUBLIC_RECIPE_ID: ${{ secrets.KNOWN_PUBLIC_RECIPE_ID }}
+        run: node scripts/vercel-checks.js
+
+      # On failure, annotate the commit so the problem is visible in GitHub UI
+      - name: Annotate failure
+        if: failure()
+        run: |
+          echo "::error title=Post-Deploy Health Check Failed::One or more checks failed on ${{ github.event.deployment_status.environment_url }}. Check the logs above for details."

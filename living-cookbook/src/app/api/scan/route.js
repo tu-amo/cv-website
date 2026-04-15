@@ -1,18 +1,23 @@
-import { GoogleGenAI } from '@google/genai';
-import { NextResponse } from "next/server";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { NextResponse }        from "next/server";
+import { checkUsage, gateResponse } from "@/lib/usageGate";
 
 // Initialize Gemini Client
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 export async function POST(req) {
-    try {
-        const { imageBase64, mimeType } = await req.json();
+  try {
+    // ── Usage gate — check auth + tier before consuming AI credits ────────
+    const gate = await checkUsage('scans');
+    if (!gate.allowed) return gateResponse(gate);
 
-        if (!imageBase64) {
-            return NextResponse.json({ error: "No image provided" }, { status: 400 });
-        }
+    const { imageBase64, mimeType } = await req.json();
 
-        const prompt = `
+    if (!imageBase64) {
+      return NextResponse.json({ error: "No image provided" }, { status: 400 });
+    }
+
+    const prompt = `
     You are an expert culinary AI designed to extract recipe data from photos of cookbooks and handwritten recipe cards.
     Please read the provided image and extract the following information strictly in JSON format.
     Do not include any markdown formatting (like \`\`\`json) in your response, just the raw JSON object.
@@ -38,10 +43,11 @@ export async function POST(req) {
       },
       "ingredients": [
         {
-          "qty": 2, // integer or float
-          "unit": "tbsp", // standard measurement unit (e.g. cup, tsp, oz, g, whole)
-          "name": "olive oil",
-          "prep": "extra virgin" // any preparation noted (minced, chopped, melted), leave blank if none
+          "row_type": "ingredient", // or "section"
+          "qty": 2, // integer or float (for ingredients)
+          "unit": "tbsp", // standard measurement unit (for ingredients)
+          "name": "olive oil", // or section name e.g. "FOR THE SAUCE"
+          "prep": "extra virgin" // prep note (for ingredients)
         }
       ],
       "steps": [
@@ -49,38 +55,51 @@ export async function POST(req) {
         "Second step text..."
       ]
     }
+
+    Note on Ingredients:
+    If you see a section header like "The Marinade" or "For the Dough", include it in the 'ingredients' array with "row_type": "section" and the name.
+    Otherwise, use "row_type": "ingredient" for all items.
     `;
 
-        // Package the base64 image for Gemini
-        const imagePart = {
-            inlineData: {
-                data: imageBase64,
-                mimeType: mimeType || "image/jpeg",
-            },
-        };
+    // Package the base64 image for Gemini
+    const imagePart = {
+      inlineData: {
+        data: imageBase64,
+        mimeType: mimeType || "image/jpeg",
+      },
+    };
 
-        // Call Gemini 2.5 Flash
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: [prompt, imagePart],
-            config: {
-                responseMimeType: "application/json",
-            }
-        });
+    // Create the model instance
+    const model = ai.getGenerativeModel({
+      model: "gemini-3-flash-preview",
+      generationConfig: { responseMimeType: "application/json" }
+    });
 
-        const responseText = response.text;
+    // Call Gemini
+    const result = await model.generateContent([prompt, imagePart]);
+    const response = await result.response;
+    const responseText = response.text();
 
-        // Parse the JSON response
-        try {
-            const recipeData = JSON.parse(responseText);
-            return NextResponse.json(recipeData);
-        } catch (parseError) {
-            console.error("Gemini Response Parse Error:", responseText);
-            return NextResponse.json({ error: "Failed to parse API response into JSON." }, { status: 500 });
-        }
-
-    } catch (error) {
-        console.error("Gemini Vision API Error:", error);
-        return NextResponse.json({ error: error.message || "Failed to process image scan." }, { status: 500 });
+    // Parse the JSON response
+    try {
+      const recipeData = JSON.parse(responseText);
+      return NextResponse.json(recipeData);
+    } catch (parseError) {
+      console.error("Gemini Response Parse Error:", responseText);
+      return NextResponse.json({ error: "Failed to parse API response into JSON." }, { status: 500 });
     }
+
+  } catch (error) {
+    console.error("Gemini Vision API Error:", error);
+
+    // Handle Quota/Rate Limit Errors
+    if (error.message?.includes('429') || error.message?.includes('quota')) {
+      return NextResponse.json({ 
+        error: "Scanning Quota Exceeded. Gemini 3 is very popular right now! Please try again in 60 seconds.",
+        code: "QUOTA_EXCEEDED"
+      }, { status: 429 });
+    }
+
+    return NextResponse.json({ error: error.message || "Failed to process image scan." }, { status: 500 });
+  }
 }

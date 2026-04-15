@@ -1,0 +1,178 @@
+{
+  "recipes": [
+    {
+      "id": "1",
+      "title": "Wild Mushroom Risotto",
+      "reference_source": "Ottolenghi SIMPLE, Page 124",
+      "prep_time_minutes": 10,
+      "cook_time_minutes": 35,
+      "servings": 4,
+      "image": "https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&q=80&w=2670",
+      "tags": [
+        "Dinner",
+        "Vegetarian"
+      ]
+    },
+    {
+      "title": "Test",
+      "reference_source": "test",
+      "prep_time_minutes": 0,
+      "cook_time_minutes": 0,
+      "servings": 0,
+      "image": "https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&q=80&w=2670",
+      "id": "s3o27Ak"
+    },
+    {
+      "title": "Classic Lemon Garlic Pasta",
+      "reference_source": "Scanned from: The Pasta Grannies Cookbook, P. 45",
+      "prep_time_minutes": 10,
+      "cook_time_minutes": 15,
+      "servings": 4,
+      "image": "https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&q=80&w=2670",
+      "id": "gdXieVq"
+    },
+    {
+      "title": "Classic Lemon Garlic Pasta",
+      "reference_source": "Scanned from: The Pasta Grannies Cookbook, P. 45",
+      "prep_time_minutes": 10,
+      "cook_time_minutes": 15,
+      "servings": 2,
+      "image": "https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&q=80&w=2670",
+      "id": "RDO3P-3"
+    },
+    {
+      "title": "Classic Lemon Garlic Pasta",
+      "reference_source": "Scanned from: The Pasta Grannies Cookbook, P. 45",
+      "prep_time_minutes": 10,
+      "cook_time_minutes": 15,
+      "servings": 4,
+      "image": "https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&q=80&w=2670",
+      "id": "v5-oz9R"
+    },
+    {
+      "title": "Classic Lemon Garlic Pasta",
+      "reference_source": "Scanned from: The Pasta Grannies Cookbook, P. 45",
+      "prep_time_minutes": 10,
+      "cook_time_minutes": 15,
+      "servings": 5,
+      "image": "https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&q=80&w=2670",
+      "id": "kL-o9xa"
+    }
+  ],
+  "ingredients": [
+    {
+      "id": "1",
+      "name": "olive oil"
+    },
+    {
+      "id": "2",
+      "name": "shallot"
+    },
+    {
+      "id": "3",
+      "name": "mixed wild mushrooms"
+    },
+    {
+      "id": "4",
+      "name": "arborio rice"
+    },
+    {
+      "id": "5",
+      "name": "vegetable broth"
+    },
+    {
+      "id": "6",
+      "name": "heavy cream"
+    },
+    {
+      "id": "7",
+      "name": "Parmesan cheese"
+    }
+  ],
+  "recipe_ingredients": [
+    {
+      "id": "1",
+      "recipe_id": "1",
+      "ingredient_id": "1",
+      "quantity": 2,
+      "unit": "tbsp"
+    },
+    {
+      "id": "2",
+      "recipe_id": "1",
+      "ingredient_id": "2",
+      "quantity": 1,
+      "unit": "large",
+      "preparation_note": "finely chopped"
+    },
+    {
+      "id": "3",
+      "recipe_id": "1",
+      "ingredient_id": "3",
+      "quantity": 300,
+      "unit": "g"
+    },
+    {
+      "id": "4",
+      "recipe_id": "1",
+      "ingredient_id": "4",
+      "quantity": 1.5,
+      "unit": "cups"
+    },
+    {
+      "id": "5",
+      "recipe_id": "1",
+      "ingredient_id": "5",
+      "quantity": 4,
+      "unit": "cups",
+      "preparation_note": "warm"
+    },
+    {
+      "id": "6",
+      "recipe_id": "1",
+      "ingredient_id": "6",
+      "quantity": 0.25,
+      "unit": "cup"
+    },
+    {
+      "id": "7",
+      "recipe_id": "1",
+      "ingredient_id": "7",
+      "quantity": 0.5,
+      "unit": "cup",
+      "preparation_note": "grated"
+    }
+  ],
+  "instruction_steps": [
+    {
+      "id": "1",
+      "recipe_id": "1",
+      "step_number": 1,
+      "instruction_text": "Sauté the shallots and mushrooms in olive oil over medium heat until softened."
+    },
+    {
+      "id": "2",
+      "recipe_id": "1",
+      "step_number": 2,
+      "instruction_text": "Add the arborio rice and toast slightly, stirring constantly for about 1 minute."
+    },
+    {
+      "id": "3",
+      "recipe_id": "1",
+      "step_number": 3,
+      "instruction_text": "Gradually add the warm vegetable broth, one ladle at a time, stirring until absorbed. Continue this process for <span class='highlight' data-time='20' onclick='startTimer(20)'>20 minutes</span> or until the rice is al dente."
+    },
+    {
+      "id": "4",
+      "recipe_id": "1",
+      "step_number": 4,
+      "instruction_text": "Stir in the heavy cream and grated Parmesan cheese until completely creamy. Season with salt, pepper, and fresh thyme."
+    },
+    {
+      "id": "5",
+      "recipe_id": "1",
+      "step_number": 5,
+      "instruction_text": "Remove from heat and let sit for <span class='highlight' data-time='5' onclick='startTimer(5)'>5 minutes</span> to cool. Serve hot, garnished with extra herbs."
+    }
+  ]
+}

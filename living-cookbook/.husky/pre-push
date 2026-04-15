@@ -1,0 +1,31 @@
+#!/usr/bin/env sh
+
+echo "🚦 [Husky pre-push] Running schema sync check..."
+
+# Run db:status
+OUTPUT=$(npm run db:status 2>&1)
+EXIT_CODE=$?
+
+# If the command itself fails (e.g., Supabase CLI not found or database not linked), abort.
+if [ $EXIT_CODE -ne 0 ]; then
+  echo "❌ [Error] npm run db:status failed."
+  echo "$OUTPUT"
+  exit 1
+fi
+
+# Check for a row that has a Local migration ID but NO Remote migration ID
+# The pattern detects " 12345678901234 |                |" structure
+if echo "$OUTPUT" | grep -qE "\|[[:space:]]+\|"; then
+  echo ""
+  echo "🔴 FATAL: You have unapplied Supabase migrations."
+  echo "The production database is missing migrations that exist locally."
+  echo "--------------------------------------------------------"
+  echo "👉 Action Required:"
+  echo "   Run 'npm run db:push:prod' before pushing."
+  echo "--------------------------------------------------------"
+  echo ""
+  exit 1
+fi
+
+echo "✅ [Husky pre-push] Database schema is fully synced. Pushing to GitHub..."
+exit 0

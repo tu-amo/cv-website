@@ -1,17 +1,23 @@
 :root {
-    --bg-color: #0f172a;
+    --bg-color: #0d1a16; /* Deep Forest Green */
     --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --accent-color: #2563eb;
-    /* Unified Sapphire Blue */
-    --accent-glow: rgba(37, 99, 235, 0.25);
-    --glass-bg: rgba(30, 41, 59, 0.7);
+    --text-secondary: #cbd5e1;
+    --accent-color: #d4a373; /* Wheat */
+    --accent-glow: rgba(212, 163, 115, 0.25);
+    --glass-bg: rgba(13, 26, 22, 0.7);
     --glass-border: rgba(255, 255, 255, 0.08);
     --card-bg: rgba(255, 255, 255, 0.03);
     --font-main: 'Inter', sans-serif;
     --font-serif: 'Playfair Display', serif;
-    --accent-purple: #8b5cf6;
-    /* Added Unified Purple */
+    --accent-purple: #ccd5ae; /* Moss */
+
+    /* Generic Aliases for components */
+    --color-primary: var(--accent-color);
+    --color-text-primary: var(--text-primary);
+    --color-text-secondary: var(--text-secondary);
+    --color-text-muted: #94a3b8;
+    --color-background: var(--bg-color);
+    --color-primary-soft: rgba(212, 163, 115, 0.15);
 }
 
 * {
@@ -129,7 +135,7 @@ body {
     font-family: var(--font-serif);
     font-size: 3.8rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%);
+    background: linear-gradient(135deg, #d4a373 0%, #7b906f 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;

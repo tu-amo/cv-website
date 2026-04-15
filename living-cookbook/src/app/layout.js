@@ -1,29 +1,41 @@
-import { Inter, Playfair_Display } from "next/font/google";
+import { Poppins, Nunito } from "next/font/google";
 import "./globals.css";
+import "@/app/themes/pretzelprep.css";
+import PretzelNav from "@/components/PretzelNav";
+import { HouseholdProvider } from "@/lib/HouseholdContext";
 
-const inter = Inter({
-  variable: "--font-body",
+const poppins = Poppins({
+  variable: "--pp-font-brand",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  style: ["normal", "italic"],
+  display: "swap",
 });
 
-const playfair = Playfair_Display({
-  variable: "--font-heading",
+const nunito = Nunito({
+  variable: "--pp-font-body",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
   style: ["normal", "italic"],
+  display: "swap",
 });
 
 export const metadata = {
-  title: "The Living Cookbook",
-  description: "A beautiful, intelligent recipe collection.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://pretzelprep.com'),
+  title: "Pretzel Prep",
+  description: "Your recipes. Your kitchen.",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${playfair.variable} antialiased`}>
-        <div id="app">
-          {children}
-        </div>
+      <body className={`${poppins.variable} ${nunito.variable} antialiased`}>
+        <HouseholdProvider>
+          <PretzelNav />
+          <div id="app">
+            {children}
+          </div>
+        </HouseholdProvider>
       </body>
     </html>
   );

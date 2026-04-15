@@ -164,39 +164,202 @@ Is this a truly one-off unique case?
 |---|---|
 | `.pp-overline` | Eyebrow / section label (0.7rem, uppercase, muted, letter-spaced) |
 | `.pp-hint` | Helper or hint text below an input (0.75rem, muted, block) |
+| `.pp-section-heading` | **All page h2s** — section heading within a page or form (1.4rem, bold, on-surface) |
 | `.pp-flex-col` | Vertical form field stack (flex column, gap 16px) |
 | `.pp-page-card` | Full interior page container (max 1200px, 20px radius, shadow) |
-| `.font-heading` | Apply `--font-brand` (Poppins) to any element |
-| `.btn-add` | Primary amber CTA button |
+| `.font-heading` | Apply `--font-brand` (Poppins) to any non-heading element |
+| `.btn-add` | Primary CTA button |
 | `.form-control` | Styled form input |
 
 ---
 
-## Heading Hierarchy Rules
+## Page Layout Shells
 
-**One `<h1>` per page.** Headings must nest without skipping levels.
+**Every page in the app has exactly one outer wrapper div.** This wrapper provides the card surface, max-width, shadow, and border-radius that make all pages look consistent.
+
+### The three shells
+
+| Shell class | Used on | DOM path |
+|---|---|---|
+| `.pp-page-card` | **All interior pages** — Profile, Household, Shopping, System, Add/Edit, Tools, any new page | `#app > .pp-page-card` |
+| `.view-gallery > .home-wrapper` | **Homepage only** — the hero needs to bleed edge-to-edge inside the card | `#app > .view-gallery > .home-wrapper` |
+| `.recipe-detail-wrapper` | **Recipe detail only** — different hero treatment, same visual output | `#app > .view-gallery > .recipe-detail-wrapper` |
+
+### The rule
+
+> **If you are building an interior page, the outermost JSX div must have `className="pp-page-card"`.  
+> Do NOT use a custom module class, inline styles, or a plain `<div>` for the page shell.**
+
+```jsx
+// ✅ CORRECT — every interior page
+export default function MyPage() {
+  return (
+    <div className="pp-page-card">
+      <PageHeader title="Page Title" />
+      <h2 className="pp-section-heading">Section</h2>
+      ...
+    </div>
+  );
+}
+
+// ❌ WRONG — custom wrapper class
+export default function MyPage() {
+  return (
+    <div className={styles.page}>  {/* No card surface, no shadow, no standard max-width */}
+      ...
+    </div>
+  );
+}
+
+// ❌ WRONG — plain div with inline styles
+export default function MyPage() {
+  return (
+    <div style={{ maxWidth: 900, margin: '0 auto', padding: 40 }}>  {/* Diverges from other pages */}
+      ...
+    </div>
+  );
+}
+```
+
+### What `pp-page-card` provides (don't re-invent these)
+
+```css
+.pp-page-card {
+  max-width:     1200px;
+  margin:        40px auto;
+  background:    var(--color-surface);          /* dark card surface */
+  border:        1px solid var(--color-hairline);
+  border-radius: 20px;                          /* 16px on mobile */
+  box-shadow:    0 20px 40px rgba(0,0,0,0.3);
+  padding:       40px;                          /* 24px/20px on mobile */
+  box-sizing:    border-box;
+}
+```
+
+Module CSS may add **internal** layout (flex, grid, gap) inside `.pp-page-card` elements,  
+but must not redefine max-width, background, border, border-radius, shadow, or outer margin.
+
+---
+
+## Typography & Spacing Standard
+
+This section is the single source of truth for heading hierarchy, spacing, and colour.
+Reference it during page audits and when building new pages.
+
+---
+
+### Heading Scale
+
+| Level | Element | Component / Class | Size | Colour token | Weight |
+|---|---|---|---|---|---|
+| Page title | `<h1>` | `<PageHeader title="..." />` | 2.2rem | `--color-on-surface` | 700 |
+| Section heading | `<h2>` | `className="pp-section-heading"` | 1.4rem | `--color-on-surface` | 700 |
+| Sub-section / card title | `<h3>` | `className="font-heading"` | inherits (≈1rem) | `--color-on-surface` | 600 |
+| Eyebrow / label | `<p>` or `<span>` | `className="pp-overline"` | 0.7rem | `--color-on-surface-muted` | 700 |
+
+**Important:** Both h1 and h2 use `--color-on-surface` (#EDD09A salt/amber).
+Hierarchy is created by **size only** — not by colour.
+`--color-primary` (#B0ADDA lavender) is for interactive elements (buttons, borders,
+highlights), **not** for headings.
+
+---
+
+### Spacing Rationale (2:1 rule)
 
 ```
-page <h1>         — page title
-  section <h2>    — major section within the page
-    card <h3>     — item/card title inside a section
-      <h4>        — rare; sub-item only
+h1 PageHeader
+  ↕  32px  (PageHeader wrapper margin-bottom)
+  ↕  40px  (pp-section-heading margin-top)
+  ─────────
+  ↕  72px total from h1 to first h2   ← ~2× the h1 pixel height (2.2rem ≈ 35px)
+
+h2 Section Heading
+  ↕  20px  (pp-section-heading margin-bottom — coupling to its fields)
+
+  [form fields / content]
+
+  ↕  40px  (next pp-section-heading margin-top — section break)
+h2 Next Section
 ```
 
-### Known heading map (confirmed clean after 7e audit)
+**2:1 ratio:** 40px above h2 : 20px below h2. More air above creates the section break.
+Do not override pp-section-heading margins unless there is a structural reason
+(e.g. h2 inside a flex row needs `style={{ margin: 0 }}`; document why).
 
-| Page | h1 | h2 |
+> **⚠️ Flex-row exception:** When an h2 shares a row with a button (e.g. "Ingredients" + "Standardize to Metric"), the h2 needs `style={{ margin: 0 }}` to stay flush in the flex container. In this case, **move the 40px top gap to the outer container div** instead:
+> ```jsx
+> {/* ✓ Container carries the section gap */}
+> <div className="form-group dynamic-list" style={{ marginTop: '40px' }}>
+>   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+>     <h2 className="pp-section-heading" style={{ margin: 0 }}>Ingredients</h2>
+>     <button>✨ Standardize to Metric</button>
+>   </div>
+> </div>
+> ```
+
+---
+
+### Component-to-Use Mapping
+
+| What | Use | Never use |
+|---|---|---|
+| Page title (h1) | `<PageHeader title="..." />` | `<h1 className="font-heading" style={{...}}>` |
+| Section heading (h2) | `<h2 className="pp-section-heading">` | `<h2>` with inline font-size/color, `<label>` as section heading |
+| Section label (non-heading) | `<p className="pp-overline">` | `<h2 className="pp-overline">` (wrong tag) |
+| Form field label | `<label>Field Name</label>` | heading tags |
+
+---
+
+### Form Page Conventions
+
+On form/edit pages, major sections of the form get an `<h2 className="pp-section-heading">`
+— **not a `<label>`**. The section heading replaces the top-level label.
+Field-level labels (`<label>Book Title</label>`) remain below the h2 for individual inputs.
+
+**Pattern:**
+```jsx
+<h2 className="pp-section-heading">Source Reference</h2>
+<div className="form-row">
+  <div className="form-group">
+    <label>Book / Website Title</label>     {/* field-level label — stays */}
+    <input className="form-control" ... />
+  </div>
+</div>
+```
+
+**Sections must NOT be wrapped in card containers.** No extra `padding`/`background`/`border`
+wrapper divs around form sections. The h2 heading creates the visual separation by itself.
+
+---
+
+### Page Audit Checklist
+
+When auditing an existing page or reviewing a new one:
+
+- `[ ]` Outermost JSX div uses `pp-page-card` (interior pages) or the correct shell — **not a custom class or plain div**
+- `[ ]` Exactly **one `<h1>`** per page, rendered via `<PageHeader />`
+- `[ ]` All major sections use `<h2 className="pp-section-heading">` — no `<label>` as section heading
+- `[ ]` No `<h2>` with inline `style={{ fontSize, color, fontWeight }}`
+- `[ ]` No `<h2 className="pp-overline">` — overline is for `<p>` or `<span>` only
+- `[ ]` No heading tags skip a level (h1 → h3 without h2 is illegal)
+- `[ ]` `pp-section-heading` margin not overridden without a comment explaining why
+- `[ ]` All heading text uses `--color-on-surface` — not `--color-primary` (lavender) or PP tokens
+- `[ ]` No PP tokens (`--pp-salt`, `--pp-primary`, `--pp-font-brand`) in any CSS class definition
+- `[ ]` No §B deprecated aliases in any new code (`--color-text-papyrus`, `--color-accent-amber`, etc.)
+
+---
+
+### Known heading map (current — as of Phase 10 standardisation)
+
+| Page | h1 (PageHeader) | h2 (pp-section-heading) |
 |---|---|---|
 | Homepage `/` | "Your Library" (or household name) | Filter section |
-| Add/Edit `/add` | "Add Recipe" or recipe title | Source Reference, Ingredients, Method, Photos, Visibility |
-| Recipe detail `/recipe/[id]` | Recipe title | Notes, Nutrition section labels |
+| Add/Edit `/add` | "Edit Recipe" / "Add New Recipe" | Recipe Title · Photos & Visuals · Source Reference · Prep Overview · Visibility · Ingredients · Method Steps |
+| Recipe detail `/recipe/[id]` | Recipe title | Ingredients · Method · Kitchen Notes |
 | Shopping `/shopping` | "Market List" | List name headers |
-| Household `/household` | "Kitchens" | Create New, Join with Invite Code, Your Kitchens |
-| Profile `/profile` | "Your Profile" | (none needed) |
-
-**Conditional h1s are fine** — if only one renders at a time (e.g. login/join/forgot-password pages share a layout but each has its own h1 gated by a conditional render).
-
-**Decorative text must not use heading tags.** Image captions, ingredient labels, mood words → use `<p>` or `<span>`, not `<h3>`.
+| Household `/household` | "Manage Kitchens" | Create New · Join with Invite Code · Your Kitchens |
+| Profile `/profile` | "My Profile" | Display Name · Email Address |
+| System `/system` | "System Info" | (none) |
 
 ---
 
@@ -366,6 +529,8 @@ import { RoleBadge } from '@/components/ui';
 | LL-046 | Emoji as UI icons are unstylable, platform-inconsistent, and inaccessible — use Icon.* |
 | LL-047 | Escaped quotes `\'` in automated import replacements break the Next.js SWC parser |
 | LL-048 | Brand guide drifts from implementation — reference token names not hex values |
+| LL-049 | New pages built with custom wrapper classes diverge from the card-surface standard — always use `pp-page-card` as the outermost div on interior pages |
+| LL-050 | Functional data colours elevate dark themes. Reserve Amber/Primary for monospace values (Git SHAs, Codes), muted Greens for Success/Production, and pastel Blues for Previews. Keep headings uncoloured. |
 
 ---
 

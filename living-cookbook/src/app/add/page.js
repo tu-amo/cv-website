@@ -1,14 +1,21 @@
 "use client";
+import { Icon } from "@/components/icons";
+import { PageHeader } from "@/components/ui";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useMemo } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
+import { standardizeText, standardizeIngredient, smartParseIngredient, scaleRecipe } from "@/lib/recipe-utils";
+import ImageManager from "@/components/ImageManager";
+import AuthStatus from "@/components/AuthStatus";
 
 function AddRecipeForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const editId = searchParams.get("id");
+
+    const supabase = useMemo(() => createClient(), []);
 
     const [title, setTitle] = useState("");
     const [bookTitle, setBookTitle] = useState("");
@@ -20,51 +27,96 @@ function AddRecipeForm() {
     const [cookTime, setCookTime] = useState("");
     const [servings, setServings] = useState("");
     const [previousServings, setPreviousServings] = useState(null);
+    const [imageUrls, setImageUrls] = useState([]);
+    const [aiImagesUsed, setAiImagesUsed] = useState(0);
+    const [groups, setGroups] = useState([]);
+    const [selectedGroupIds, setSelectedGroupIds] = useState(new Set());
+    const [isPublic, setIsPublic] = useState(false);
+    // Derived: private when nothing is shared
+    const isPrivate = selectedGroupIds.size === 0 && !isPublic;
 
     const [ingredients, setIngredients] = useState([
-        { id: Date.now(), qty: "", unit: "", name: "", prep: "" },
+        { id: Date.now(), row_type: 'ingredient', qty: "", unit: "", name: "", prep: "" },
     ]);
     const [steps, setSteps] = useState([{ id: Date.now(), text: "" }]);
 
     const [isScanning, setIsScanning] = useState(false);
+    const [isLoading, setIsLoading] = useState(!!editId);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isGeneratingBrief, setIsGeneratingBrief] = useState(false);
+    const [lastBrief, setLastBrief] = useState(null); // { hero, mise }
     const [deleteConfirm, setDeleteConfirm] = useState(false);
+    const [toast, setToast] = useState(null);
+
+    const showToast = (msg, duration = 3000) => {
+        setToast(msg);
+        setTimeout(() => setToast(null), duration);
+    };
+
+    useEffect(() => {
+        async function loadGroups() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) return;
+            const { data } = await supabase.from("group_members").select("groups(id, name)");
+            if (data) {
+                // Deduplicate by group id — guards against duplicate group_members rows
+                const seen = new Set();
+                const unique = data.map(d => d.groups).filter(g => {
+                    if (!g || seen.has(g.id)) return false;
+                    seen.add(g.id);
+                    return true;
+                });
+                setGroups(unique);
+            }
+        }
+        loadGroups();
+    }, []);
 
     useEffect(() => {
         if (editId) {
             async function loadRecipe() {
-                const { data: recipe } = await supabase.from("recipes").select("*, sources(*)").eq("id", editId).single();
-                if (recipe) {
-                    setTitle(recipe.title || "");
-                    setPrepTime(recipe.prep_time_minutes || "");
-                    setCookTime(recipe.cook_time_minutes || "");
-                    setServings(recipe.servings || "");
-                    setPageNumber(recipe.page_number || "");
+                try {
+                    const { data: recipe } = await supabase.from("recipes").select("*, sources(*)").eq("id", editId).single();
+                    if (recipe) {
+                        setTitle(recipe.title || "");
+                        setPrepTime(recipe.prep_time_minutes || "");
+                        setCookTime(recipe.cook_time_minutes || "");
+                        setServings(recipe.servings || "");
+                        setPageNumber(recipe.page_number || "");
+                        setImageUrls(recipe.images || [recipe.image].filter(Boolean));
+                        setAiImagesUsed(recipe.ai_images_used || 0);
+                        if (recipe.group_id) setSelectedGroupIds(new Set([recipe.group_id]));
+                        setIsPublic(recipe.is_public || false);
 
-                    if (recipe.sources) {
-                        setBookTitle(recipe.sources.book_title || "");
-                        setAuthor(recipe.sources.author || "");
-                        setPublisher(recipe.sources.publisher || "");
-                        setLink(recipe.sources.link || "");
+                        if (recipe.sources) {
+                            setBookTitle(recipe.sources.book_title || "");
+                            setAuthor(recipe.sources.author || "");
+                            setPublisher(recipe.sources.publisher || "");
+                            setLink(recipe.sources.link || "");
+                        }
                     }
-                }
 
-                // Load ingredients
-                const { data: recipeIngs } = await supabase.from("recipe_ingredients").select("*, ingredients(name)").eq("recipe_id", editId);
-                if (recipeIngs && recipeIngs.length > 0) {
-                    setIngredients(recipeIngs.map(ri => ({
-                        id: Math.random(),
-                        qty: ri.quantity || "",
-                        unit: ri.unit || "",
-                        name: ri.ingredients?.name || "",
-                        prep: ri.preparation_note || ""
-                    })));
-                }
+                    // Load ingredients
+                    const { data: recipeIngs } = await supabase.from("recipe_ingredients").select("*, ingredients(name)").eq("recipe_id", editId).order('sort_order', { ascending: true });
+                    if (recipeIngs && recipeIngs.length > 0) {
+                        setIngredients(recipeIngs.map(ri => ({
+                            id: Math.random(),
+                            // Derive row_type from section column: '__header__' = section row
+                            row_type: ri.section === '__header__' ? 'section' : 'ingredient',
+                            qty: ri.quantity || "",
+                            unit: ri.unit || "",
+                            name: ri.display_name || ri.ingredients?.name || "",
+                            prep: ri.preparation || ""
+                        })));
+                    }
 
-                // Load steps
-                const { data: recipeSteps } = await supabase.from("instruction_steps").select("*").eq("recipe_id", editId).order('step_number', { ascending: true });
-                if (recipeSteps && recipeSteps.length > 0) {
-                    setSteps(recipeSteps.map(rs => ({ id: Math.random(), text: rs.instruction_text })));
+                    // Load steps
+                    const { data: recipeSteps = [] } = await supabase.from("instruction_steps").select("*").eq("recipe_id", editId).order('step_number', { ascending: true });
+                    if (recipeSteps && recipeSteps.length > 0) {
+                        setSteps(recipeSteps.map(rs => ({ id: Math.random(), text: rs.instruction_text })));
+                    }
+                } finally {
+                    setIsLoading(false);
                 }
             }
             loadRecipe();
@@ -72,13 +124,19 @@ function AddRecipeForm() {
     }, [editId]);
 
     const handleAddIngredient = () => {
-        setIngredients([...ingredients, { id: Date.now(), qty: "", unit: "", name: "", prep: "" }]);
+        setIngredients([...ingredients, { id: Date.now(), row_type: 'ingredient', qty: "", unit: "", name: "", prep: "" }]);
+    };
+
+    const handleAddSection = () => {
+        setIngredients([...ingredients, { id: Date.now(), row_type: 'section', name: "", qty: "", unit: "", prep: "" }]);
     };
 
     const updateIngredient = (index, field, value) => {
-        const newIngs = [...ingredients];
-        newIngs[index][field] = value;
-        setIngredients(newIngs);
+        setIngredients(prev => {
+            const newIngs = [...prev];
+            newIngs[index] = { ...newIngs[index], [field]: value };
+            return newIngs;
+        });
     };
 
     const handleAddStep = () => {
@@ -91,221 +149,194 @@ function AddRecipeForm() {
         setSteps(newSteps);
     };
 
+    const removeIngredient = (index) => {
+        if (ingredients.length <= 1) {
+            setIngredients([{ id: Date.now(), row_type: 'ingredient', qty: "", unit: "", name: "", prep: "" }]);
+            return;
+        }
+        setIngredients(ingredients.filter((_, i) => i !== index));
+    };
+
+    const moveIngredient = (index, direction) => {
+        const newIngs = [...ingredients];
+        const targetIndex = direction === 'up' ? index - 1 : index + 1;
+        if (targetIndex < 0 || targetIndex >= newIngs.length) return;
+        [newIngs[index], newIngs[targetIndex]] = [newIngs[targetIndex], newIngs[index]];
+        setIngredients(newIngs);
+    };
+
+    const removeStep = (index) => {
+        if (steps.length <= 1) {
+            setSteps([{ id: Date.now(), text: "" }]);
+            return;
+        }
+        setSteps(steps.filter((_, i) => i !== index));
+    };
+
+    const moveStep = (index, direction) => {
+        const newSteps = [...steps];
+        const targetIndex = direction === 'up' ? index - 1 : index + 1;
+        if (targetIndex < 0 || targetIndex >= newSteps.length) return;
+        [newSteps[index], newSteps[targetIndex]] = [newSteps[targetIndex], newSteps[index]];
+        setSteps(newSteps);
+    };
+
+    // ── Drag-to-reorder state (steps) ─────────────────────────────────────
+    const [dragIndex,     setDragIndex]     = useState(null);
+    const [dragOverIndex, setDragOverIndex] = useState(null);
+
+    const reorderSteps = (fromIndex, toIndex) => {
+        if (fromIndex === toIndex) return;
+        const newSteps = [...steps];
+        const [removed] = newSteps.splice(fromIndex, 1);
+        newSteps.splice(toIndex, 0, removed);
+        setSteps(newSteps);
+    };
+
+    // ── Drag-to-reorder state (ingredients) ────────────────────────────────
+    const [dragIngIndex,     setDragIngIndex]     = useState(null);
+    const [dragIngOverIndex, setDragIngOverIndex] = useState(null);
+
+    const reorderIngredients = (fromIndex, toIndex) => {
+        if (fromIndex === toIndex) return;
+        const newIngs = [...ingredients];
+        const [removed] = newIngs.splice(fromIndex, 1);
+        newIngs.splice(toIndex, 0, removed);
+        setIngredients(newIngs);
+    };
+
+    // --- Image Scanning Utility ---
+    const resizeImage = (file, maxDimension = 1600) => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > maxDimension) {
+                            height *= maxDimension / width;
+                            width = maxDimension;
+                        }
+                    } else {
+                        if (height > maxDimension) {
+                            width *= maxDimension / height;
+                            height = maxDimension;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                    resolve(dataUrl.split(',')[1]);
+                };
+            };
+        });
+    };
+
     const handleScan = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
         setIsScanning(true);
-
-        // Detect file type
-        const mimeType = file.type || "image/jpeg";
+        setToast("Processing image... 📸");
 
         try {
-            // Read file as base64 string
-            const reader = new FileReader();
-            reader.onloadend = async () => {
-                const base64String = reader.result.replace('data:', '').replace(/^.+,/, '');
+            const base64String = await resizeImage(file);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 45000);
 
-                const response = await fetch('/api/scan', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ imageBase64: base64String, mimeType })
-                });
+            const response = await fetch('/api/scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ imageBase64: base64String, mimeType: "image/jpeg" }),
+                signal: controller.signal
+            });
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Failed to process scan. Server responded with: ${errorText}`);
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                if (response.status === 429) {
+                    throw new Error("AI Quota Exceeded. Please try again in 1 minute.");
                 }
+                throw new Error(errorData.error || `Server error: ${response.status}`);
+            }
 
-                const data = await response.json();
+            const data = await response.json();
 
-                // Populate Form with AI Data
-                setTitle(data.title || "");
-                if (data.source) {
-                    setBookTitle(data.source.bookTitle || "");
-                    setAuthor(data.source.author || "");
-                    setPublisher(data.source.publisher || "");
-                    setPageNumber(data.source.pageNumber || "");
-                    setLink(data.source.link || "");
-                }
-                setPrepTime(data.prepTime?.toString() || "");
-                setCookTime(data.cookTime?.toString() || "");
-                setServings(data.servings?.toString() || "");
+            setTitle(data.title || "");
+            if (data.source) {
+                setBookTitle(data.source.bookTitle || "");
+                setAuthor(data.source.author || "");
+                setPublisher(data.source.publisher || "");
+                setPageNumber(data.source.pageNumber || "");
+                setLink(data.source.link || "");
+            }
+            setPrepTime(data.prepTime?.toString() || "");
+            setCookTime(data.cookTime?.toString() || "");
+            setServings(data.servings?.toString() || "");
 
-                if (data.ingredients && data.ingredients.length > 0) {
-                    const mappedIngs = data.ingredients.map((ing, i) => ({
-                        id: Date.now() + i,
-                        qty: ing.qty?.toString() || "",
-                        unit: ing.unit || "",
-                        name: ing.name || "",
-                        prep: ing.prep || ""
-                    }));
-                    setIngredients(mappedIngs);
-                }
+            if (data.ingredients && data.ingredients.length > 0) {
+                const mappedIngs = data.ingredients.map((ing, i) => ({
+                    id: Date.now() + i,
+                    row_type: ing.row_type || 'ingredient',
+                    qty: ing.qty?.toString() || "",
+                    unit: ing.unit || "",
+                    name: ing.name || "",
+                    prep: ing.prep || ""
+                }));
+                setIngredients(mappedIngs);
+            }
 
-                if (data.steps && data.steps.length > 0) {
-                    const mappedSteps = data.steps.map((step, i) => ({
-                        id: Date.now() + 100 + i,
-                        text: step
-                    }));
-                    setSteps(mappedSteps);
-                }
+            if (data.steps && data.steps.length > 0) {
+                const mappedSteps = data.steps.map((step, i) => ({
+                    id: Date.now() + 100 + i,
+                    text: step
+                }));
+                setSteps(mappedSteps);
+            }
 
-                setIsScanning(false);
-            };
-
-            reader.readAsDataURL(file);
-
+            setToast("Recipe scanned successfully! ✨");
         } catch (error) {
             console.error("Scanning Error:", error);
-            alert("Error scanning recipe. Please try again or check API keys.");
+            setToast(`❌ Scan failed: ${error.message}`);
+        } finally {
             setIsScanning(false);
+            setTimeout(() => setToast(null), 10000); // 10s so errors are readable
+            e.target.value = "";
         }
     };
 
     // Measurement Standardization
     const handleStandardize = () => {
-        const densityDatabase = {
-            "all-purpose flour": 120, "flour": 120, "cake flour": 114, "bread flour": 127,
-            "granulated sugar": 200, "sugar": 200, "white sugar": 200,
-            "brown sugar": 220, "powdered sugar": 120, "confectioners sugar": 120,
-            "butter": 227, "margarine": 227,
-            "water": 236, "milk": 240, "buttermilk": 240,
-            "heavy cream": 238, "light cream": 238,
-            "honey": 340, "maple syrup": 322, "corn syrup": 328, "molasses": 337,
-            "oil": 218, "olive oil": 218, "vegetable oil": 218, "canola oil": 218,
-            "cocoa powder": 100, "baking powder": 192, "baking soda": 288,
-            "salt": 273, "kosher salt": 192, "sea salt": 273,
-            "vinegar": 240, "soy sauce": 240, "lemon juice": 236, "lime juice": 236,
-            "vanilla extract": 208, "vanilla": 208,
-            "rice": 185, "white rice": 185, "brown rice": 190,
-            "oats": 90, "rolled oats": 90,
-            "chocolate chips": 170, "almonds": 140, "walnuts": 120, "pecans": 110,
-            "peanut butter": 250,
-            "sour cream": 230, "yogurt": 245, "greek yogurt": 245,
-            "sesame seeds": 144, "white sesame seeds": 144, "black sesame seeds": 144,
-            "dry white wine": 240, "white wine": 240, "wine": 240,
-            "beef stock": 240, "chicken stock": 240, "vegetable stock": 240,
-            "beef broth": 240, "chicken broth": 240, "vegetable broth": 240,
-            "stock": 240, "broth": 240,
-            "tomato paste": 262, "tomato sauce": 245, "tomato puree": 245,
-            "orzo": 175, "pasta": 170, "couscous": 175, "quinoa": 170,
-            "lentils": 190, "dried lentils": 190, "breadcrumbs": 110
-        };
-
-        const volumeRatios = {
-            "cup": 1, "cups": 1, "c": 1,
-            "tbsp": 0.0625, "tablespoon": 0.0625, "tablespoons": 0.0625,
-            "tsp": 0.02083, "teaspoon": 0.02083, "teaspoons": 0.02083,
-            "fl oz": 0.125, "fluid ounce": 0.125
-        };
-
         const newIngs = ingredients.map(ing => {
-            if (!ing.qty || !ing.unit) return ing;
-
-            // Skip already-converted ingredients (prep field contains "originally ...")
-            if (ing.prep && ing.prep.toLowerCase().includes('originally')) return ing;
-
-            const unit = ing.unit.toLowerCase().trim();
-            const name = (ing.name || "").toLowerCase().trim();
-            // Fix: normalise European-style comma decimals (e.g. "0,25" -> "0.25")
-            let qty = parseFloat(String(ing.qty).replace(',', '.'));
-            if (isNaN(qty)) return ing;
-
-            // 0. Check for embedded weights in the prep field (e.g. "about 2 pounds")
-            //    when unit is a size descriptor like large/medium/small
-            const sizeUnits = ['large', 'medium', 'small', 'head', 'bunch'];
-            if (sizeUnits.includes(unit) && ing.prep) {
-                const weightMatch = ing.prep.match(/(\d+(?:\.\d+)?)\s*(lb|lbs|pound|pounds|oz|ounces?)/i);
-                if (weightMatch) {
-                    const weightVal = parseFloat(weightMatch[1]);
-                    const weightUnit = weightMatch[2].toLowerCase();
-                    const isLbs = ['lb', 'lbs', 'pound', 'pounds'].includes(weightUnit);
-                    const grams = Math.round(weightVal * (isLbs ? 453.592 : 28.3495));
-                    const cleanPrep = ing.prep.replace(/about\s*/i, '').replace(weightMatch[0], `${grams}g`).trim();
-                    return { ...ing, qty: grams, unit: 'g', prep: cleanPrep };
+            if (ing.row_type === 'section') return ing;
+            const fullLine = `${ing.qty || ""} ${ing.unit || ""} ${ing.name || ""}${ing.prep ? ', ' + ing.prep : ''}`.trim();
+            const parsed = smartParseIngredient(fullLine);
+            if (parsed) {
+                if (parsed.row_type === 'section' && ing.row_type !== 'section') {
+                    return { ...ing, row_type: 'section', name: parsed.display_name || parsed.name, qty: "", unit: "", prep: "" };
+                }
+                if (parsed.row_type === 'ingredient') {
+                    return { ...ing, ...parsed };
                 }
             }
-
-            // 1. Check if already metric/uncountable
-            if (['g', 'ml', 'kg', 'cloves', 'whole', 'pinch'].includes(unit)) {
-                return ing;
-            }
-
-            // 2. Ounces (weight) to grams
-            if (unit === 'oz' || unit === 'ounce' || unit === 'ounces') {
-                return { ...ing, qty: Math.round(qty * 28.3495), unit: 'g' };
-            }
-
-            // 2b. Pounds to grams
-            if (unit === 'lb' || unit === 'lbs' || unit === 'pound' || unit === 'pounds') {
-                return { ...ing, qty: Math.round(qty * 453.592), unit: 'g' };
-            }
-
-            // 3. Volumes to weight based on density dictionary
-            let densityPerCup = densityDatabase[name];
-
-            // Try partial match if exact match fails
-            if (!densityPerCup) {
-                for (const [key, density] of Object.entries(densityDatabase)) {
-                    if (name.includes(key)) {
-                        densityPerCup = density;
-                        break;
-                    }
-                }
-            }
-
-            if (!densityPerCup) return ing;
-
-            const ratio = volumeRatios[unit];
-            if (ratio) {
-                const grams = Math.round((qty * ratio) * densityPerCup);
-                const oldText = `(originally ${ing.qty} ${ing.unit})`;
-                // Prevent duplicate notes
-                const newPrep = ing.prep ? (ing.prep.includes("originally") ? ing.prep : `${ing.prep} ${oldText}`) : oldText;
-                return { ...ing, qty: grams, unit: 'g', prep: newPrep };
-            }
-
-            return ing;
+            return standardizeIngredient(ing);
         });
-
         setIngredients(newIngs);
-
-        // Standardize Steps Text
-        const standardizeText = (text) => {
-            let res = text;
-
-            // Length Replace
-            res = res.replace(/1\/4[\s-]?inch(es)?/gi, "6 mm");
-            res = res.replace(/1\/2[\s-]?inch(es)?/gi, "1 cm");
-            res = res.replace(/3\/4[\s-]?inch(es)?/gi, "2 cm");
-            res = res.replace(/1[\s-]?inch(es)?/gi, "2.5 cm");
-            res = res.replace(/2[\s-]?inch(es)?/gi, "5 cm");
-
-            // Volume Replace
-            res = res.replace(/1\/4\s+teaspoon(s)?/gi, "1 ml");
-            res = res.replace(/1\/2\s+teaspoon(s)?/gi, "2.5 ml");
-            res = res.replace(/1\s+teaspoon(s)?/gi, "5 ml");
-            res = res.replace(/2\s+teaspoon(s)?/gi, "10 ml");
-
-            res = res.replace(/1\/2\s+tablespoon(s)?/gi, "7.5 ml");
-            res = res.replace(/1\s+tablespoon(s)?/gi, "15 ml");
-            res = res.replace(/2\s+tablespoon(s)?/gi, "30 ml");
-
-            // Temp Replace (F -> C) - handles: 400°F, 400 F, 400 degrees F
-            res = res.replace(/(\d+)\s*(?:°\s*|degrees?\s*)F(?:ahrenheit)?/gi, (m, p1) => {
-                const c = Math.round((parseInt(p1) - 32) * 5 / 9);
-                return `${c}°C`;
-            });
-
-            return res;
-        };
 
         const newSteps = steps.map(step => ({
             ...step,
             text: standardizeText(step.text)
         }));
-
         setSteps(newSteps);
     };
 
@@ -316,14 +347,9 @@ function AddRecipeForm() {
 
         if (previousServings && newServings && previousServings !== newServings) {
             const ratio = newServings / previousServings;
-            const newIngs = ingredients.map(ing => {
-                if (ing.qty) {
-                    const updatedQty = Math.round(parseFloat(ing.qty) * ratio);
-                    return { ...ing, qty: updatedQty };
-                }
-                return ing;
-            });
-            setIngredients(newIngs);
+            const { scaledIngs, scaledSteps } = scaleRecipe(ingredients, steps, ratio);
+            setIngredients(scaledIngs);
+            setSteps(scaledSteps);
         }
         setPreviousServings(newServings);
     };
@@ -336,7 +362,6 @@ function AddRecipeForm() {
             let finalRecipeId = editId;
             let finalSourceId = null;
 
-            // Handle Source Insertion/Updating
             if (bookTitle || author || publisher || link) {
                 const sourceData = {
                     book_title: bookTitle || "Untitled Source",
@@ -360,56 +385,118 @@ function AddRecipeForm() {
                 }
             }
 
+            const { data: { user } } = await supabase.auth.getUser();
             const recipeData = {
                 title,
                 prep_time_minutes: parseInt(prepTime) || 0,
                 cook_time_minutes: parseInt(cookTime) || 0,
                 servings: parseFloat(servings) || 0,
-                image: "https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&q=80&w=2670",
+                image: imageUrls[0] || "https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&q=80&w=2670",
+                images: imageUrls,
+                ai_images_used: aiImagesUsed,
                 source_id: finalSourceId,
-                page_number: pageNumber
+                page_number: pageNumber,
+                group_id: [...selectedGroupIds][0] || null,
+                is_public: isPublic,
+                updated_by: user.id,
+                user_id: editId ? undefined : user.id
             };
 
+            // First, snapshot existing ingredients in case we need to abort
+            let existingIngredientSnapshot = [];
             if (editId) {
-                // Update
+                const { data: snap } = await supabase
+                    .from('recipe_ingredients')
+                    .select('*')
+                    .eq('recipe_id', editId);
+                existingIngredientSnapshot = snap || [];
+            }
+
+            // Only delete AFTER we have a snapshot
+            if (editId) {
                 await supabase.from("recipes").update(recipeData).eq("id", editId);
-                // Clear related rows for fresh insertion
                 await supabase.from("recipe_ingredients").delete().eq("recipe_id", editId);
                 await supabase.from("instruction_steps").delete().eq("recipe_id", editId);
             } else {
-                // Create
                 const { data: newRecipe, error } = await supabase.from("recipes").insert([recipeData]).select().single();
                 if (error) throw error;
                 finalRecipeId = newRecipe.id;
             }
 
-            // Save Ingredients
-            for (const ing of ingredients) {
-                if (!ing.name) continue;
+            let ingredientSaveFailed = false;
+            let currentSection = null;
 
-                let ingredientId;
-                // Upsert dictionary ingredient
-                const { data: existingIng } = await supabase.from("ingredients").select("id").eq("name", ing.name.toLowerCase().trim()).single();
+            for (const ing of ingredients) {
+                if (!ing.name && ing.row_type !== 'section') continue;
+
+                if (ing.row_type === 'section') {
+                    currentSection = ing.name;
+                    const { error: sectionErr } = await supabase.from("recipe_ingredients").insert([{
+                        recipe_id: finalRecipeId,
+                        display_name: ing.name,
+                        section: '__header__',
+                        sort_order: ingredients.indexOf(ing) + 1
+                    }]);
+                    if (sectionErr) {
+                        console.error("⚠️ Failed to save section header:", ing.name, sectionErr);
+                        showToast(`⚠️ Section '${ing.name}' could not be saved: ${sectionErr.message}`);
+                        ingredientSaveFailed = true;
+                    }
+                    continue;
+                }
+
+                let ingredientId = null;
+                const { data: existingIng } = await supabase
+                    .from("ingredients")
+                    .select("id")
+                    .eq("name", ing.name.toLowerCase().trim())
+                    .maybeSingle();
 
                 if (existingIng) {
                     ingredientId = existingIng.id;
                 } else {
-                    const { data: newIng } = await supabase.from("ingredients").insert([{ name: ing.name.toLowerCase().trim(), default_unit: ing.unit }]).select().single();
-                    if (newIng) ingredientId = newIng.id;
+                    const { data: newIng, error: ingErr } = await supabase
+                        .from("ingredients")
+                        .insert([{ name: ing.name.toLowerCase().trim(), default_unit: ing.unit }])
+                        .select()
+                        .single();
+                    if (ingErr) {
+                        console.warn('[add] ingredients catalog insert failed (RLS?), saving display_name only:', ing.name, ingErr.message);
+                    } else if (newIng) {
+                        ingredientId = newIng.id;
+                    }
                 }
 
-                if (ingredientId) {
-                    await supabase.from("recipe_ingredients").insert([{
-                        recipe_id: finalRecipeId,
-                        ingredient_id: ingredientId,
-                        quantity: parseFloat(ing.qty) || null,
-                        unit: ing.unit,
-                        preparation_note: ing.prep
-                    }]);
+                const { error: riErr } = await supabase.from("recipe_ingredients").insert([{
+                    recipe_id: finalRecipeId,
+                    ingredient_id: ingredientId,
+                    quantity: parseFloat(ing.qty) || null,
+                    unit: ing.unit,
+                    preparation: ing.prep,
+                    display_name: ing.name,
+                    section: currentSection,
+                    sort_order: ingredients.indexOf(ing) + 1
+                }]);
+                if (riErr) {
+                    console.error('[add] recipe_ingredients insert failed:', ing.name, riErr.message);
+                    showToast(`⚠️ Could not save ingredient: ${ing.name} — ${riErr.message}`);
+                    ingredientSaveFailed = true;
                 }
             }
 
-            // Save Steps
+            // ── Guard: if any ingredient failed to insert, restore the snapshot ─
+            if (ingredientSaveFailed && existingIngredientSnapshot.length > 0) {
+                showToast('❌ Ingredient save failed — your original ingredients have been restored. Fix the issue and try again.');
+                // Delete the partial inserts
+                await supabase.from('recipe_ingredients').delete().eq('recipe_id', finalRecipeId);
+                // Restore the snapshot (strip generated id so Supabase auto-assigns a new one)
+                const toRestore = existingIngredientSnapshot.map(({ id: _id, ...row }) => row);
+                if (toRestore.length > 0) {
+                    await supabase.from('recipe_ingredients').insert(toRestore);
+                }
+                return; // Abort navigation
+            }
+
             const validSteps = steps.filter(s => s.text.trim() !== "");
             for (let i = 0; i < validSteps.length; i++) {
                 await supabase.from("instruction_steps").insert([{
@@ -422,7 +509,7 @@ function AddRecipeForm() {
             router.push("/");
         } catch (err) {
             console.error("Error saving recipe:", err);
-            alert("Failed to save recipe to database");
+            showToast("⚠️ Failed to save recipe. Please try again.");
         } finally {
             setIsSubmitting(false);
         }
@@ -430,46 +517,87 @@ function AddRecipeForm() {
 
     const handleDelete = async () => {
         if (!deleteConfirm) {
-            // First click: arm the button
             setDeleteConfirm(true);
-            // Auto-disarm after 4 seconds
             setTimeout(() => setDeleteConfirm(false), 4000);
             return;
         }
-        // Second click: execute delete
         try {
-            const { error: stepsErr } = await supabase.from("instruction_steps").delete().eq("recipe_id", editId);
-            if (stepsErr) throw new Error(`Steps delete failed: ${stepsErr.message}`);
-
-            const { error: ingsErr } = await supabase.from("recipe_ingredients").delete().eq("recipe_id", editId);
-            if (ingsErr) throw new Error(`Ingredients delete failed: ${ingsErr.message}`);
-
-            const { error: recipeErr } = await supabase.from("recipes").delete().eq("id", editId);
-            if (recipeErr) throw new Error(`Recipe delete failed: ${recipeErr.message}`);
-
+            await supabase.from("instruction_steps").delete().eq("recipe_id", editId);
+            await supabase.from("recipe_ingredients").delete().eq("recipe_id", editId);
+            await supabase.from("recipes").delete().eq("id", editId);
             router.push("/");
             router.refresh();
         } catch (err) {
             console.error("Error deleting recipe:", err);
-            alert("Failed to delete recipe. Please try again.");
+            showToast("⚠️ Failed to delete recipe. Please try again.");
+        }
+    };
+
+    const handleGenerateBrief = async () => {
+        if (!title) {
+            showToast("Add a title first!");
+            return;
+        }
+        showToast("Generating Magic Brief... 🧠");
+        setIsGeneratingBrief(true);
+        console.log("Generating brief for:", title);
+        try {
+            // OPTIONAL: Pull the first image as visual context
+            let imageBase64 = null;
+            if (imageUrls && imageUrls.length > 0) {
+                const firstImagePath = imageUrls[0];
+                const { data: blob, error: dlError } = await supabase.storage.from('recipe-images').download(firstImagePath);
+                if (!dlError && blob) {
+                    imageBase64 = await new Promise((resolve) => {
+                        const reader = new FileReader();
+                        reader.readAsDataURL(blob);
+                        reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                    });
+                }
+            }
+
+            const response = await fetch('/api/brief', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    title, 
+                    ingredients: ingredients.map(i => {
+                        const base = `${i.qty || ""} ${i.unit || ""} ${i.name || ""}`.trim();
+                        return i.prep ? `${base} (${i.prep})` : base;
+                    }).filter(Boolean),
+                    steps: steps.map(s => s.text).filter(Boolean),
+                    existingImages: imageUrls,
+                    image: imageBase64 // Sent as Base64 context
+                })
+            });
+            
+            if (response.status === 429 || response.status === 503) {
+                const data = await response.json();
+                showToast(`⏳ ${data.error || "Service busy. Try again in a few moments."}`);
+                return;
+            }
+
+            const data = await response.json();
+            if (data.briefs) {
+                setLastBrief(data.briefs);
+                showToast("Dual Editorial Briefs Generated! ✨");
+            } else {
+                throw new Error(data.error || "Briefs empty");
+            }
+            console.log("Brief generated successfully:", data.briefs);
+        } catch (err) {
+            console.error("Brief Error Details:", err);
+            showToast(`⚠️ Brief failed: ${err.message || "Check logs"}`);
+        } finally {
+            setIsGeneratingBrief(false);
         }
     };
 
     return (
         <div className="view-gallery" style={{ display: 'block' }}>
-            <nav className="nav-bar" style={{ padding: '0 0 40px 0' }}>
-                <Link href="/" className="nav-link">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M19 12H5M12 19l-7-7 7-7" />
-                    </svg>
-                    Back to Library
-                </Link>
-            </nav>
 
             <div className="form-container" style={{ margin: '0 auto' }}>
-                <h1 className="font-heading" style={{ fontSize: "3rem", marginBottom: "20px" }}>
-                    {editId ? "Edit Recipe" : "Add New Recipe"}
-                </h1>
+                <PageHeader title={editId ? "Edit Recipe" : "Add New Recipe"} />
 
                 <div className="scanner-panel">
                     <input type="file" id="scan-input" accept="image/*,application/pdf" style={{ display: "none" }} onChange={handleScan} />
@@ -490,12 +618,20 @@ function AddRecipeForm() {
 
                 <form onSubmit={handleSubmit} onKeyDown={(e) => { if (e.key === "Enter" && e.target.tagName === "INPUT") e.preventDefault(); }}>
                     <div className="form-group">
-                        <label>Recipe Title</label>
+                        <h2 className="pp-section-heading">Recipe Title</h2>
                         <input type="text" className="form-control" value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Grandma's Lasagna" required />
                     </div>
 
-                    <div style={{ padding: "20px", background: "rgba(212, 175, 55, 0.02)", border: "1px dashed var(--color-divider)", borderRadius: "12px", marginBottom: "25px" }}>
-                        <h3 style={{ color: "var(--color-accent-amber)", fontSize: "0.9rem", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: "15px" }}>Source Reference (Optional)</h3>
+                    <ImageManager 
+                        images={imageUrls} 
+                        onChange={setImageUrls} 
+                        aiImagesUsed={aiImagesUsed}
+                        isGenerating={isGeneratingBrief}
+                        lastBrief={lastBrief}
+                        onAiGenerate={handleGenerateBrief} 
+                    />
+
+                    <h2 className="pp-section-heading">Source Reference</h2>
                         <div className="form-row" style={{ marginBottom: "15px" }}>
                             <div className="form-group" style={{ marginBottom: 0 }}>
                                 <label>Book / Website Title</label>
@@ -520,8 +656,8 @@ function AddRecipeForm() {
                                 <input type="text" className="form-control" value={link} onChange={e => setLink(e.target.value)} placeholder="https://..." />
                             </div>
                         </div>
-                    </div>
 
+                    <h2 className="pp-section-heading">Prep Overview</h2>
                     <div className="form-row">
                         <div className="form-group">
                             <label>Prep Time (mins)</label>
@@ -537,39 +673,207 @@ function AddRecipeForm() {
                         </div>
                     </div>
 
-                    {/* Ingredients */}
-                    <div className="form-group dynamic-list">
+                    {/* ── Visibility ────────────────────────────── */}
+                    <h2 className="pp-section-heading">Visibility</h2>
+
+                        {/* Toggle rows: Personal + each household */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+
+                            {/* Personal — exclusive: clears everything */}
+                            {(() => {
+                                const on = isPrivate;
+                                return (
+                                    <div
+                                        onClick={() => { setSelectedGroupIds(new Set()); setIsPublic(false); }}
+                                        style={{
+                                            display: 'flex', alignItems: 'center', gap: '12px', padding: '16px',
+                                            background: 'rgba(212,175,55,0.05)', borderRadius: '12px',
+                                            border: on ? '1px solid var(--color-accent-amber)' : '1px solid transparent',
+                                            cursor: 'pointer', transition: 'all 0.3s ease',
+                                        }}
+                                    >
+                                        <div style={{ width: '40px', height: '22px', background: on ? 'var(--color-accent-amber)' : 'rgba(255,255,255,0.1)', borderRadius: '20px', position: 'relative', transition: 'all 0.3s ease', flexShrink: 0 }}>
+                                            <div style={{ width: '18px', height: '18px', background: on ? 'var(--color-bg-deep-olive)' : '#fff', borderRadius: '50%', position: 'absolute', top: '2px', left: on ? '20px' : '2px', transition: 'all 0.3s cubic-bezier(0.34,1.56,0.64,1)' }} />
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <span style={{ display: 'block', fontSize: '0.9rem', fontWeight: 600, color: on ? 'var(--color-accent-amber)' : 'var(--color-text-papyrus)' }}>{Icon.settings} Personal</span>
+                                            <span className="pp-hint">Only you — clears all other sharing.</span>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
+
+                            {/* Independent toggle per household */}
+                            {groups.map(g => {
+                                const on = selectedGroupIds.has(g.id);
+                                return (
+                                    <div
+                                        key={g.id}
+                                        onClick={() => {
+                                            setSelectedGroupIds(prev => {
+                                                const next = new Set(prev);
+                                                if (next.has(g.id)) next.delete(g.id); else next.add(g.id);
+                                                return next;
+                                            });
+                                        }}
+                                        style={{
+                                            display: 'flex', alignItems: 'center', gap: '12px', padding: '16px',
+                                            background: 'rgba(212,175,55,0.05)', borderRadius: '12px',
+                                            border: on ? '1px solid var(--color-accent-amber)' : '1px solid transparent',
+                                            cursor: 'pointer', transition: 'all 0.3s ease',
+                                        }}
+                                    >
+                                        <div style={{ width: '40px', height: '22px', background: on ? 'var(--color-accent-amber)' : 'rgba(255,255,255,0.1)', borderRadius: '20px', position: 'relative', transition: 'all 0.3s ease', flexShrink: 0 }}>
+                                            <div style={{ width: '18px', height: '18px', background: on ? 'var(--color-bg-deep-olive)' : '#fff', borderRadius: '50%', position: 'absolute', top: '2px', left: on ? '20px' : '2px', transition: 'all 0.3s cubic-bezier(0.34,1.56,0.64,1)' }} />
+                                        </div>
+                                        <div style={{ flex: 1 }}>
+                                            <span style={{ display: 'block', fontSize: '0.9rem', fontWeight: 600, color: on ? 'var(--color-accent-amber)' : 'var(--color-text-papyrus)' }}>{Icon.house} {g.name}</span>
+                                            <span className="pp-hint">Household members can see and cook this recipe.</span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+
+                            {groups.length === 0 && (
+                                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', margin: '4px 0 0' }}>
+                                    No households yet. <a href="/household" style={{ color: 'var(--color-accent-amber)' }}>Create one →</a>
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Public toggle */}
+                        <div
+                            onClick={() => setIsPublic(!isPublic)}
+                            style={{
+                                display: 'flex', alignItems: 'center', gap: '12px', padding: '16px',
+                                background: 'rgba(212, 175, 55, 0.05)', borderRadius: '12px',
+                                border: isPublic ? '1px solid var(--color-accent-amber)' : '1px solid transparent',
+                                cursor: 'pointer', transition: 'all 0.3s ease'
+                            }}
+                        >
+                            <div style={{
+                                width: '40px', height: '22px', background: isPublic ? 'var(--color-accent-amber)' : 'rgba(255,255,255,0.1)',
+                                borderRadius: '20px', position: 'relative', transition: 'all 0.3s ease'
+                            }}>
+                                <div style={{
+                                    width: '18px', height: '18px', background: isPublic ? 'var(--color-bg-deep-olive)' : '#fff',
+                                    borderRadius: '50%', position: 'absolute', top: '2px',
+                                    left: isPublic ? '20px' : '2px', transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                                }} />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                                <span style={{ display: 'block', fontSize: '0.9rem', fontWeight: 600, color: isPublic ? 'var(--color-accent-amber)' : 'var(--color-text-papyrus)' }}>
+                                    {Icon.globe} Publish to Global Gallery
+                                </span>
+                                <span className="pp-hint">
+                                    Anyone with the link can view — no login needed.
+                                </span>
+                            </div>
+                        </div>
+
+                        <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '10px' }}>
+                            {isPrivate && 'Only you can see this recipe.'}
+                            {selectedGroupIds.size > 0 && `Shared with ${selectedGroupIds.size} household${selectedGroupIds.size > 1 ? 's' : ''}.`}
+                        </p>
+
+                    <div className="form-group dynamic-list" style={{ marginTop: '40px' }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                            <label style={{ marginBottom: 0 }}>Ingredients</label>
+                            <h2 className="pp-section-heading" style={{ margin: 0 }}>Ingredients</h2>
                             <button type="button" onClick={handleStandardize} style={{ background: "none", border: "1px solid var(--color-accent-amber)", color: "var(--color-accent-amber)", borderRadius: "20px", padding: "4px 12px", fontSize: "0.8rem", cursor: "pointer", transition: "all 0.2s ease" }}>
                                 ✨ Standardize to Metric
                             </button>
                         </div>
                         {ingredients.map((ing, i) => (
-                            <div className="dynamic-item" key={ing.id}>
-                                <input type="number" className="form-control" style={{ width: "110px" }} placeholder="Qty" value={ing.qty} onChange={e => updateIngredient(i, "qty", e.target.value)} />
-                                <input type="text" className="form-control" style={{ width: "120px" }} placeholder="Unit" value={ing.unit} onChange={e => updateIngredient(i, "unit", e.target.value)} />
-                                <input type="text" className="form-control" placeholder="Ingredient Name" value={ing.name} onChange={e => updateIngredient(i, "name", e.target.value)} />
-                                <input type="text" className="form-control" placeholder="Prep" value={ing.prep} onChange={e => updateIngredient(i, "prep", e.target.value)} />
+                            <div
+                                className={[
+                                    'ingredient-edit-row',
+                                    ing.row_type === 'section' ? 'is-section'   : '',
+                                    dragIngIndex     === i     ? 'ing-dragging'  : '',
+                                    dragIngOverIndex === i     ? 'ing-drag-over' : '',
+                                ].join(' ')}
+                                key={ing.id}
+                                draggable
+                                onDragStart={() => setDragIngIndex(i)}
+                                onDragOver={e  => { e.preventDefault(); setDragIngOverIndex(i); }}
+                                onDrop={e      => { e.preventDefault(); reorderIngredients(dragIngIndex, i); setDragIngIndex(null); setDragIngOverIndex(null); }}
+                                onDragEnd={()  => { setDragIngIndex(null); setDragIngOverIndex(null); }}
+                            >
+                                {/* ── Drag handle (replaces ▲▼ buttons) ── */}
+                                <div className="step-drag-handle" title="Drag to reorder">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                        <circle cx="5" cy="4"  r="1.5"/><circle cx="11" cy="4"  r="1.5"/>
+                                        <circle cx="5" cy="8"  r="1.5"/><circle cx="11" cy="8"  r="1.5"/>
+                                        <circle cx="5" cy="12" r="1.5"/><circle cx="11" cy="12" r="1.5"/>
+                                    </svg>
+                                </div>
+
+                                {ing.row_type === 'section' ? (
+                                    <div style={{ gridColumn: "2 / 6", display: "flex", alignItems: "center", gap: "15px", background: "rgba(255,184,77,0.08)", padding: "8px 15px", borderRadius: "8px", borderLeft: "4px solid #ffb84d" }}>
+                                        <span style={{ fontSize: "0.6rem", fontWeight: "900", color: "#ffb84d", letterSpacing: "1px", textTransform: "uppercase", padding: "3px 6px", border: "1px solid rgba(255,184,77,0.3)", borderRadius: "3px", whiteSpace: "nowrap" }}>SECTION</span>
+                                        <input
+                                            type="text"
+                                            placeholder="FOR THE SAUCE"
+                                            value={ing.name || ""}
+                                            onChange={e => updateIngredient(i, "name", e.target.value)}
+                                            style={{ flex: 1, background: "transparent", border: "none", borderBottom: "1px solid rgba(255,184,77,0.3)", color: "white", fontSize: "1.1rem", fontWeight: "700", outline: "none", padding: "4px 0" }}
+                                        />
+                                    </div>
+                                ) : (
+                                    <>
+                                        <input type="text" className="form-control" placeholder="Qty" value={ing.qty || ""} onChange={e => updateIngredient(i, "qty", e.target.value)} />
+                                        <input type="text" className="form-control" placeholder="Unit" value={ing.unit || ""} onChange={e => updateIngredient(i, "unit", e.target.value)} />
+                                        <input type="text" className="form-control" placeholder="Ingredient Name" value={ing.name || ""} onChange={e => updateIngredient(i, "name", e.target.value)} />
+                                        <input type="text" className="form-control" placeholder="Prep" value={ing.prep || ""} onChange={e => updateIngredient(i, "prep", e.target.value)} />
+                                    </>
+                                )}
+
+                                <button type="button" onClick={() => removeIngredient(i)} className="remove-btn">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
+                                </button>
                             </div>
                         ))}
-                        <button type="button" className="btn-add" onClick={handleAddIngredient}>+ Add another ingredient</button>
+                        <div style={{ display: "flex", gap: "10px", marginTop: "12px" }}>
+                            <button type="button" className="btn-add" style={{ flex: 1 }} onClick={handleAddIngredient}>+ Add Ingredient</button>
+                            <button type="button" className="btn-add" style={{ flex: 1, border: "1px dashed rgba(255,255,255,0.3)" }} onClick={handleAddSection}>+ Add Section Header</button>
+                        </div>
                     </div>
 
-                    {/* Steps */}
                     <div className="form-group dynamic-list">
-                        <label>Method Steps</label>
+                        <h2 className="pp-section-heading">Method Steps</h2>
                         {steps.map((step, i) => (
-                            <div className="dynamic-item" key={step.id}>
+                            <div
+                                className={[
+                                    'step-edit-row',
+                                    dragIndex     === i ? 'step-dragging'   : '',
+                                    dragOverIndex === i ? 'step-drag-over'  : '',
+                                ].join(' ')}
+                                key={step.id}
+                                draggable
+                                onDragStart={() => setDragIndex(i)}
+                                onDragOver={e  => { e.preventDefault(); setDragOverIndex(i); }}
+                                onDrop={e      => { e.preventDefault(); reorderSteps(dragIndex, i); setDragIndex(null); setDragOverIndex(null); }}
+                                onDragEnd={()  => { setDragIndex(null); setDragOverIndex(null); }}
+                            >
+                                {/* ── Drag handle (replaces ▲▼ buttons) ── */}
+                                <div className="step-drag-handle" title="Drag to reorder">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                        <circle cx="5" cy="4"  r="1.5"/><circle cx="11" cy="4"  r="1.5"/>
+                                        <circle cx="5" cy="8"  r="1.5"/><circle cx="11" cy="8"  r="1.5"/>
+                                        <circle cx="5" cy="12" r="1.5"/><circle cx="11" cy="12" r="1.5"/>
+                                    </svg>
+                                </div>
                                 <textarea className="form-control step-input" placeholder={`Step ${i + 1}`} value={step.text} onChange={e => updateStep(i, e.target.value)}></textarea>
+                                <button type="button" onClick={() => removeStep(i)} className="remove-btn v-centered">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12" /></svg>
+                                </button>
                             </div>
                         ))}
                         <button type="button" className="btn-add" onClick={handleAddStep}>+ Add another step</button>
                     </div>
 
                     <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
-                        <button type="submit" className="btn-submit" disabled={isSubmitting} style={{ flex: 1 }}>
-                            {isSubmitting ? "Saving to Cloud..." : editId ? "Update Recipe" : "Save Recipe to Library"}
+                        <button type="submit" className="btn-submit" disabled={isSubmitting || isLoading} style={{ flex: 1 }}>
+                            {isLoading ? "Loading Recipe..." : isSubmitting ? "Saving to Cloud..." : editId ? "Update Recipe" : "Save Recipe to Library"}
                         </button>
                         {editId && (
                             <button
@@ -588,15 +892,35 @@ function AddRecipeForm() {
                                     whiteSpace: "nowrap"
                                 }}
                             >
-                                {deleteConfirm ? "⚠️ Confirm Delete?" : "🗑 Delete Recipe"}
+                                <>{deleteConfirm ? <>{Icon.warn} Confirm Delete?</> : <>{Icon.trash} Delete Recipe</>}</>
                             </button>
                         )}
                     </div>
                 </form>
             </div>
+
+            {/* TOAST SYSTEM */}
+            {toast && (
+                <div style={{
+                    position: 'fixed', bottom: '30px', left: '50%', transform: 'translateX(-50%)',
+                    background: 'var(--color-surface)', color: 'var(--color-text-papyrus)',
+                    padding: '12px 24px', borderRadius: '40px', border: '1px solid var(--color-accent-amber)',
+                    boxShadow: '0 8px 30px rgba(0,0,0,0.5)', zIndex: 1000,
+                    fontSize: '0.9rem', fontWeight: 600, animation: 'slideUp 0.3s ease-out'
+                }}>
+                    {toast}
+                </div>
+            )}
         </div>
     );
 }
+
+const slideUpStyles = `
+    @keyframes slideUp {
+        from { transform: translate(-50%, 20px); opacity: 0; }
+        to { transform: translate(-50%, 0); opacity: 1; }
+    }
+`;
 
 export default function AddRecipePage() {
     return (
