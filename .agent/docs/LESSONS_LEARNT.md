@@ -531,3 +531,34 @@ snapshot → update parent → delete children → insert new children
 **Rule:** The `/update-docs` workflow must include `BRAND_GUIDE.md` as a check whenever the CSS token system or typography changes. Brand docs that reference hex values are inherently fragile — they should reference CSS token names, not hardcoded values, and point to `CSS_ARCHITECTURE.md` as the canonical source.
 
 ---
+
+### LL-049 · New Pages Built With Custom Wrapper Classes Diverge From Card-Surface Standard (2026-04-15)
+**Date:** 2026-04-15  
+**Type:** 🏗 Architecture — ✅ Resolved  
+**Symptom:** Tool pages (`/tools/recipe-scaler` etc.) looked flat compared to every other interior page. They used a custom `.page` CSS module class instead of the global `pp-page-card` shell.  
+**Root Cause:** No documented rule existed for the outer page shell. Without documentation, the custom class was used as a reasonable default.  
+**Fix:** Replaced `styles.page` with `className="pp-page-card"` on all tool pages. Added a "Page Layout Shells" section to `css-architecture/SKILL.md` with DOM path table, examples, and a Page Audit Checklist item.  
+**Rule:** All new interior pages must use `pp-page-card` as the outermost JSX div. Audit checklist: `[ ] Outermost JSX div uses pp-page-card — not a custom class or plain div`.
+
+---
+
+### LL-050 · Next.js App Router Requires `metadataBase` for Absolute hreflang and OG URLs (2026-04-15)
+**Date:** 2026-04-15  
+**Type:** 🐛 Bug (SEO) — ✅ Resolved  
+**Symptom:** hreflang alternate URLs in `<head>` were relative paths instead of absolute URLs. Google cannot use relative hreflang.  
+**Root Cause:** `metadataBase` not set in `src/app/layout.js`. Without it, Next.js cannot resolve relative paths in `metadata.alternates.languages` to absolute URLs.  
+**Fix:** Added `metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://pretzelprep.com')` to root layout metadata. Fixes all pages site-wide in one change.  
+**Rule:** Every Next.js App Router project must set `metadataBase` in root `layout.js`. Read from `NEXT_PUBLIC_SITE_URL` env var so staging and production both work without code changes.
+
+---
+
+### LL-051 · Google Search Console Rejects Sitemap When Root Domain Redirects to www (2026-04-15)
+**Date:** 2026-04-15  
+**Type:** 🐛 Bug (deployment) — ✅ Resolved  
+**Symptom:** GSC rejected `sitemap.xml` with "Invalid sitemap address" even though `pretzelprep.com/sitemap.xml` loaded in the browser and DNS was fully green globally.  
+**Root Cause:** Vercel had `www.pretzelprep.com` as Production and `pretzelprep.com` redirecting (307) → www. GSC does not follow redirects when validating sitemaps — it requires a direct HTTP 200 at the exact submitted URL.  
+**Fix (immediate):** Submitted `https://www.pretzelprep.com/sitemap.xml` instead. GSC accepted it immediately.  
+**Fix (long-term):** Make naked domain (`pretzelprep.com`) the Vercel Primary and `www` the redirect — standard canonical setup.  
+**Rule:** Never submit a sitemap URL that involves a redirect. GSC requires a direct 200. Make the naked domain the Vercel Production primary domain.
+
+---
