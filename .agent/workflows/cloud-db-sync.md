@@ -3,7 +3,7 @@ description: Cloud Database Sync — Deliver SQL before code when touching Supab
 ---
 
 # ☁️ Cloud Database Sync Workflow
-**Last Reviewed:** 2026-04-08
+**Last Reviewed:** 2026-04-15
 
 ## When to Use This Workflow
 
@@ -11,6 +11,8 @@ Run this procedure whenever a code change requires a **new column, table, constr
 
 > ⚠️ Failing to sync the schema first will cause silent data blackouts or 400 errors in production (see LL-043).
 > The Supabase CLI (`npm run db:push`) is now the delivery mechanism — manual SQL editor sessions are no longer required.
+
+> 🔴 **Schema Gate Rule (LL-052):** Never commit or push code that depends on a schema change until `npm run db:push:prod` has been confirmed. If the Vercel build deploys before the migration runs, any route that touches the missing table/column will 500.
 
 ---
 
@@ -29,12 +31,23 @@ The project now has **two Supabase projects**. Every migration must be applied t
 
 ## Steps
 
-### Step 1: Write the SQL Sync Artifact FIRST
-Before touching any component or page file, create a `.sql` artifact with:
-- `ALTER TABLE ... ADD COLUMN IF NOT EXISTS ...` for schema changes
-- `DROP CONSTRAINT IF EXISTS / ADD CONSTRAINT` for FK additions
-- `DROP POLICY IF EXISTS / CREATE POLICY` for RLS changes
-- `UPDATE ... WHERE ... IS NULL` for backfilling existing rows
+### Step 0: Pre-flight — confirm migration status
+Before writing any code, check the current sync state:
+```bash
+npm run db:status
+```
+All rows must show Local = Remote. Any row with a blank Remote column = unapplied migration that will fail on next push.
+
+### Step 1: Write the Migration File FIRST
+Before touching any component or page file, create the migration:
+```bash
+npm run db:new describe_the_change
+```
+Edit the generated file in `supabase/migrations/`. Every migration must contain:
+- Schema change (`CREATE TABLE IF NOT EXISTS` / `ALTER TABLE ... ADD COLUMN IF NOT EXISTS`)
+- `ALTER TABLE x ENABLE ROW LEVEL SECURITY`
+- At least one SELECT policy (empty RLS = silent data blackout, see LL-001)
+- Backfill for existing rows if needed (`UPDATE ... WHERE ... IS NULL`)
 
 ### Step 2: Apply to Staging First
 Apply the migration via the CLI:
@@ -52,13 +65,20 @@ Only after the user confirms the SQL has been applied to **staging**, update:
 Test locally at `localhost:3000` against staging.
 
 ### Step 4: Apply to Production at Deploy Time
-Apply to production **before or at the same time as `git push origin main`**:
+
+> 🔴 **This step must happen BEFORE `git push origin main`.** Vercel deploys within seconds of a push — if the migration runs after, the live site will 500 on every request that touches the new schema.
+
 ```bash
-npm run db:push:prod     # apply migrations to production
-git push origin main     # trigger Vercel deploy
+npm run db:push:prod     # apply migrations to production FIRST
+git push origin main     # THEN trigger Vercel deploy
 ```
 
-> ⚠️ Never push code that depends on a schema change without running `db:push:prod` first.
+Verify sync:
+```bash
+npm run db:status        # all rows must show Local = Remote
+```
+
+> ⚠️ If you ever apply a migration manually via the Supabase SQL editor (emergency), immediately run `supabase migration repair --status applied <version>` to keep the tracking table in sync (LL-052).
 
 ### Step 5: Verify with the DB Migration Checklist
 Run `/db-migration` Step 2 (RLS audit) to confirm no silent data blackouts were introduced by the new schema. Run on **both** environments.

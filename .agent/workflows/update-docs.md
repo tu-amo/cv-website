@@ -98,6 +98,8 @@ Steps 1–6 cover the core project docs. This step covers everything else.
 > - *7b — Review all Skills*  
 > - *7c — Review Supporting Docs (Onboarding Architecture + Feature Spec)*
 > - *7d — Update Last Reviewed dates in project_nexus.md*
+> - *7e — Density Miss Review*
+> - *8  — ADR Review (architecture decision audit)*
 > 
 > *Which would you like?"*
 > 
@@ -155,16 +157,93 @@ Check whether any ingredient units couldn't be converted to grams and need a den
 
 ---
 
+## Step 8: ADR Review *(after any significant architectural session)*
+
+Directory: `living-cookbook/docs/architecture/`
+
+> **⚠️ AGENT INSTRUCTION:** Never edit existing ADR files. The rule is: *accepted ADRs are never edited*. Your job is to READ and ANALYSE — then PROPOSE. Hand proposals to the architect for approval before any new ADR is written.
+
+### 8a. Read all ADRs
+
+Open every file in `docs/architecture/` and read it in full. For each ADR, check:
+
+1. **Is the decision still live?**  
+   Does the code still implement what the ADR describes? Check the key files mentioned.  
+   _If the decision has been reversed or superseded: propose a new ADR with status `Superseded by ADR-00N`._
+
+2. **Are the Revisit Triggers firing?**  
+   Read the `## Revisit Trigger` section of each ADR.  
+   _If any trigger condition is now true: flag it and propose a new ADR or a design discussion._
+
+3. **Are the cross-references still valid?**  
+   Each ADR links to related ADRs by filename. Check the filenames still match.  
+   _If a linked file was renamed or moved: note the broken link (do not edit the ADR — propose a new one or a README index fix)._
+
+4. **Does the schema/code match what the ADR describes?**  
+   For ADRs that include SQL or code snippets, verify the live code matches.  
+   _If they diverge: note it as a drift observation. If the drift is significant, propose a new ADR that supersedes the old one._
+
+### 8b. Identify gaps — decisions made without an ADR
+
+Review what was built in the current session. For any significant architectural decision that doesn't have an ADR, propose one:
+
+> *"The following decisions were made this session that may be worth documenting as ADRs:*
+> 1. [Decision summary] — [why it matters]
+> 2. ...
+>
+> *Would you like me to draft any of these?"*
+
+**Threshold for an ADR-worthy decision:** it answers at least one of:
+- _Why this technology/library and not an obvious alternative?_
+- _Why is this route public when the default is authenticated?_
+- _Why is data structured this way rather than another obvious way?_
+- _Why does this bypass a rule that normally applies everywhere else?_
+- _What are we giving up by making this choice?_
+
+### 8c. Output format — Proposals only, never edits
+
+End the ADR review with a structured report:
+
+```
+## ADR Review — [Date]
+
+### ADR Health
+| ADR | Status | Issues Found |
+|-----|--------|--------------|
+| ADR-001 | ✅ Current | None |
+| ADR-002 | ✅ Current | None |
+| ADR-003 | ✅ Current | None |
+| ADR-004 | ✅ Current | None |
+...
+
+### Proposed new ADRs
+- **ADR-00N: [Title]** — [one-line rationale]
+  - Decision context: [brief summary]
+  - Key trade-off: [what we're giving up]
+  - Revisit trigger: [when to reconsider]
+
+### Stale / Superseded ADRs
+- [None] — or list with reason
+
+### Broken references
+- [None] — or list with location
+```
+
+Present this report to the architect and **wait for approval** before drafting any new ADR.
+
+---
+
 ## Quick Reference — What to Update When
 
-| Event | REQUIREMENTS | CHANGELOG | Nexus | README |
-|-------|-------------|-----------|-------|--------|
-| New feature built | ✅ Mark Done | ✅ Add to Added | Maybe | No |
-| Bug fixed | ✅ Update status | ✅ Add to Fixed | No | No |
-| New env var | No | ✅ Add to Changed | No | ✅ |
-| RLS/Auth change | ✅ Update §3 | ✅ Add to Changed | ✅ | No |
-| Production deploy | ✅ Review all | ✅ Version bump | Maybe | No |
-| New table/migration | ✅ Update §3 | ✅ Added | ✅ | No |
-| End of session | No | No | ✅ Update Last Reviewed dates | No |
-| Every 2–3 sessions | No | No | ✅ | No | *(+ run Steps 7a–7e)* |
+| Event | REQUIREMENTS | CHANGELOG | Nexus | README | ADRs |
+|-------|-------------|-----------|-------|--------|------|
+| New feature built | ✅ Mark Done | ✅ Add to Added | Maybe | No | Run Step 8b |
+| Bug fixed | ✅ Update status | ✅ Add to Fixed | No | No | No |
+| New env var | No | ✅ Add to Changed | No | ✅ | No |
+| RLS/Auth change | ✅ Update §3 | ✅ Add to Changed | ✅ | No | Run Step 8 |
+| Production deploy | ✅ Review all | ✅ Version bump | Maybe | No | Run Step 8a |
+| New table/migration | ✅ Update §3 | ✅ Added | ✅ | No | Run Step 8b |
+| Architecture decision reversed | No | ✅ Added | ✅ | No | New ADR (Superseded) |
+| End of session | No | No | ✅ Update Last Reviewed dates | No | No |
+| Every 2–3 sessions | No | No | ✅ | No | Run Step 8 |
 | New recipes added | No | No | No | No | *(+ run Step 7e density check)* |

@@ -17,12 +17,21 @@ Expected output: empty. If any files appear, commit or stash them before proceed
 **Why**: Uncommitted files are invisible to Vercel (LL-022). The live site will silently serve the old committed version.
 
 // turbo
-2. Confirm you are on `main` and up to date:
+2. Confirm all DB migrations are synced to production (LL-052):
+```bash
+npm run db:status
+```
+Expected: every row shows **Local = Remote**. Any row with a blank Remote = migration not applied to production.
+🔴 **If any row is missing from Remote: run `npm run db:push:prod` NOW, before `git push`.** Deploying code that depends on an unapplied migration will cause 500 errors on the live site.
+**Why**: The production migration history was not bootstrapped until 2026-04-15. From that date forward, `db:status` is the single source of truth.
+
+// turbo
+3. Confirm you are on `main` and up to date:
 ```bash
 git log --oneline -5
 ```
 
-3. Pull and confirm no merge conflicts:
+4. Pull and confirm no merge conflicts:
 ```bash
 git pull origin main
 ```
@@ -33,7 +42,7 @@ Wait for the Vercel deployment to complete, then run these checks against the **
 
 Set the base URL:
 ```bash
-export BASE_URL="https://living-cookbook.vercel.app"
+export BASE_URL="https://www.pretzelprep.com"
 ```
 
 // turbo
@@ -79,6 +88,7 @@ Confirm these are set in Vercel (Settings → Environment Variables):
 | `SUPABASE_SERVICE_ROLE_KEY` | Server only | ✅ — runtime-only; also used as Bearer token for `/api/admin/cache-flush` |
 | `USDA_FDC_API_KEY` | Server only | ✅ |
 | `OPENAI_API_KEY` | Server only | ✅ — AI brief generation |
+| `NEXT_PUBLIC_SITE_URL` | All | ✅ — set to `https://pretzelprep.com`; used by `metadataBase`, `sitemap.js`, and `robots.js` (LL-050) |
 | `SENTRY_DSN` | All | ⏳ Pending ADR-010 implementation |
 
 ## Rollback Procedure
@@ -94,6 +104,9 @@ If a check fails after deployment:
 
 - LL-022: Uncommitted files are invisible to Vercel
 - LL-023: Eager supabaseAdmin init crashes Vercel builds
+- LL-050: `metadataBase` required in `layout.js` for absolute hreflang/OG URLs
+- LL-051: GSC sitemap rejected when root domain redirects to www
+- LL-052: Production migration history never seeded — `db:repair:prod` fixed it
 - ADR-005: `/api/nutrition` public route exemption
 - ADR-007: `supabaseAdmin` lazy Proxy implementation
 - ADR-010: Observability and error tracking strategy
