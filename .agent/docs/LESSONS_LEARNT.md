@@ -562,3 +562,19 @@ snapshot → update parent → delete children → insert new children
 **Rule:** Never submit a sitemap URL that involves a redirect. GSC requires a direct 200. Make the naked domain the Vercel Production primary domain.
 
 ---
+
+### LL-052 · Production Migration History Was Never Seeded — db:push:prod Replayed All History on Every Run (2026-04-15)
+**Date:** 2026-04-15  
+**Type:** 🐛 Bug (deployment process) — ✅ Resolved  
+**Symptom:** Every `npm run db:push:prod` tried to replay all 18 migrations from day one against the live production database, failing on migration 1 because it referenced a column (`created_at` on `recipe_ingredients`) that had since been removed from that table's structure.  
+**Root Cause:** The production Supabase project was built entirely through the dashboard SQL editor — never through the CLI. The migration tracking table (`supabase_migrations.schema_migrations`) was always empty on production, so the CLI treated every migration as unapplied every time.  
+**Why it persisted:** Each new migration file was committed to git, but `db:push:prod` was never successfully completed because of the replay failure. Code was deployed to Vercel while the DB remained unmanaged by the CLI.  
+**Fix:** Ran `supabase migration repair --status applied <version>` for all 18 historical migrations to seed the tracking table without re-running any SQL. Added `db:repair:prod` npm script to `package.json` for reproducibility.  
+**Verification:** `npm run db:status` now shows Local = Remote for all 18 migrations. Future `db:push:prod` runs will only process genuinely new migrations.  
+**Prevention:**  
+1. Any new project using the Supabase CLI must run `supabase link` and create the first migration via the CLI from day one — never bootstrap schema via the dashboard  
+2. After any manual SQL applied to production (emergency fixes), immediately run `supabase migration repair --status applied <version>` to keep tracking in sync  
+3. Run `npm run db:status` before every deploy to confirm Local = Remote  
+4. ⚠️ Schema gate rule: never commit schema-dependent code to `main` without running `db:push:prod` first — state this explicitly before every git push that includes a migration
+
+---
