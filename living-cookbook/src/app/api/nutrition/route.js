@@ -27,7 +27,7 @@ import {
     logNutritionAnomaly,
     logLowConfidenceSkip,
 } from '@/lib/observability';
-import { localNutritionDb } from '@/lib/nutrition-local-db';
+import { localNutritionDb, resolveL0 } from '@/lib/nutrition-local-db';
 
 export const dynamic = 'force-dynamic'; // Prevent build-time execution (which fails if keys are missing in Vercel)
 
@@ -126,13 +126,15 @@ function rowToResult(row) {
         dataType:      row.usda_datatype,
         fdcId:         row.usda_fdc_id,
         confidence:    row.confidence,
-        lowConfidence: row.confidence === 'low', // UI indicator flag — BUG-001
+        lowConfidence: row.confidence === 'low',
         per100g: {
             kcal:    row.kcal_100g,
             protein: row.protein_100g,
             fat:     row.fat_100g,
             carbs:   row.carbs_100g,
             fiber:   row.fiber_100g,
+            sodium:  row.sodium_100g  ?? null,
+            sugar:   row.sugar_100g   ?? null,
         },
     };
 }
@@ -143,9 +145,8 @@ async function lookupSingle(rawName) {
     if (!query) return { found: false, query: '' };
 
     // ── L0: Hardcoded Local Database ──────────────────────────────────────────
-    if (localNutritionDb[query]) {
-        const local = localNutritionDb[query];
-        // Capitalize first letter for display UI
+    const localEntry = resolveL0(query);
+    if (localEntry) {
         const capitalizedName = query.charAt(0).toUpperCase() + query.slice(1);
         const result = {
             found: true,
@@ -155,7 +156,15 @@ async function lookupSingle(rawName) {
             fdcId: 'L0',
             confidence: 'high',
             lowConfidence: false,
-            per100g: local
+            per100g: {
+                kcal:    localEntry.kcal,
+                protein: localEntry.protein,
+                fat:     localEntry.fat,
+                carbs:   localEntry.carbs,
+                fiber:   localEntry.fiber,
+                sodium:  localEntry.sodium ?? null,
+                sugar:   localEntry.sugar  ?? null,
+            }
         };
         logNutritionLookup({ ingredient: query, result, source: 'L0' });
         return { ...result, cacheLevel: 'L0' };
@@ -239,13 +248,15 @@ async function lookupSingle(rawName) {
         dataType:      best.dataType,
         fdcId:         best.fdcId,
         confidence,
-        lowConfidence: confidence === 'low', // explicit flag for NutritionPanel ⚠ indicator
+        lowConfidence: confidence === 'low',
         per100g: {
             kcal:    getNutrientByName(nutrients, 'energy', 'kcal'),
             protein: getNutrientByName(nutrients, 'protein'),
             fat:     getNutrientByName(nutrients, 'total lipid'),
             carbs:   getNutrientByName(nutrients, 'carbohydrate, by difference'),
             fiber:   getNutrientByName(nutrients, 'fiber, total dietary'),
+            sodium:  getNutrientByName(nutrients, 'sodium'),
+            sugar:   getNutrientByName(nutrients, 'sugars, total'),
         },
         cacheLevel: 'origin',
     };
@@ -274,10 +285,12 @@ async function lookupSingle(rawName) {
             fat_100g:        result.per100g.fat,
             carbs_100g:      result.per100g.carbs,
             fiber_100g:      result.per100g.fiber,
+            sodium_100g:     result.per100g.sodium  ?? null,
+            sugar_100g:      result.per100g.sugar   ?? null,
             confidence,
             fetched_at:      new Date().toISOString(),
         }, { onConflict: 'ingredient_name' })
-        .then(() => {}) // intentionally not awaited
+        .then(() => {})
         .catch(e => console.warn('[nutrition] L2 write failed:', e.message));
     } else {
         // OBS-005: log every prevented cache write — helps identify USDA coverage gaps
