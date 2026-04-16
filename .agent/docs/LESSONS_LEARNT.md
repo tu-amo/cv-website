@@ -578,3 +578,159 @@ snapshot → update parent → delete children → insert new children
 4. ⚠️ Schema gate rule: never commit schema-dependent code to `main` without running `db:push:prod` first — state this explicitly before every git push that includes a migration
 
 ---
+
+### LL-053 · Use `grid-template-areas` When Visual Column Order Must Override DOM Order (2026-04-15)
+**Date:** 2026-04-15
+**Type:** 💡 Pattern — ✅ Resolved
+**Symptom:** Reordering ingredient row columns (`checkbox | name | prep | qty | basket` → `checkbox | qty | name | prep | basket`) broke the layout. Changing the DOM order caused the basket button to appear second (right after checkbox) because it had no explicit `order` value and defaulted to `order: 0`, tying with the checkbox. Using CSS `order` alone was unreliable because `.ingredient-item` had three separate conflicting definitions across `globals.css` blocks.
+**Root Cause:** The same `.ingredient-item` class was defined three times in `globals.css` — once with `display: flex`, once with `display: grid`, once with only padding overrides. Any approach relying on DOM order or CSS `order` was fragile against this cascade conflict. Specifically: unset `order` values default to `0`, causing the basket button to visually tie with the checkbox and appear second in the row.
+**Solution:** Used `grid-template-areas` with explicit `grid-area` on each child:
+```css
+.ingredient-item {
+    display: grid;
+    grid-template-columns: 28px auto 1fr auto 36px;
+    grid-template-areas: "cb qty name prep cart";
+}
+.ingredient-item > .checkbox            { grid-area: cb;   }
+.ingredient-item > .ingredient-qty      { grid-area: qty;  }
+.ingredient-item > .ingredient-name     { grid-area: name; }
+.ingredient-item > .ingredient-prep     { grid-area: prep; }
+.ingredient-item > .ingredient-cart-btn { grid-area: cart; }
+```
+**Rule:** When visual column order must differ from DOM order — especially where multiple CSS blocks define the same class — use `grid-template-areas`. It is explicit, immune to cascade conflicts, and does not require all children to have correct `order` values.
+**Anti-pattern:** Using CSS `order` without setting it on ALL children. Any child with no explicit `order` defaults to `0` and silently appears at the front of the layout alongside other `order: 0` elements.
+
+
+---
+
+### LL-054 · CSS Grid `1fr` Columns Require `min-width: 0` on Children to Actually Shrink
+**Date:** 2026-04-16  
+**Type:** 🐛 Bug (layout) — ✅ Resolved  
+**Symptom:** Ingredient names wrapped to multiple lines at narrow viewports (580px) even though the column was `1fr` — every word on its own line, effectively zero width.  
+**Root Cause:** Grid items have `min-width: auto` by default — they cannot shrink below the width of their longest word. A `1fr` column only distributes *free space*. If a child's `min-width: auto` claims more space than the `1fr` allocation, the column cannot shrink. Neighbouring `auto` columns then consume all available width.  
+**Solution:**
+```css
+.ingredient-name {
+    grid-area: name;
+    min-width: 0;  /* allows 1fr to shrink below content minimum */
+}
+```
+**Rule:** Any `1fr` column containing text that must wrap needs `min-width: 0` on the child. This is the most common cause of "1fr doesn't work" layout bugs. Applies to: text columns, flex children inside grid cells, images with natural minimum widths.
+
+---
+
+### LL-055 · Automated CSS Batch Merger "Last Occurrence Wins" Picks the Wrong Canonical
+**Date:** 2026-04-16  
+**Type:** 🐛 Bug (tooling) — ✅ Resolved  
+**Symptom:** After a batch merger eliminated 56 duplicate CSS class definitions, three visual regressions appeared: `.recipe-panels` collapsed from grid to flex (breaking the nutrition sidebar), `.step-number` badge numbers were no longer centred, and ingredient columns appeared in wrong grid positions.  
+**Root Cause:** The script kept the "last occurrence in document order." Last position ≠ intended canonical. A file may be structured as:
+```
+[A] canonical definition (full, correct)    ← position 2800
+[B] responsive override (partial)           ← position 3100  ← script kept this ❌
+[C] legacy FIX block (obsolete)             ← position 3400
+```
+The script also failed on **multi-line property values** (e.g. `linear-gradient(...)` spanning 4 lines) — compressing them into broken one-liners that corrupted adjacent rules.  
+**Safe automated merge process:**
+```
+1. Duplicate detector identifies candidates
+2. Human reviews and marks the winner: /* CANONICAL */
+3. Script keeps /* CANONICAL */, deletes others
+4. npm run build → visual spot-check → THEN commit
+```
+**Potential skill:** `css-automated-cleanup` — safe batch CSS operations, multi-line value preservation, post-run verification.
+
+---
+
+### LL-056 · Orphaned CSS Properties After One-Liner Compression Attach to the Next Rule
+**Date:** 2026-04-16  
+**Type:** 🐛 Bug (tooling) — ✅ Resolved  
+**Symptom:** `.ingredient-text` inherited unexpected `flex-direction: column` despite never declaring it.  
+**Root Cause:** The batch merger compressed single-property blocks to one-liners, leaving bare declarations floating:
+```css
+.recipe-stat-info-group { display: flex; }
+flex-direction: column;   /* ← orphaned — browser applies to NEXT rule */
+```
+**Detection gate (run after any automated CSS transform):**
+```bash
+grep -n "^[[:space:]]*[a-z-]*:[^/]" globals.css | grep -v "{"
+```
+Any match is an orphaned declaration. Fail hard — do not commit until clean.
+
+---
+
+### LL-057 · Mixing `grid-area` and `grid-column` on the Same Element Is a Maintenance Trap
+**Date:** 2026-04-16  
+**Type:** 💡 Pattern — ✅ Resolved  
+**Symptom:** Compound rule `.ingredient-item > .ingredient-name { grid-area: name }` placed the cell correctly, but standalone `.ingredient-name { grid-column: 2 }` created invisible ambiguity — anyone reading only the standalone rule saw an incorrect column.  
+**Root Cause:** `grid-area` is shorthand for all four grid placement longhands. When both `grid-area` (compound) and `grid-column` (standalone) exist on the same element, the declared intent is contradictory, regardless of which wins specificity.  
+**Rule:** When a compound selector uses `grid-area`, ALL standalone rules for the same class must also use `grid-area`. Never mix the two placement mechanisms:
+```css
+/* ❌ Mixed — invisible conflict */
+.ingredient-item > .ingredient-name { grid-area: name; }
+.ingredient-name { grid-column: 2; }
+
+/* ✅ Consistent */
+.ingredient-item > .ingredient-name { grid-area: name; }
+.ingredient-name { grid-area: name; min-width: 0; }
+```
+
+---
+
+### LL-058 · Technical Debt Compounds When Planning Documents Are Fragmented
+**Date:** 2026-04-16  
+**Type:** 🔲 Gap (process) — ✅ Resolved  
+**Symptom:** Backlog items existed in 3 places: `REQUIREMENTS.md` (B1 only), a brain artifact (B1–B5, not in git), and inline in `project_nexus.md`. B2–B5 were invisible to anyone opening the repository.  
+**Root Cause:** No documented rule for WHERE to log a backlog item. Brain artifacts are convenient in-session but live outside version control — invisible in git history and to collaborators.  
+**Fix:** Created `docs/ROADMAP.md` as the single source of truth. Added Step 2 to `/update-docs` workflow. Codified in `CATALOGUE.md`: *"All B-series items go in ROADMAP.md first, then a summary row in REQUIREMENTS.md. Never in a brain artifact only."*  
+**The consolidation hierarchy:**
+```
+docs/ROADMAP.md      ← full detail + notes (single source of truth)
+REQUIREMENTS.md      ← summary rows (P2) with link → ROADMAP.md
+project_nexus.md     ← catalog entry + active plan status
+brain artifacts      ← scratch/working notes ONLY — always mirrored before session end
+```
+**Potential skill:** `documentation-hygiene` — single-source-of-truth rules for backlog, active plan tracking, brain artifact mirroring.
+
+---
+
+## Patterns & Anti-Patterns Emerging
+
+| Pattern | Anti-Pattern |
+|---|---|
+| Use `SECURITY DEFINER` to break RLS recursion | Never self-reference a table in its own policy |
+| Use SSR-aware Supabase client everywhere | Using the static legacy client in any component |
+| Use `object-fit: contain` for food photography | Forcing `object-fit: cover` on artistic/food shots |
+| Treat 'Public' as a Toggle, not a Category | Forcing users to choose between 'Household' and 'Public' |
+| Deliver SQL Sync FIRST in Cloud DB environments | Updating code before providing the manual schema sync |
+| Guard fire-and-forget cache writes with a confidence check | Writing any API response to a long-TTL cache without validating it |
+| **Run `git status` before every deploy** | Assuming local dev server = committed code |
+| Init Supabase admin client lazily (Proxy / factory) | Calling `createClient()` at module top-level with runtime-only secrets |
+| Customise Supabase email templates to use `/auth/callback?token_hash=...` | Using default `{{ .ConfirmationURL }}` in SSR Next.js apps |
+| Configure real SMTP (Resend) before first real user | Relying on Supabase built-in email (3/hour rate limit) |
+| Direct magic link users to `/login/reset-password` to set a password | Leaving passwordless users with no recovery path |
+| Set Supabase Site URL to production domain before launch | Leaving default `http://localhost:3000` in production |
+| **Fix CSS specificity at the source — never add a FIX block** | Adding `!important` to override a rule that already used `!important` |
+| **Use `next/font` — never duplicate with CDN `@import`** | Adding `@import url(fonts.googleapis.com/...)` when layout.js already loads that font |
+| **All UI icon affordances use `Icon.*` from `icons.js`** | Using emoji (🛒, 🗑, 🏠) as button/nav/status icons |
+| **Brand docs reference CSS token names, not hardcoded hex values** | Writing `#1a2421` in a brand guide that will become stale |
+| **Add `min-width: 0` to any `1fr` grid child containing text** | Assuming `1fr` will shrink below `min-width: auto` — it won't |
+| **Mark canonical CSS with `/* CANONICAL */` before any automated merge** | Running "last occurrence wins" scripts on files with mixed canonical/override blocks |
+| **Validate CSS output for orphaned properties after any transform** | Committing batch-merged CSS without running a bare-declaration grep check |
+| **Use `grid-area` consistently — never mix with `grid-column` on the same element** | Compound selector uses `grid-area`; standalone uses `grid-column` — silent conflict |
+| **All B-series backlog items go in `docs/ROADMAP.md` first, then REQUIREMENTS.md** | Logging backlog only in brain artifacts or inline in another document |
+
+---
+
+## Skill Pipeline
+
+| Skill | Source Entries | Covers |
+|---|---|---|
+| `supabase-rls-patterns` | LL-001, 002, 015, 032 | SECURITY DEFINER, audit queries, cleaning legacy policies, signup-time RLS bypass |
+| `nextjs-supabase-auth` | LL-003, 007, 012, 023, 025, 028, 029 | SSR client, email OTP callback, lazy admin client, email template fix, magic link, site URL config |
+| `food-photo-display` | LL-006, 016 | Aspect ratio strategy, object-fit contain vs cover |
+| `vercel-deployment-checklist` | LL-020, 022, 023 | Pre-flight git status, eager init crash, env var availability at build time |
+| `supabase-staging-setup` | LL-030, 031, 033, 034 | Schema ordering, bigint vs UUID IDs, PostgREST cache reload, idempotent seeds |
+| `recipe-seed-data` | LL-031, 035, 036, 037 | Correct column names, bigint ids, ingredient_id=null pattern, DO block debugging |
+| `css-architecture` | LL-044, 045, 046, 047, 048, 053, 054, 057 | M3 token system, !important elimination, icon library, font double-load, grid-area canonical, min-width:0 grid children |
+| **`css-automated-cleanup`** *(new — draft)* | **LL-055, 056** | **Safe batch CSS operations: canonical marking, multi-line value preservation, orphaned-property detection, post-transform verification gate** |
+| **`documentation-hygiene`** *(new — draft)* | **LL-058** | **Single-source-of-truth rules for backlog, active plans, brain artifact mirroring, cross-document linking** |

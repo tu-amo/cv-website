@@ -1,7 +1,7 @@
 # 📚 Document Catalogue — The Living Cookbook
 
 **Purpose:** Single source of truth for all project documentation. Update this list whenever a document is created, renamed, or retired.  
-**Last Updated:** 2026-03-31
+**Last Updated:** 2026-04-16
 
 ---
 
@@ -9,13 +9,24 @@
 
 | # | Document | Location | Owner | Update Trigger | Last Reviewed |
 |---|----------|----------|-------|----------------|---------------|
-| 1 | **Requirements** | `living-cookbook/REQUIREMENTS.md` | Product | Any new feature, status change, or scope decision | 2026-03-30 |
-| 2 | **Architecture Nexus** | `living-cookbook/project_nexus.md` | Engineering | Any change to data flow, auth, or infrastructure | 2026-03-30 |
-| 3 | **Changelog** | `living-cookbook/CHANGELOG.md` | Engineering | Every production deployment | 2026-03-30 |
-| 4 | **README** | `living-cookbook/README.md` | Engineering | Onboarding steps change, new env vars, new scripts | 2026-03-30 |
-| 5 | **Feature Specification** | `(artifact) feature_spec.md` | Product | Feature scope or status changes | 2026-03-30 |
+| 1 | **Requirements** | `living-cookbook/REQUIREMENTS.md` | Product | Any new feature, status change, or scope decision | 2026-04-16 |
+| 2 | **Architecture Nexus** | `living-cookbook/project_nexus.md` | Engineering | Any change to data flow, auth, infrastructure, or document catalog | 2026-04-16 |
+| 3 | **Roadmap & Backlog** | `living-cookbook/docs/ROADMAP.md` | Product | New backlog items (B-series), milestone completions, phase changes | 2026-04-16 |
+| 4 | **Changelog** | `living-cookbook/CHANGELOG.md` | Engineering | Every production deployment | 2026-03-30 |
+| 5 | **README** | `living-cookbook/README.md` | Engineering | Onboarding steps change, new env vars, new scripts | 2026-03-30 |
+| 6 | **Feature Specification** | `(artifact) feature_spec.md` | Product | Feature scope or status changes | 2026-04-10 |
 
 ---
+
+## Active Engineering Plans
+
+Long-running plans tracked in brain artifacts — not versioned in the repo but referenced here.
+
+| # | Plan | Location | Status | Last Reviewed |
+|---|------|----------|--------|---------------|
+| P1 | **CSS Architecture Audit** | `(artifact) implementation_plan.md` | 🟡 Phase 5 done — Phase 6 (@media consolidation) outstanding | 2026-04-16 |
+| P2 | **Business Implementation Plan** | `(artifact) pretzel_prep_business_plan.md` | 🟡 7/15 sprints done — Sprint 8 (Launch Strategy) next | 2026-04-16 |
+
 
 ## Agent & Workflow Documents
 
@@ -40,27 +51,22 @@
 
 ## Document Descriptions
 
-### 1. `REQUIREMENTS.md`
-The functional and non-functional specification for the entire app.  
-Contains: Feature status table, security rules, performance requirements, architecture decisions, and prioritised backlog.  
-**Rule:** Every new feature must have a row in §2 before implementation begins.
+### 3. `ROADMAP.md`
+Long-term deployment phases, milestone tracker, consolidated feature backlog (B-series), tech debt, pre-launch checklist, and active engineering plan summaries.  
+Contains: Phase 0–4 plan, M1–v1.0 milestones, B1–B5 backlog items with context, tech debt/security backlog, pre-launch blockers.  
+**Rule:** All new backlog items (B-series) go here first, then a summary row in `REQUIREMENTS.md`. Never log backlog in a brain artifact only.
 
-### 2. `project_nexus.md`
-Master reference for architecture, file map, document map, QA pipeline, milestones, and long-term roadmap.  
-Contains: Technical stack, full document/workflow/skill map with last-reviewed dates, phase roadmap.  
-**Rule:** Update whenever a new architectural pattern, workflow, or skill is introduced.
-
-### 3. `CHANGELOG.md`
+### 4. `CHANGELOG.md`
 Human-readable history of production changes, following [Keep a Changelog](https://keepachangelog.com) format.  
 Contains: `[Unreleased]` (tagged to current branch), versioned entries with Added / Changed / Fixed / Removed.  
 **Rule:** Every item pushed to production must be logged here before or at deploy time.
 
-### 4. `README.md`
+### 5. `README.md`
 Onboarding doc for new developers.  
 Contains: Project description, local setup steps, environment variables, available scripts, links to key docs.  
 **Rule:** Any new env var or `npm` script must be reflected here within the same session.
 
-### 5. `feature_spec.md`
+### 6. `feature_spec.md`
 Product-level feature specification tracking what's built vs. planned.  
 Contains: Feature tables per domain (Identity, Recipes, Households, Market List, Security), milestone roadmap.  
 **Rule:** Update when feature scope or completion status changes.

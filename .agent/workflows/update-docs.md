@@ -19,7 +19,27 @@ Ask for each document:
 
 ---
 
-## Step 2: Update REQUIREMENTS.md
+## Step 2: Update ROADMAP.md — Backlog & Active Plans
+
+File: `living-cookbook/docs/ROADMAP.md`
+
+**Backlog rule:** Any new feature idea or issue noticed during the session that isn't being built immediately must be logged here as a B-series item — **never only in a brain artifact or chat.**
+
+- [ ] Did any new items surface this session that should become a backlog item?
+  - If yes: add a row to the **Feature Backlog** table in `ROADMAP.md` with a B-number, description, notes, and today's date
+  - Then add a **summary row** in `REQUIREMENTS.md` (P2 tier, same B-number) with a link → `docs/ROADMAP.md`
+- [ ] Were any existing backlog items (B1–Bn) completed or changed in scope?
+  - If yes: update or remove the row in `ROADMAP.md` and `REQUIREMENTS.md`
+
+**Active Engineering Plans rule:** Any long-running plan (CSS audit, business implementation, etc.) must have its status kept current.
+
+- [ ] Update the **Active Engineering Plans** table at the bottom of `ROADMAP.md` with current phase/sprint status
+- [ ] Update the matching rows in `.agent/docs/CATALOGUE.md` → Active Engineering Plans section
+- [ ] Update the **Active Engineering Plans** section in `project_nexus.md` if phase or blocker changed
+
+---
+
+## Step 3: Update REQUIREMENTS.md
 
 File: `living-cookbook/REQUIREMENTS.md`
 
@@ -28,10 +48,10 @@ For any feature touched in this session:
 - Mark broken/reverted items `⚠️ Partial` or `🔲 Pending`
 - Add new requirements if the scope expanded
 - Move anything to "Out of Scope" if it was explicitly de-prioritised
+- Ensure any new B-series items added to `ROADMAP.md` have a matching summary row here
 
----
 
-## Step 3: Update CHANGELOG.md
+## Step 4: Update CHANGELOG.md
 
 File: `living-cookbook/CHANGELOG.md`
 
@@ -55,7 +75,7 @@ If this is a **production deployment**, rename `[Unreleased]` to the version num
 
 ---
 
-## Step 4: Update project_nexus.md (if architecture changed)
+## Step 5: Update project_nexus.md (if architecture changed)
 
 File: `living-cookbook/project_nexus.md`
 
@@ -67,7 +87,7 @@ Update only if any of these changed:
 
 ---
 
-## Step 5: Update README.md (if setup changed)
+## Step 6: Update README.md (if setup changed)
 
 File: `living-cookbook/README.md`
 
@@ -78,34 +98,34 @@ Update if:
 
 ---
 
-## Step 6: Commit the documentation
+## Step 7: Commit the documentation
 
 // turbo
 ```bash
-git add REQUIREMENTS.md CHANGELOG.md project_nexus.md README.md && git commit -m "docs: update documentation after session" && git push origin feature/collab-kitchen-v2
+git add REQUIREMENTS.md CHANGELOG.md project_nexus.md README.md docs/ROADMAP.md && git commit -m "docs: update documentation after session" && git push origin main
 ```
 
 ---
 
-## Step 7: Periodic Audit *(every 2–3 sessions, or after a major feature)*
+## Step 8: Periodic Audit *(every 2–3 sessions, or after a major feature)*
 
-Steps 1–6 cover the core project docs. This step covers everything else.
+Steps 1–7 cover the core project docs. This step covers everything else.
 
-> **⚠️ AGENT INSTRUCTION:** Before running any part of Step 7, stop and ask the user:
+> **⚠️ AGENT INSTRUCTION:** Before running any part of Step 8, stop and ask the user:
 > 
-> *"Steps 1–6 are complete. Would you like to run the periodic audit? I can run any combination of:*
-> - *7a — Review all Workflows*
-> - *7b — Review all Skills*  
-> - *7c — Review Supporting Docs (Onboarding Architecture + Feature Spec)*
-> - *7d — Update Last Reviewed dates in project_nexus.md*
-> - *7e — Density Miss Review*
-> - *8  — ADR Review (architecture decision audit)*
+> *"Steps 1–7 are complete. Would you like to run the periodic audit? I can run any combination of:*
+> - *8a — Review all Workflows*
+> - *8b — Review all Skills*  
+> - *8c — Review Supporting Docs (Onboarding Architecture + Feature Spec)*
+> - *8d — Update Last Reviewed dates in project_nexus.md*
+> - *8e — Density Miss Review*
+> - *9  — ADR Review (architecture decision audit)*
 > 
 > *Which would you like?"*
 > 
 > Only proceed with the sub-steps the user confirms.
 
-### 7a. Review all Workflows
+### 8a. Review all Workflows
 Open each file in `.agent/workflows/` and check:
 - Is the port number still correct? (`localhost:3000`)
 - Does the git branch still match the active branch?
@@ -120,7 +140,7 @@ Workflows to check:
 - [ ] `/update-docs` — *(this file)* — any new steps needed?
 - [ ] `/restart` — port and kill command correct?
 
-### 7b. Review all Skills
+### 8b. Review all Skills
 Open each file in `.agent/skills/` and check:
 - Is the documented pattern still how the code actually works?
 - Are there new lessons from `LESSONS_LEARNT.md` that should be reflected?
@@ -132,14 +152,14 @@ Skills to check:
 - [ ] `ui-ux-designer` — any new design decisions to capture?
 - [ ] `seo-meta-optimizer` — any public pages added since last review?
 
-### 7c. Review Supporting Docs
+### 8c. Review Supporting Docs
 - [ ] `ONBOARDING_ARCHITECTURE.md` — auth flows still accurate? Any new pending items?
 - [ ] `feature_spec.md` — all statuses current? Anything newly completed?
 
-### 7d. Update Last Reviewed Dates in `project_nexus.md`
+### 8d. Update Last Reviewed Dates in `project_nexus.md`
 In the Document & Workflow Map, update the `Last Reviewed` date for every document, workflow, and skill you touched in this session.
 
-### 7e. Density Miss Review *(every 2–3 sessions, or after adding new recipes)*
+### 8e. Density Miss Review *(every 2–3 sessions, or after adding new recipes)*
 Check whether any ingredient units couldn't be converted to grams and need a density entry added.
 
 1. Open the app in the browser and navigate to any recipe
@@ -157,7 +177,7 @@ Check whether any ingredient units couldn't be converted to grams and need a den
 
 ---
 
-## Step 8: ADR Review *(after any significant architectural session)*
+## Step 9: ADR Review *(after any significant architectural session)*
 
 Directory: `living-cookbook/docs/architecture/`
 
@@ -235,15 +255,18 @@ Present this report to the architect and **wait for approval** before drafting a
 
 ## Quick Reference — What to Update When
 
-| Event | REQUIREMENTS | CHANGELOG | Nexus | README | ADRs |
-|-------|-------------|-----------|-------|--------|------|
-| New feature built | ✅ Mark Done | ✅ Add to Added | Maybe | No | Run Step 8b |
-| Bug fixed | ✅ Update status | ✅ Add to Fixed | No | No | No |
-| New env var | No | ✅ Add to Changed | No | ✅ | No |
-| RLS/Auth change | ✅ Update §3 | ✅ Add to Changed | ✅ | No | Run Step 8 |
-| Production deploy | ✅ Review all | ✅ Version bump | Maybe | No | Run Step 8a |
-| New table/migration | ✅ Update §3 | ✅ Added | ✅ | No | Run Step 8b |
-| Architecture decision reversed | No | ✅ Added | ✅ | No | New ADR (Superseded) |
-| End of session | No | No | ✅ Update Last Reviewed dates | No | No |
-| Every 2–3 sessions | No | No | ✅ | No | Run Step 8 |
-| New recipes added | No | No | No | No | *(+ run Step 7e density check)* |
+| Event | ROADMAP.md | REQUIREMENTS | CHANGELOG | Nexus | README | ADRs |
+|-------|-----------|-------------|-----------|-------|--------|------|
+| New feature built | No | ✅ Mark Done | ✅ Add to Added | Maybe | No | Run Step 9b |
+| Bug fixed | No | ✅ Update status | ✅ Add to Fixed | No | No | No |
+| New backlog item noticed | ✅ Add B-row + notes | ✅ Add summary row | No | No | No | No |
+| Backlog item completed | ✅ Remove/archive row | ✅ Mark Done | ✅ Add to Added | No | No | No |
+| Active plan phase changes | ✅ Update Active Plans table | No | No | ✅ Update Active Plans | No | No |
+| New env var | No | No | ✅ Add to Changed | No | ✅ | No |
+| RLS/Auth change | No | ✅ Update §3 | ✅ Add to Changed | ✅ | No | Run Step 9 |
+| Production deploy | No | ✅ Review all | ✅ Version bump | Maybe | No | Run Step 9a |
+| New table/migration | No | ✅ Update §3 | ✅ Added | ✅ | No | Run Step 9b |
+| Architecture decision reversed | No | No | ✅ Added | ✅ | No | New ADR (Superseded) |
+| End of session | No | No | No | ✅ Update Last Reviewed dates | No | No |
+| Every 2–3 sessions | No | No | No | ✅ | No | Run Step 9 |
+| New recipes added | No | No | No | No | No | *(+ run Step 8e density check)* |
