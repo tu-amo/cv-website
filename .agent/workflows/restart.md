@@ -3,7 +3,7 @@ description: Emergency Server Recovery (Clear Port 3000 + Restart)
 ---
 
 # 🔄 Local Chef Recovery Workflow
-**Last Reviewed:** 2026-04-11 — fixed `npm run dev` PATH issue (LL-049)
+**Last Reviewed:** 2026-04-20
 
 Use this if `http://localhost:3000` is unreachable or "Connection Refused".
 
@@ -36,4 +36,3 @@ Check the kitchen status: [http://localhost:3000](http://localhost:3000)
 | Warning | Cause | Action |
 |---|---|---|
 | `Workspace root inferred...` | Two `package-lock.json` files (`Anti/` and `living-cookbook/`) | Silence by setting `turbopack.root` in `next.config.mjs` — not urgent |
-| `"middleware" file convention is deprecated` | `src/middleware.js` should become `src/proxy.js` (LL-024, ADR-011) | Non-urgent; still functional |

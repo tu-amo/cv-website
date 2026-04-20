@@ -3,6 +3,7 @@ description: How to verify the Image Carousel and AI Image Generation feature en
 ---
 
 # Carousel & Image Feature Verification Workflow
+**Last Reviewed:** 2026-04-20
 
 This workflow validates all layers of the carousel and AI image system: logic, data, prompts, performance, and visual behaviour.
 
@@ -65,7 +66,7 @@ Open the local server at http://localhost:3000 and verify the following:
 
 ### Library Page (`/`)
 - [ ] Recipe cards show an image
-- [ ] Hovering a card on desktop starts the carousel auto-advance (4s interval)
+- [ ] Hovering a card on desktop starts the carousel auto-advance (**2.5s interval**)
 - [ ] Moving mouse off the card stops auto-advance
 - [ ] Ken Burns effect is visible: subtle left-to-right pan + slight zoom
 - [ ] Dot indicators update when slide changes
@@ -76,7 +77,7 @@ Open the local server at http://localhost:3000 and verify the following:
 
 ### Recipe View Page (`/recipe/[id]`)
 - [ ] Hero carousel is full width, ~70vh height on desktop
-- [ ] Auto-advances every 5 seconds WITHOUT needing to hover
+- [ ] Auto-advances every **5 seconds** WITHOUT needing to hover *(bumped from 4s — B4, 2026-04-19)*
 - [ ] Gradient overlay is visible (bottom of image darkens, text is readable)
 - [ ] Prev/Next ghost arrows appear on hover (desktop only)
 - [ ] Carousel loops infinitely

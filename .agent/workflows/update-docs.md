@@ -3,6 +3,7 @@ description: How to keep all project documents up to date after a feature or dep
 ---
 
 # 📚 Document Update Workflow
+**Last Reviewed:** 2026-04-20
 
 Run this after every feature completion or production deployment.  
 Takes ~5 minutes. Keeps the project's documentation honest and navigable.
@@ -147,10 +148,21 @@ Open each file in `.agent/skills/` and check:
 - Update the `**Last Reviewed:**` date.
 
 Skills to check:
-- [ ] `nextjs-supabase-auth` — auth flow, callback, profiles, anti-patterns
-- [ ] `food-photo-display` — image display strategy, contain vs cover
+- [ ] `nextjs-supabase-auth` — auth flow, callback, profiles, anti-patterns, middleware name
+- [ ] `css-architecture` — token system, page shells, utility classes, heading map
+- [ ] `food-photo-display` — image display strategy, contain vs cover, carousel intervals
+- [ ] `recipe-seed-data` — column names, bigint ids, DO block patterns
+- [ ] `documentation-hygiene` — B-series rules, active plans, session checklist
+- [ ] `schema-markup` — structured data types, eligibility index
+- [ ] `seo-fundamentals` — E-E-A-T strategy still accurate?
+- [ ] `seo-meta-optimizer` — any new public pages added since last review?
+- [ ] `analytics-tracking` — tracking plan still relevant?
 - [ ] `ui-ux-designer` — any new design decisions to capture?
-- [ ] `seo-meta-optimizer` — any public pages added since last review?
+- [ ] `web-performance-optimization` — Core Web Vitals targets still current?
+- [ ] `accessibility-compliance-accessibility-audit` — any new accessibility issues found?
+- [ ] `frontend-dev-guidelines` — patterns still match current stack?
+- [ ] `mobile-design` — mobile breakpoints and touch targets still accurate?
+- [ ] `pdf` — PDF skill still relevant for current features?
 
 ### 8c. Review Supporting Docs
 - [ ] `ONBOARDING_ARCHITECTURE.md` — auth flows still accurate? Any new pending items?

@@ -3,7 +3,7 @@ description: how to publish / deploy the site to production
 ---
 
 # 🚀 Publishing Workflow
-**Last Reviewed:** 2026-04-10
+**Last Reviewed:** 2026-04-20
 
 > ⚠️ **All work is committed and pushed directly to `main`.** Never push broken or untested changes to `main`.
 
@@ -53,15 +53,16 @@ If either command shows changes → **stop, commit them first.**
 
 ### Step 1.5 — Apply pending SQL migrations to production
 
-> ⚠️ **Critical.** Every migration in `supabase/migrations/` committed since the last production deploy must be applied to **production** before `git push origin main`. Pushing code that depends on a schema change without syncing production first causes silent data blackouts (LL-033).
+> ⚠️ **Critical.** All migrations in `supabase/migrations/` must be applied to **production** before `git push origin main`. Pushing code that depends on a schema change without syncing production first causes silent data blackouts (LL-033, LL-052).
 
-1. Check which migrations are new since the last deploy:
+1. Check sync state and apply:
    ```bash
-   git log --oneline --diff-filter=A -- supabase/migrations/ origin/main..HEAD
+   npm run db:status            # confirm which migrations are pending on Remote
+   npm run db:push:prod         # apply all pending migrations to production
+   npm run db:status            # verify: all rows now show Local = Remote
    ```
-2. For each new migration file, run its SQL in the [Production SQL Editor](https://supabase.com/dashboard/project/hiuhjnodzodcgwltweoc/sql)
-3. Verify with the RLS audit query from `/db-migration` Step 2
-4. Only then proceed to Step 2
+2. Verify with the RLS audit query from `/db-migration` Step 3 in the [Production SQL Editor](https://supabase.com/dashboard/project/hiuhjnodzodcgwltweoc/sql)
+3. Only then proceed to Step 2
 
 ### Step 2 — Push to main
 ```bash
