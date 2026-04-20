@@ -1,10 +1,14 @@
 ---
 name: seo-fundamentals
-description: >
+description: >-
   Core principles of SEO including E-E-A-T, Core Web Vitals, technical foundations,
   content quality, and how modern search engines evaluate pages. This skill explains
-  *why* SEO works, not how to execute specific optimizations.
+  *why* SEO works, not how to execute specific optimizations. Use when understanding
+  the strategic basis for any SEO decision.
 allowed-tools: Read, Glob, Grep
+metadata:
+  category: reference
+  triggers: SEO, search engine, E-E-A-T, Core Web Vitals, LCP, CLS, FID, ranking, content quality, indexing, crawling, Google, search intent
 ---
 
 ---

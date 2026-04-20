@@ -1,6 +1,10 @@
 ---
 name: food-photo-display
-description: Strategy for displaying food photography in web apps — covering aspect ratios, object-fit choices, thumbnail carousels, and the Contain vs Cover tradeoff. Use when building or debugging image display for recipe galleries, product grids, or editorial food layouts.
+description: >-
+  Use when building or debugging image display for recipe galleries, product grids, or editorial food layouts — covers aspect ratios, object-fit choices, thumbnail carousels, and the Contain vs Cover tradeoff.
+metadata:
+  category: technique
+  triggers: image display, food photo, object-fit, cover, contain, carousel, thumbnail, aspect ratio, ken burns, recipe gallery, SecureImage, letterbox bars, portrait photo, landscape grid
 ---
 
 # Food Photo Display Strategy

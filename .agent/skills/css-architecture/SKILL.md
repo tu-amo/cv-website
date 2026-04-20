@@ -1,6 +1,10 @@
 ---
 name: css-architecture
-description: CSS governance rules for the Living Cookbook. Covers the M3 design token system, !important policy, SVG icon library, font loading, inline style decision tree, heading hierarchy, and utility classes. Use this skill any time you are about to add, change, or debug CSS or styling in this app.
+description: >-
+  Use when adding, changing, or debugging any CSS or styling in the Living Cookbook app.
+metadata:
+  category: discipline
+  triggers: css, styling, design token, !important, icon, font, inline style, heading, h1, h2, page layout, pp-page-card, globals.css, module.css, color token, --color-, --font-, utility class, spacing, typography, emoji icon
 ---
 
 # CSS Architecture — Living Cookbook

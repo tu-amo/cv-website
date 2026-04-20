@@ -1,11 +1,12 @@
 ---
 name: analytics-tracking
-description: >
-  Design, audit, and improve analytics tracking systems that produce reliable,
-  decision-ready data. Use when the user wants to set up, fix, or evaluate
-  analytics tracking (GA4, GTM, product analytics, events, conversions, UTMs).
-  This skill focuses on measurement strategy, signal quality, and validation—
-  not just firing events.
+description: >-
+  Use when setting up, fixing, or evaluating analytics tracking — GA4, GTM, product analytics,
+  events, conversions, or UTMs. Focuses on measurement strategy, signal quality, and validation.
+metadata:
+  category: technique
+  triggers: analytics, GA4, GTM, Google Analytics, event tracking, conversion tracking, UTM, product analytics, measurement, tracking plan, data layer, pageview, click event, funnel, attribution
+---
 ---
 
 # Analytics Tracking & Measurement Strategy

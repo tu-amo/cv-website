@@ -1,9 +1,12 @@
 ---
 name: recipe-seed-data
-description: >
-  How to seed test recipe data directly into the Living Cookbook Supabase staging database.
-  Use this skill when you need to add recipes for testing without going through the app UI.
-  Covers the correct column names, data types, and the ingredient_id=null pattern.
+description: >-
+  Use when you need to add test recipes directly to the Living Cookbook Supabase
+  database without going through the app UI. Covers correct column names,
+  data types, the ingredient_id=null pattern, and idempotent DO block patterns.
+metadata:
+  category: reference
+  triggers: seed recipes, test data, staging database, sql insert, recipe_ingredients, instruction_text, bigint, display_name, DO block, ingredient_id null
 ---
 
 # Recipe Seed Data Skill

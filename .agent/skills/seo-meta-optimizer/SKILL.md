@@ -1,10 +1,12 @@
 ---
 name: seo-meta-optimizer
-description: Creates optimized meta titles, descriptions, and URL suggestions
-  based on character limits and best practices. Generates compelling,
-  keyword-rich metadata. Use PROACTIVELY for new content.
+description: >-
+  Use when creating or updating meta titles, descriptions, or URL slugs for any page.
+  Generates compelling, keyword-rich metadata within character limits.
 metadata:
+  category: technique
   model: haiku
+  triggers: meta title, meta description, URL slug, SEO metadata, character limit, title tag, page title, keyword, new page, new route, new tool page
 ---
 
 ## Use this skill when

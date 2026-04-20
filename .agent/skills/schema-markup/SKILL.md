@@ -1,14 +1,11 @@
 ---
 name: schema-markup
-description: >
-  Design, validate, and optimize schema.org structured data for eligibility,
-  correctness, and measurable SEO impact. Use when the user wants to add, fix,
-  audit, or scale schema markup (JSON-LD) for rich results. This skill evaluates
-  whether schema should be implemented, what types are valid, and how to deploy
-  safely according to Google guidelines.
-allowed-tools: Read, Glob, Grep
----
-
+description: >-
+  Use when adding, fixing, auditing, or scaling schema.org structured data (JSON-LD) for rich
+  results. Evaluates eligibility, correctness, and measurable SEO impact according to Google guidelines.
+metadata:
+  category: technique
+  triggers: schema.org, structured data, JSON-LD, rich results, recipe schema, WebApplication schema, Organization schema, FAQ schema, Google Search Console, schema validation, schema markup, rich snippets, hreflang
 ---
 
 # Schema Markup & Structured Data

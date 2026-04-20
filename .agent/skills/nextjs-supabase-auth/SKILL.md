@@ -1,9 +1,12 @@
 ---
 name: nextjs-supabase-auth
-version: 2.0.0
-description: "Production-grade Supabase Auth integration with Next.js App Router. Covers SSR client setup, middleware, auth callback (both email OTP and PKCE), persistent layout auth tracking, profiles table, password reset, and invite link flows. Use when: supabase auth next.js, login supabase, auth middleware, protected routes, email confirmation, forgot password, invite link, display name."
-source: living-cookbook project (tu-amo) — distilled from LESSONS_LEARNT.md LL-003, LL-007, LL-008, LL-012, LL-013, LL-032
-supersedes: nextjs-supabase-auth v2.0.0
+description: >-
+  Use when integrating Supabase Auth with Next.js App Router — login, signup,
+  middleware, auth callback, protected routes, email confirmation, password reset, or invite links.
+metadata:
+  category: reference
+  triggers: supabase auth, login, signup, middleware, protected routes, auth callback, email confirmation, forgot password, password reset, invite link, display name, profiles table, token_hash, PKCE, onAuthStateChange, usePathname, email rate limit, SMTP, Resend, supabaseAdmin, RLS signup, session client
+  source: living-cookbook project (tu-amo) — distilled from LESSONS_LEARNT.md LL-003 LL-007 LL-008 LL-012 LL-013 LL-032
 ---
 
 # Next.js + Supabase Auth — v2
