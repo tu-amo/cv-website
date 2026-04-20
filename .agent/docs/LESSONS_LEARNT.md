@@ -308,6 +308,39 @@ curl -X PATCH "https://[project].supabase.co/auth/v1/admin/users/[user-uuid]" \
 
 ---
 
+
+### LL-059 · `sources` Table: Schema/Code Mismatch + Silent Error Swallowing
+**Date:** 2026-04-19
+**Type:** 🐛 Bug (data) — ✅ Resolved
+**Severity:** High — source data feature broken since it was first built
+**Symptom:** Saving a recipe with any source fields (Book Title, Author, Publisher, URL) appeared to succeed but stored nothing. Re-opening the recipe showed all source fields empty.
+**Root Causes (three compounding):**
+1. **Column name mismatch:** `sources` table had legacy columns (`name`, `url`, `page`) from initial dashboard creation. Application code used canonical names (`book_title`, `link`, `page_number`) and a `publisher` column that didn't exist. Postgres silently rejected every insert with HTTP 400, but code never destructured `{error}`.
+2. **Missing FK constraint:** `recipes.source_id` had no declared FK to `sources.id`, so PostgREST couldn't auto-resolve the `sources(*)` join in `loadRecipe`. The join returned null on every query.
+3. **Silent error swallowing:** All three source save/update paths (`add/page.js` × 2, `RecipeWizard/index.js` × 1) called `await supabase.from('sources').insert(...)` without destructuring `error`. Any failure was completely invisible.
+
+**Fix:**
+- Migration `20260419200000_fix_sources_schema.sql`: `ADD COLUMN book_title`, `publisher`, `link`, `page_number`; migrate legacy data; `ADD CONSTRAINT recipes_source_id_fkey`
+- All 3 save paths: added `{error: srcErr}` + `showToast()` + `console.error()`
+- `loadRecipe`: changed `sources(*)` → `sources!source_id(*)`
+
+**Rule:**
+- **Every Supabase mutation must destructure `{error}`.** Fire-and-forget `await supabase.from(...).insert()` without error check is never acceptable.
+- **Every FK relationship must have a declared constraint.** Without it, PostgREST cannot resolve joins.
+- When a feature silently doesn't work, check in order: (1) does the column exist with the right name? (2) is the FK constraint declared? (3) is the error being surfaced?
+
+---
+
+### LL-060 · PostgREST Join Returns Null When FK Column Name Doesn't Follow Convention
+**Date:** 2026-04-19
+**Type:** 🐛 Bug (query) — ✅ Resolved
+**Symptom:** `loadRecipe` used `.select('*, sources(*)')` but sources always returned `null` even after the FK constraint was added.
+**Root Cause:** PostgREST auto-detects FK joins using the convention `tableName_id`. When the FK column is `source_id` (not `sources_id`), auto-resolution fails silently — the join returns null, not an error.
+**Solution:** Use an explicit FK hint: `sources!source_id(*)` instead of `sources(*)`.
+**Rule:** When a Supabase join returns null and you expect data, add the explicit hint syntax: `related_table!fk_column_name(*)`. Required when: (a) the FK column name doesn't follow `tableName_id` convention, or (b) multiple FKs exist between the same two tables.
+
+---
+
 ## Skill Pipeline
 
 | Skill | Source Entries | Covers |
@@ -717,6 +750,8 @@ brain artifacts      ← scratch/working notes ONLY — always mirrored before s
 | **Mark canonical CSS with `/* CANONICAL */` before any automated merge** | Running "last occurrence wins" scripts on files with mixed canonical/override blocks |
 | **Validate CSS output for orphaned properties after any transform** | Committing batch-merged CSS without running a bare-declaration grep check |
 | **Use `grid-area` consistently — never mix with `grid-column` on the same element** | Compound selector uses `grid-area`; standalone uses `grid-column` — silent conflict |
+| **Always destructure `{error}` from every Supabase mutation** | `await supabase.from().insert()` without error check — silent data loss |
+| **Use explicit FK hint `table!fk_col(*)` when PostgREST join returns null** | Assuming `related_table(*)` will auto-resolve for non-conventional FK names |
 | **All B-series backlog items go in `docs/ROADMAP.md` first, then REQUIREMENTS.md** | Logging backlog only in brain artifacts or inline in another document |
 
 ---
@@ -732,5 +767,6 @@ brain artifacts      ← scratch/working notes ONLY — always mirrored before s
 | `supabase-staging-setup` | LL-030, 031, 033, 034 | Schema ordering, bigint vs UUID IDs, PostgREST cache reload, idempotent seeds |
 | `recipe-seed-data` | LL-031, 035, 036, 037 | Correct column names, bigint ids, ingredient_id=null pattern, DO block debugging |
 | `css-architecture` | LL-044, 045, 046, 047, 048, 053, 054, 057 | M3 token system, !important elimination, icon library, font double-load, grid-area canonical, min-width:0 grid children |
+| **`supabase-schema-hygiene`** *(new — draft)* | **LL-059, 060, 042, 033** | **Schema/code mismatch patterns, silent error swallowing, PostgREST FK hints, FK constraint requirements, migration file discipline** |
 | **`css-automated-cleanup`** *(new — draft)* | **LL-055, 056** | **Safe batch CSS operations: canonical marking, multi-line value preservation, orphaned-property detection, post-transform verification gate** |
 | **`documentation-hygiene`** *(new — draft)* | **LL-058** | **Single-source-of-truth rules for backlog, active plans, brain artifact mirroring, cross-document linking** |
