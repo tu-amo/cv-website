@@ -1,7 +1,7 @@
 # 🧑‍🍳 Onboarding Architecture — The Living Cookbook
 
 **Purpose:** Architectural reference for the two user entry paths into the app.  
-**Last Updated:** 2026-03-31  
+**Last Updated:** 2026-04-22  
 **Status:** ✅ Both processes fully implemented. M1 household context added. See open items at the bottom.
 
 ---
@@ -33,7 +33,7 @@ flowchart TD
 | Login/Signup form at `/login` | ✅ Done | Includes display_name field |
 | `signup()` server action | ✅ Done | Collects display_name, email, password |
 | `profiles` table | ✅ Done | Auto-created via `on_auth_user_created` trigger |
-| Trigger upserts display_name | ✅ Done | `create_profile_on_signup()` SECURITY DEFINER function |
+| Trigger upserts display_name | ✅ Done | `handle_new_user()` SECURITY DEFINER function (`search_path = public`). Migration: `20260419090000_add_profile_creation_trigger.sql`. |
 | Signup success screen | ✅ Done | Shows "Check your inbox" state |
 | `/auth/callback` route | ✅ Done | Handles both `token_hash` (email OTP) and `code` (PKCE) |
 | Display name shown in nav | ✅ Done | `AuthStatus` reads from `profiles.display_name` |
@@ -121,11 +121,15 @@ CREATE TABLE IF NOT EXISTS profiles (
 
 -- Auto-create profile row when a user signs up
 -- EXCEPTION handler prevents signup from being blocked if trigger fails (LL-014)
-CREATE OR REPLACE FUNCTION create_profile_on_signup()
-RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
+-- ⚠️  Function name was updated: live function is handle_new_user() since migration 20260419090000
+CREATE OR REPLACE FUNCTION handle_new_user()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
   INSERT INTO profiles (id, display_name)
-  VALUES (NEW.id, split_part(NEW.email, '@', 1));
+  VALUES (NEW.id, NEW.raw_user_meta_data->>'display_name')
+  ON CONFLICT (id) DO UPDATE SET display_name = EXCLUDED.display_name;
   RETURN NEW;
 EXCEPTION WHEN OTHERS THEN
   RETURN NEW; -- Never block signup
@@ -134,7 +138,7 @@ $$;
 
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION create_profile_on_signup();
+  FOR EACH ROW EXECUTE FUNCTION handle_new_user();
 ```
 
 **RLS on profiles:**

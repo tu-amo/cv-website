@@ -169,5 +169,119 @@ export default function sitemap() {
       },
     },
 
+    // ── Unit Converter — English (canonical) ─────────────────────────────────
+    {
+      url:          `${BASE_URL}/tools/unit-converter`,
+      lastModified: TODAY,
+      changeFrequency: 'monthly',
+      priority:     0.9,
+      alternates: {
+        languages: {
+          'x-default': `${BASE_URL}/tools/unit-converter`,
+          en:          `${BASE_URL}/tools/unit-converter`,
+          de:          `${BASE_URL}/tools/einheitenrechner`,
+          es:          `${BASE_URL}/tools/convertidor-de-unidades`,
+          fr:          `${BASE_URL}/tools/convertisseur-d-unites`,
+          it:          `${BASE_URL}/tools/convertitore-misure`,
+          nl:          `${BASE_URL}/tools/eenheden-omrekenen`,
+        },
+      },
+    },
+
+    // ── Unit Converter — German ───────────────────────────────────────────────
+    {
+      url:          `${BASE_URL}/tools/einheitenrechner`,
+      lastModified: TODAY,
+      changeFrequency: 'monthly',
+      priority:     0.9,
+      alternates: {
+        languages: {
+          'x-default': `${BASE_URL}/tools/unit-converter`,
+          en:          `${BASE_URL}/tools/unit-converter`,
+          de:          `${BASE_URL}/tools/einheitenrechner`,
+          es:          `${BASE_URL}/tools/convertidor-de-unidades`,
+          fr:          `${BASE_URL}/tools/convertisseur-d-unites`,
+          it:          `${BASE_URL}/tools/convertitore-misure`,
+          nl:          `${BASE_URL}/tools/eenheden-omrekenen`,
+        },
+      },
+    },
+
+    // ── Unit Converter — Spanish ──────────────────────────────────────────────
+    {
+      url:          `${BASE_URL}/tools/convertidor-de-unidades`,
+      lastModified: TODAY,
+      changeFrequency: 'monthly',
+      priority:     0.9,
+      alternates: {
+        languages: {
+          'x-default': `${BASE_URL}/tools/unit-converter`,
+          en:          `${BASE_URL}/tools/unit-converter`,
+          de:          `${BASE_URL}/tools/einheitenrechner`,
+          es:          `${BASE_URL}/tools/convertidor-de-unidades`,
+          fr:          `${BASE_URL}/tools/convertisseur-d-unites`,
+          it:          `${BASE_URL}/tools/convertitore-misure`,
+          nl:          `${BASE_URL}/tools/eenheden-omrekenen`,
+        },
+      },
+    },
+
+    // ── Unit Converter — French ───────────────────────────────────────────────
+    {
+      url:          `${BASE_URL}/tools/convertisseur-d-unites`,
+      lastModified: TODAY,
+      changeFrequency: 'monthly',
+      priority:     0.9,
+      alternates: {
+        languages: {
+          'x-default': `${BASE_URL}/tools/unit-converter`,
+          en:          `${BASE_URL}/tools/unit-converter`,
+          de:          `${BASE_URL}/tools/einheitenrechner`,
+          es:          `${BASE_URL}/tools/convertidor-de-unidades`,
+          fr:          `${BASE_URL}/tools/convertisseur-d-unites`,
+          it:          `${BASE_URL}/tools/convertitore-misure`,
+          nl:          `${BASE_URL}/tools/eenheden-omrekenen`,
+        },
+      },
+    },
+
+    // ── Unit Converter — Italian ──────────────────────────────────────────────
+    {
+      url:          `${BASE_URL}/tools/convertitore-misure`,
+      lastModified: TODAY,
+      changeFrequency: 'monthly',
+      priority:     0.9,
+      alternates: {
+        languages: {
+          'x-default': `${BASE_URL}/tools/unit-converter`,
+          en:          `${BASE_URL}/tools/unit-converter`,
+          de:          `${BASE_URL}/tools/einheitenrechner`,
+          es:          `${BASE_URL}/tools/convertidor-de-unidades`,
+          fr:          `${BASE_URL}/tools/convertisseur-d-unites`,
+          it:          `${BASE_URL}/tools/convertitore-misure`,
+          nl:          `${BASE_URL}/tools/eenheden-omrekenen`,
+        },
+      },
+    },
+
+    // ── Unit Converter — Dutch ────────────────────────────────────────────────
+    {
+      url:          `${BASE_URL}/tools/eenheden-omrekenen`,
+      lastModified: TODAY,
+      changeFrequency: 'monthly',
+      priority:     0.9,
+      alternates: {
+        languages: {
+          'x-default': `${BASE_URL}/tools/unit-converter`,
+          en:          `${BASE_URL}/tools/unit-converter`,
+          de:          `${BASE_URL}/tools/einheitenrechner`,
+          es:          `${BASE_URL}/tools/convertidor-de-unidades`,
+          fr:          `${BASE_URL}/tools/convertisseur-d-unites`,
+          it:          `${BASE_URL}/tools/convertitore-misure`,
+          nl:          `${BASE_URL}/tools/eenheden-omrekenen`,
+        },
+      },
+    },
+
   ];
 }

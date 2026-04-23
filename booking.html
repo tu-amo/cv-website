@@ -28,131 +28,13 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap"
         rel="stylesheet">
 
+    <!-- Shared framework: tokens → nav → shells → page CSS -->
+    <link rel="stylesheet" href="/src/tokens.css" />
+    <link rel="stylesheet" href="/src/nav.css" />
+    <link rel="stylesheet" href="/src/shells.css" />
+
     <style>
-        /* ===== DESIGN TOKENS ===== */
-        :root {
-            --color-primary: #2563eb;
-            --color-primary-hover: #3b82f6;
-            --color-secondary: #94a3b8;
-            --color-text-primary: #f8fafc;
-            --color-text-secondary: #cbd5e1;
-            --color-text-muted: #94a3b8;
-            --color-background: #0f172a;
-            --color-surface: rgba(30, 41, 59, 0.7);
-            --color-border: rgba(255, 255, 255, 0.1);
-            --color-accent: #8b5cf6;
-            --color-accent-soft: rgba(139, 92, 246, 0.15);
-            --color-primary-soft: rgba(37, 99, 235, 0.15);
 
-            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            --font-display: 'Playfair Display', Georgia, serif;
-
-            --space-xs: 0.5rem;
-            --space-sm: 1rem;
-            --space-md: 1.5rem;
-            --space-lg: 2rem;
-            --space-xl: 3rem;
-            --space-2xl: 4rem;
-            --space-3xl: 6rem;
-
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-
-            --radius-sm: 0.375rem;
-            --radius-md: 0.5rem;
-            --radius-lg: 0.75rem;
-            --radius-xl: 1rem;
-            --radius-full: 9999px;
-
-            --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
-
-            --glass-bg: rgba(30, 41, 59, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.08);
-        }
-
-        /* ===== RESET & BASE ===== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            font-size: 16px;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        body {
-            font-family: var(--font-sans);
-            color: var(--color-text-primary);
-            background: var(--color-background);
-            line-height: 1.6;
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        /* ===== BACKGROUND GLOBES ===== */
-        .background-globes {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
-            pointer-events: none;
-        }
-
-        .globe {
-            position: absolute;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, rgba(37, 99, 235, 0.2), rgba(139, 92, 246, 0.1));
-            filter: blur(80px);
-            opacity: 0.6;
-            animation: float 20s infinite ease-in-out;
-        }
-
-        .globe-1 {
-            width: 500px;
-            height: 500px;
-            top: -200px;
-            right: -100px;
-            animation-delay: 0s;
-        }
-
-        .globe-2 {
-            width: 400px;
-            height: 400px;
-            bottom: -150px;
-            left: -100px;
-            animation-delay: -7s;
-        }
-
-        .globe-3 {
-            width: 350px;
-            height: 350px;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            animation-delay: -14s;
-        }
-
-        @keyframes float {
-
-            0%,
-            100% {
-                transform: translate(0, 0) scale(1);
-            }
-
-            33% {
-                transform: translate(30px, -30px) scale(1.1);
-            }
-
-            66% {
-                transform: translate(-20px, 20px) scale(0.9);
-            }
-        }
 
         /* ===== LAYOUT ===== */
         .container {
@@ -279,25 +161,27 @@
 </head>
 
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <div class="background-globes" aria-hidden="true">
         <div class="globe globe-1"></div>
         <div class="globe globe-2"></div>
         <div class="globe globe-3"></div>
     </div>
 
-    <main class="container" id="main-content">
-        <!-- Nav -->
-        <nav class="nav" aria-label="Page navigation">
-            <a href="/" class="nav-back" aria-label="Back to home">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"
-                    aria-hidden="true">
-                    <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                </svg>
-                Back to home
-            </a>
-            <span class="nav-label">Availability</span>
-        </nav>
+    <nav class="site-nav" aria-label="Site navigation">
+        <a href="/" class="site-nav__brand" aria-label="Jane Petra Scott — Home">
+            <span class="site-nav__brand-name">Jane Petra Scott</span>
+            <span class="site-nav__brand-sub">SAP Architect &amp; Digital Transformation</span>
+        </a>
+        <div class="site-nav__links">
+            <a href="/" class="site-nav__link">Home</a>
+            <a href="/blog.html" class="site-nav__link">Writing</a>
+            <a href="/booking.html" class="site-nav__link site-nav__link--active">Booking</a>
+            <a href="/cv" class="site-nav__link">CV</a>
+        </div>
+    </nav>
+
+    <main class="page-shell" id="main-content">
 
         <!-- Page header -->
         <header class="page-header">
@@ -311,14 +195,14 @@
         <section class="booking-card" aria-label="Calendly booking widget">
             <!-- Calendly inline widget begin -->
             <div class="calendly-inline-widget"
-                data-url="https://calendly.com/0001japs/new-meeting?hide_landing_page_details=1&hide_gdpr_banner=1&background_color=0f172a&text_color=f8fafc&primary_color=2563eb&back=1"
+                data-url="https://calendly.com/0001japs/new-meeting?hide_landing_page_details=1&hide_gdpr_banner=1&background_color=0d1a16&text_color=f8fafc&primary_color=d4a373&back=1"
                 style="min-width:320px; width:100%; height:900px;"></div>
             <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
             <!-- Calendly inline widget end -->
         </section>
 
-        <footer class="footer">
-            <p>Architected & Designed by Jane Petra Scott © 2026</p>
+        <footer class="page-footer">
+            <p>Architected &amp; Designed by Jane Petra Scott © 2026</p>
         </footer>
     </main>
 </body>

@@ -1,0 +1,296 @@
+/* ── WizardShell.module.css ──────────────────────────────────────────────────
+   §A canonical tokens only — no §B deprecated aliases.
+   Tokens: --color-on-surface, --color-on-surface-muted, --color-primary,
+           --color-hairline, --color-surface, --font-brand, --motion-fast
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── Progress stepper ─────────────────────────────────────────────────────── */
+.progressNav {
+    margin-bottom: 40px;
+}
+
+.stepList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.stepItem {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
+}
+
+.stepButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: default;
+    flex-shrink: 0;
+}
+
+/* Completed step buttons are clickable */
+.stepButton.clickable {
+    cursor: pointer;
+}
+
+.stepCircle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    font-family: var(--font-brand);
+    font-weight: 700;
+    border: 2px solid var(--color-hairline);
+    background: transparent;
+    color: var(--color-on-surface-muted);
+    flex-shrink: 0;
+    transition: background var(--motion-fast), border-color var(--motion-fast), box-shadow var(--motion-fast);
+}
+
+.stepItem.completed .stepCircle {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-bg);
+}
+
+.stepItem.current .stepCircle {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-bg);
+    box-shadow: 0 0 0 4px rgba(176, 173, 218, 0.2);
+}
+
+.stepLabel {
+    font-size: 0.7rem;
+    color: var(--color-on-surface-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color var(--motion-fast);
+    font-weight: 500;
+    max-width: 80px;
+}
+
+.stepItem.current .stepLabel {
+    color: var(--color-on-surface);
+    font-weight: 700;
+}
+
+.stepItem.completed .stepLabel {
+    color: var(--color-on-surface-muted);
+}
+
+.connector {
+    height: 2px;
+    flex: 1;
+    background: var(--color-hairline);
+    border-radius: 1px;
+    margin: 0 4px;
+    transition: background var(--motion-fast);
+    flex-shrink: 1;
+    min-width: 8px;
+}
+
+.connector.filled {
+    background: var(--color-primary);
+}
+
+/* Hide labels on small screens – keep numbers only */
+@media (max-width: 640px) {
+    .stepLabel {
+        display: none;
+    }
+    .stepCircle {
+        width: 26px;
+        height: 26px;
+        font-size: 0.7rem;
+    }
+}
+
+/* ── Step content area ────────────────────────────────────────────────────── */
+.content {
+    /* breathing room so fixed actions bar doesn't clip content on mobile */
+    padding-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+    .content {
+        padding-bottom: 96px;
+    }
+}
+
+/* ── Navigation actions (Back / Next / Save) ──────────────────────────────── */
+.actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--color-hairline);
+}
+
+.actionsRight {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.stepCounter {
+    font-size: 0.78rem;
+    color: var(--color-on-surface-muted);
+    font-weight: 500;
+    flex-shrink: 0;
+}
+
+.btnBack {
+    background: transparent;
+    border: 1px solid var(--color-hairline);
+    color: var(--color-on-surface-muted);
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: border-color var(--motion-fast), color var(--motion-fast);
+    min-height: 44px;
+    min-width: 80px;
+}
+
+.btnBack:hover {
+    border-color: var(--color-on-surface-muted);
+    color: var(--color-on-surface);
+}
+
+.btnBack:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.btnNext {
+    background: var(--color-primary);
+    border: none;
+    color: var(--color-bg);
+    border-radius: 10px;
+    padding: 10px 24px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: opacity var(--motion-fast), transform var(--motion-fast);
+    min-height: 44px;
+    min-width: 100px;
+}
+
+.btnNext:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.btnNext:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Save button (last step) */
+.btnSave {
+    background: var(--color-primary);
+    border: none;
+    color: var(--color-bg);
+    border-radius: 10px;
+    padding: 10px 28px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: opacity var(--motion-fast), transform var(--motion-fast);
+    min-height: 44px;
+}
+
+.btnSave:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.btnSave:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Discard link (last step only) */
+.discardRow {
+    display: flex;
+    justify-content: center;
+    margin-top: 12px;
+}
+
+.btnDiscard {
+    background: none;
+    border: none;
+    color: var(--color-on-surface-muted);
+    font-size: 0.82rem;
+    cursor: pointer;
+    padding: 8px 16px;
+    min-height: 44px;
+    border-radius: 8px;
+    transition: color var(--motion-fast);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.btnDiscard:hover {
+    color: #ef4444;
+}
+
+@media (max-width: 768px) {
+    .discardRow {
+        position: fixed;
+        bottom: 68px;
+        left: 0;
+        right: 0;
+        justify-content: center;
+        background: var(--color-surface);
+        padding: 0 20px 8px;
+        z-index: 199;
+    }
+}
+
+/* ── Fixed bottom actions on mobile ────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .actions {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: 0;
+        padding: 12px 20px;
+        background: var(--color-surface);
+        border-top: 1px solid var(--color-hairline);
+        border-radius: 0;
+        z-index: 200;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+    }
+}
+
+/* ── Screen reader only progress bar ─────────────────────────────────────── */
+.srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}

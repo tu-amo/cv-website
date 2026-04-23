@@ -8,7 +8,31 @@ const nextConfig = {
     NEXT_PUBLIC_BUILD_TIME: new Date().toISOString(),
     NEXT_PUBLIC_APP_VERSION: version,
   },
+
+  // ── Security headers ────────────────────────────────────────────────────────
+  // Applied to every route. CSP is omitted intentionally — requires per-route
+  // tuning to avoid breaking Supabase auth, Sentry, and Google Fonts sources.
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          // Prevent click-jacking — disallow framing from other origins
+          { key: 'X-Frame-Options',        value: 'SAMEORIGIN' },
+          // Prevent MIME-type sniffing attacks
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          // Limit referrer leakage to origin-only for cross-origin requests
+          { key: 'Referrer-Policy',        value: 'strict-origin-when-cross-origin' },
+          // Disable unnecessary browser APIs we don't use
+          { key: 'Permissions-Policy',     value: 'camera=(), microphone=(), geolocation=()' },
+          // Enable DNS prefetch for linked resources (minor perf gain)
+          { key: 'X-DNS-Prefetch-Control', value: 'on' },
+        ],
+      },
+    ]
+  },
 };
+
 
 export default withSentryConfig(nextConfig, {
   // For all available options, see:

@@ -1,0 +1,37 @@
+.step { display: flex; flex-direction: column; gap: 20px; }
+.hint { font-size: 0.85rem; color: var(--color-on-surface-muted); line-height: 1.6; margin: 0; }
+.timingRow { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.timingField { display: flex; flex-direction: column; gap: 6px; }
+.timingLabel { font-size: 0.82rem; font-weight: 600; color: var(--color-on-surface-muted); }
+.stepList { display: flex; flex-direction: column; gap: 10px; }
+.stepRow { display: flex; gap: 10px; align-items: flex-start; }
+.stepNumber {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(176,173,218,0.12);
+    border: 1px solid var(--color-hairline);
+    color: var(--color-on-surface-muted);
+    font-size: 0.75rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 10px;
+}
+.removeBtn {
+    background: none; border: none;
+    color: var(--color-on-surface-muted);
+    cursor: pointer; padding: 4px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    min-width: 36px; min-height: 44px; margin-top: 4px;
+    transition: color var(--motion-fast), background var(--motion-fast);
+}
+.removeBtn:hover { color: #ef4444; background: rgba(239,68,68,0.08); }
+.addBtn {
+    background: rgba(176,173,218,0.07);
+    border: 1px solid var(--color-hairline);
+    border-radius: 8px;
+    color: var(--color-on-surface);
+    font-size: 0.82rem; font-weight: 600;
+    padding: 8px 16px; cursor: pointer;
+    transition: border-color var(--motion-fast), background var(--motion-fast);
+    align-self: flex-start; min-height: 44px;
+}
+.addBtn:hover { border-color: var(--color-primary); background: rgba(176,173,218,0.12); }
+.stepTextarea { resize: vertical; min-height: 80px; }

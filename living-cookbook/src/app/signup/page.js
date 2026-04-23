@@ -112,6 +112,7 @@ export default function SignupPage({ searchParams: searchParamsPromise }) {
                                 name="display_name"
                                 type="text"
                                 required
+                                maxLength={100}
                                 className="pp-auth-input"
                                 placeholder="e.g. Jane"
                                 autoComplete="name"

@@ -366,14 +366,18 @@ export const scaleText = (text, ratio) => {
  */
 export const scaleRecipe = (ingredients, steps, ratio) => {
     const scaledIngs = ingredients.map(ing => {
-        if (ing.row_type === 'section' || !ing.qty) return ing;
+        if (ing.row_type === 'section' || ing.qty === null || ing.qty === undefined) return ing;
+
+        // Coerce to string — qty may arrive as a number from the DB; string methods require a string
+        const qtyStr = ing.qty.toString().trim();
+        if (!qtyStr) return ing;
 
         // Handle multipliers like 2 x 400
-        if (ing.qty.toLowerCase().includes("x")) {
+        if (qtyStr.toLowerCase().includes("x")) {
             return {
                 ...ing,
-                qty: ing.qty.split(/x/i).map((part, i) => {
-                    // We usually only scale the FIRST part of a multiplier 
+                qty: qtyStr.split(/x/i).map((part, i) => {
+                    // We usually only scale the FIRST part of a multiplier
                     // e.g. 2 x 400g (2 cans of 400g) becomes 4 x 400g if doubled
                     const cleanPart = part.trim();
                     if (i === 0) {
@@ -385,7 +389,7 @@ export const scaleRecipe = (ingredients, steps, ratio) => {
             };
         }
 
-        const dec = parseFloat(fractionToDecimal(ing.qty));
+        const dec = parseFloat(fractionToDecimal(qtyStr));
         if (isNaN(dec)) return ing;
         return { ...ing, qty: parseFloat((dec * ratio).toFixed(2)).toString() };
     });

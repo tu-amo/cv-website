@@ -8,20 +8,85 @@ import { createClient } from "@/lib/supabase/client";
 import { useHousehold } from "@/lib/HouseholdContext";
 import { Icon } from "@/components/icons";
 
+// ─── Module-level sub-components (stable references — no remount issues) ─────
 
-// PretzelNav — M3 Top App Bar + Navigation Drawer
-// ─────────────────────────────────────────────────────────────────────────────
+function LogoToggle({ drawerOpen, onToggle }) {
+    return (
+        <button
+            id="pp-drawer-toggle"
+            className="pp-icon-btn"
+            onClick={onToggle}
+            aria-label="Open navigation menu"
+            aria-expanded={drawerOpen}
+            aria-controls="pp-nav-drawer"
+            style={{
+                padding: 4,
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+            }}
+        >
+            <img src="/logo-wheat.svg" alt="Pretzel Prep menu" width={40} height={40} style={{ display: "block" }} />
+        </button>
+    );
+}
+
+function DrawerCloseBtn({ onClose }) {
+    return (
+        <button
+            className="pp-icon-btn"
+            onClick={onClose}
+            aria-label="Close navigation menu"
+            style={{ color: "var(--pp-text-meta)" }}
+        >
+            {Icon.close}
+        </button>
+    );
+}
+
+function DrawerHeader({ onClose }) {
+    return (
+        <div className="pp-drawer__header" style={{ justifyContent: "space-between" }}>
+            <Link
+                href="/"
+                onClick={onClose}
+                style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none" }}
+            >
+                <img src="/logo-wheat.svg" alt="" aria-hidden="true" width={54} height={54} style={{ display: "block" }} />
+                <span style={{
+                    fontFamily: "var(--pp-font-brand)",
+                    fontSize: "1.1rem",
+                    fontWeight: 700,
+                    color: "var(--pp-salt)",
+                    letterSpacing: "-0.01em",
+                }}>
+                    Pretzel Prep
+                </span>
+            </Link>
+            <DrawerCloseBtn onClose={onClose} />
+        </div>
+    );
+}
+
+// ─── Main nav component ───────────────────────────────────────────────────────
+
 export default function PretzelNav() {
-    const [user, setUser]               = useState(undefined); // undefined = loading, null = confirmed guest
+    // ── user comes from HouseholdContext (single onAuthStateChange listener) ──
+    // DO NOT add a second supabase.auth.onAuthStateChange here — it causes
+    // "Lock broken by another request with the 'steal' option" (AbortError).
+    const { user, groups, activeGroupId, activeView, switchHousehold, switchView } =
+        useHousehold();
+
     const [displayName, setDisplayName] = useState(null);
     const [drawerOpen, setDrawerOpen]   = useState(false);
     const [scrolled, setScrolled]       = useState(false);
 
-    const supabase  = useMemo(() => createClient(), []);
-    const pathname  = usePathname();
-    const router    = useRouter();
-    const { groups, activeGroupId, activeView, isPro, switchHousehold, switchView } =
-        useHousehold();
+    // Minimal supabase client — only for displayName fetch + password recovery
+    const supabase = useMemo(() => createClient(), []);
+    const pathname = usePathname();
+    const router   = useRouter();
 
     // ── Close drawer on route change ──────────────────────────────────────
     useEffect(() => { setDrawerOpen(false); }, [pathname]);
@@ -39,7 +104,7 @@ export default function PretzelNav() {
         return () => window.removeEventListener("scroll", onScroll);
     }, []);
 
-    // ── Password recovery redirect ────────────────────────────────────────
+    // ── Password recovery redirect (narrow listener — no auth state update) ─
     useEffect(() => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
             if (event === "PASSWORD_RECOVERY") router.push("/login/reset-password");
@@ -47,103 +112,156 @@ export default function PretzelNav() {
         return () => subscription.unsubscribe();
     }, [supabase, router]);
 
-    // ── Auth state ────────────────────────────────────────────────────────
+    // ── Display name — fetch once when user identity is known ────────────
     useEffect(() => {
-        const getUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            setUser(user);
-            if (user) {
-                const { data: profile } = await supabase
-                    .from("profiles").select("display_name").eq("id", user.id).maybeSingle();
+        if (!user) { setDisplayName(null); return; }
+        supabase
+            .from("profiles").select("display_name").eq("id", user.id).maybeSingle()
+            .then(({ data: profile }) => {
                 setDisplayName(profile?.display_name ?? user.email.split("@")[0]);
-            } else {
-                setDisplayName(null);
-            }
-        };
-        getUser();
-    }, [supabase, pathname]);
+            });
+    }, [supabase, user]);
 
-    // Still waiting for auth check to complete — render nothing to avoid flash
+    // Still waiting for HouseholdContext auth check — render nothing to avoid flash
     if (user === undefined) return null;
 
-    const initial = displayName?.charAt(0).toUpperCase() ?? "?";
-    const isActive = (href) => href === "/" ? pathname === "/" : pathname.startsWith(href);
+    const initial      = displayName?.charAt(0).toUpperCase() ?? "?";
+    const isActive     = (href) => href === "/" ? pathname === "/" : pathname.startsWith(href);
+    const closeDrawer  = () => setDrawerOpen(false);
+    const toggleDrawer = () => setDrawerOpen((o) => !o);
 
-    const closeDrawer = () => setDrawerOpen(false);
-
-    // ── Guest shell — no account yet, show minimal nav ────────────────
+    // ─────────────────────────────────────────────────────────────────────
+    //  GUEST — top bar + full navigation drawer
+    // ─────────────────────────────────────────────────────────────────────
     if (!user) {
         return (
-            <header
-                className={`pp-top-bar${scrolled ? " pp-top-bar--scrolled" : ""}`}
-                role="banner"
-            >
-                <div className="pp-top-bar__leading" style={{ width: 48 }} />
-                <div className="pp-top-bar__title">
+            <>
+                <header
+                    className={`pp-top-bar${scrolled ? " pp-top-bar--scrolled" : ""}`}
+                    role="banner"
+                >
+                    <div className="pp-top-bar__leading">
+                        <LogoToggle drawerOpen={drawerOpen} onToggle={toggleDrawer} />
+                    </div>
+                    <div className="pp-top-bar__title" />
+                    <div className="pp-top-bar__trailing">
+                        <Link
+                            href="/login"
+                            className="pp-btn-tonal"
+                            style={{
+                                fontSize: "0.8rem",
+                                padding: "7px 18px",
+                                marginRight: 8,
+                                borderRadius: "var(--pp-radius-pill)",
+                            }}
+                        >
+                            Sign in
+                        </Link>
+                    </div>
+                </header>
+
+                {/* Scrim */}
+                <div
+                    className={`pp-drawer-scrim${drawerOpen ? " open" : ""}`}
+                    onClick={closeDrawer}
+                    aria-hidden="true"
+                />
+
+                {/* Guest drawer */}
+                <nav
+                    id="pp-nav-drawer"
+                    className={`pp-drawer${drawerOpen ? " open" : ""}`}
+                    aria-label="Main navigation"
+                    aria-hidden={!drawerOpen}
+                >
+                    <DrawerHeader onClose={closeDrawer} />
+
+                    <div className="pp-drawer__section-label">Browse</div>
+
                     <Link
                         href="/"
-                        aria-label="Pretzel Prep home"
-                        style={{ color: "var(--pp-salt)", display: "flex", alignItems: "center" }}
+                        className={`pp-drawer__item${pathname === "/" ? " active" : ""}`}
+                        onClick={closeDrawer}
                     >
-                        <img src="/logo-wheat.svg" alt="Pretzel Prep" width={60} height={60} style={{ display: 'block' }} />
+                        <span className="pp-drawer__item-icon">{Icon.globe}</span>
+                        Public Cookbook
                     </Link>
-                </div>
-                <div className="pp-top-bar__trailing">
+
+                    <Link
+                        href="/sources"
+                        className={`pp-drawer__item${isActive("/sources") ? " active" : ""}`}
+                        onClick={closeDrawer}
+                    >
+                        <span className="pp-drawer__item-icon">{Icon.book}</span>
+                        Sources
+                    </Link>
+
+                    <div className="pp-drawer__divider" />
+
+                    <div className="pp-drawer__section-label">Free Tools</div>
+
+                    <Link
+                        href="/tools/recipe-scaler"
+                        className={`pp-drawer__item${isActive("/tools/recipe-scaler") ? " active" : ""}`}
+                        onClick={closeDrawer}
+                    >
+                        <span className="pp-drawer__item-icon">{Icon.switch}</span>
+                        Recipe Scaler
+                    </Link>
+
+                    <Link
+                        href="/tools/nutrition-calculator"
+                        className={`pp-drawer__item${isActive("/tools/nutrition-calculator") ? " active" : ""}`}
+                        onClick={closeDrawer}
+                    >
+                        <span className="pp-drawer__item-icon">{Icon.scan}</span>
+                        Nutrition Calculator
+                    </Link>
+
+                    <div className="pp-drawer__divider" />
+
+                    <div className="pp-drawer__section-label">Account</div>
+
                     <Link
                         href="/login"
-                        className="pp-btn-tonal"
-                        style={{
-                            fontSize: "0.8rem",
-                            padding: "7px 18px",
-                            marginRight: 8,
-                            borderRadius: "var(--pp-radius-pill)",
-                        }}
+                        className={`pp-drawer__item${isActive("/login") ? " active" : ""}`}
+                        onClick={closeDrawer}
                     >
-                        Sign in
+                        <span className="pp-drawer__item-icon">{Icon.person}</span>
+                        Sign In
                     </Link>
-                </div>
-            </header>
+
+                    <Link
+                        href="/signup"
+                        className={`pp-drawer__item${isActive("/signup") ? " active" : ""}`}
+                        onClick={closeDrawer}
+                    >
+                        <span className="pp-drawer__item-icon">{Icon.plus}</span>
+                        Create Account
+                    </Link>
+
+                    <div style={{ height: 16 }} />
+                </nav>
+            </>
         );
     }
 
+    // ─────────────────────────────────────────────────────────────────────
+    //  AUTHENTICATED — logo left, avatar right, full drawer
+    // ─────────────────────────────────────────────────────────────────────
     return (
         <>
-            {/* ══════════════════════════════════════════════════════════
-                TOP APP BAR
-                Hamburger (left) · Pretzel (centre) · Avatar (right)
-            ══════════════════════════════════════════════════════════ */}
             <header
                 className={`pp-top-bar${scrolled ? " pp-top-bar--scrolled" : ""}`}
                 role="banner"
             >
-                {/* Leading — hamburger */}
                 <div className="pp-top-bar__leading">
-                    <button
-                        id="pp-drawer-toggle"
-                        className="pp-icon-btn"
-                        onClick={() => setDrawerOpen(true)}
-                        aria-label="Open navigation menu"
-                        aria-expanded={drawerOpen}
-                        aria-controls="pp-nav-drawer"
-                        style={{ color: "var(--pp-salt)" }}
-                    >
-                        {Icon.menu}
-                    </button>
+                    <LogoToggle drawerOpen={drawerOpen} onToggle={toggleDrawer} />
                 </div>
 
-                {/* Centre — pretzel logo links home */}
-                <div className="pp-top-bar__title">
-                    <Link
-                        href="/"
-                        aria-label="Pretzel Prep home"
-                        style={{ color: "var(--pp-salt)", display: "flex", alignItems: "center" }}
-                        onClick={closeDrawer}
-                    >
-                        <img src="/logo-wheat.svg" alt="Pretzel Prep" width={48} height={48} style={{ display: 'block' }} />
-                    </Link>
-                </div>
+                {/* Centre — empty (logo now lives on the left) */}
+                <div className="pp-top-bar__title" />
 
-                {/* Trailing — avatar links to profile */}
                 <div className="pp-top-bar__trailing">
                     <Link
                         href="/profile"
@@ -171,52 +289,24 @@ export default function PretzelNav() {
                 </div>
             </header>
 
-            {/* ══════════════════════════════════════════════════════════
-                DRAWER SCRIM — click to close
-            ══════════════════════════════════════════════════════════ */}
+            {/* Scrim */}
             <div
                 className={`pp-drawer-scrim${drawerOpen ? " open" : ""}`}
                 onClick={closeDrawer}
                 aria-hidden="true"
             />
 
-            {/* ══════════════════════════════════════════════════════════
-                NAVIGATION DRAWER
-            ══════════════════════════════════════════════════════════ */}
+            {/* Navigation drawer */}
             <nav
                 id="pp-nav-drawer"
                 className={`pp-drawer${drawerOpen ? " open" : ""}`}
                 aria-label="Main navigation"
                 aria-hidden={!drawerOpen}
             >
-                {/* Header: logo + wordmark + close */}
-                <div className="pp-drawer__header" style={{ justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <img src="/logo-wheat.svg" alt="" aria-hidden="true" width={54} height={54} style={{ display: 'block' }} />
-                        <span style={{
-                            fontFamily: "var(--pp-font-brand)",
-                            fontSize: "1.1rem",
-                            fontWeight: 700,
-                            color: "var(--pp-salt)",
-                            letterSpacing: "-0.01em",
-                        }}>
-                            Pretzel Prep
-                        </span>
-                    </div>
-                    <button
-                        className="pp-icon-btn"
-                        onClick={closeDrawer}
-                        aria-label="Close navigation menu"
-                        style={{ color: "var(--pp-text-meta)" }}
-                    >
-                        {Icon.close}
-                    </button>
-                </div>
+                <DrawerHeader onClose={closeDrawer} />
 
-                {/* ── SECTION: Browse as ─────────────────────────────── */}
                 <div className="pp-drawer__section-label">Browse as</div>
 
-                {/* Public view */}
                 <button
                     className={`pp-drawer__item${activeView === "public" ? " active" : ""}`}
                     onClick={() => { switchHousehold(""); closeDrawer(); router.push('/'); }}
@@ -225,7 +315,6 @@ export default function PretzelNav() {
                     Public Cookbook
                 </button>
 
-                {/* My Recipes */}
                 <button
                     className={`pp-drawer__item${activeView === "mine" ? " active" : ""}`}
                     onClick={() => { switchView("mine"); closeDrawer(); router.push('/'); }}
@@ -234,27 +323,23 @@ export default function PretzelNav() {
                     My Recipes
                 </button>
 
-                {/* Private kitchens */}
                 {groups.length > 0 && (
                     <>
                         {groups.map((g) => {
-                            const isPro = g.group_type === "pro_kitchen";
-                            const isActiveGroup =
-                                activeGroupId === g.id && activeView === "kitchen";
+                            const isProGroup    = g.group_type === "pro_kitchen";
+                            const isActiveGroup = activeGroupId === g.id && activeView === "kitchen";
                             return (
                                 <button
                                     key={g.id}
                                     className={`pp-drawer__item${isActiveGroup ? " active" : ""}`}
-                                onClick={() => { switchHousehold(g.id); closeDrawer(); router.push('/'); }}
-                                    style={isPro && !isActiveGroup
-                                        ? { color: "var(--pp-pro-accent)" }
-                                        : undefined}
+                                    onClick={() => { switchHousehold(g.id); closeDrawer(); router.push('/'); }}
+                                    style={isProGroup && !isActiveGroup ? { color: "var(--pp-pro-accent)" } : undefined}
                                 >
                                     <span className="pp-drawer__item-icon">
-                                        {isPro ? Icon.building : Icon.house}
+                                        {isProGroup ? Icon.building : Icon.house}
                                     </span>
                                     {g.name}
-                                    {isPro && (
+                                    {isProGroup && (
                                         <span style={{
                                             marginLeft: "auto",
                                             fontSize: "0.58rem",
@@ -276,9 +361,16 @@ export default function PretzelNav() {
 
                 <div className="pp-drawer__divider" />
 
-                {/* ── SECTION: Pages ─────────────────────────────────── */}
                 <div className="pp-drawer__section-label">Pages</div>
 
+                <Link
+                    href="/create"
+                    className={`pp-drawer__item${isActive("/create") ? " active" : ""}`}
+                    onClick={closeDrawer}
+                >
+                    <span className="pp-drawer__item-icon">{Icon.plus}</span>
+                    Add Recipe
+                </Link>
 
                 <Link
                     href="/shopping"
@@ -289,9 +381,17 @@ export default function PretzelNav() {
                     Market
                 </Link>
 
+                <Link
+                    href="/sources"
+                    className={`pp-drawer__item${isActive("/sources") ? " active" : ""}`}
+                    onClick={closeDrawer}
+                >
+                    <span className="pp-drawer__item-icon">{Icon.book}</span>
+                    Sources
+                </Link>
+
                 <div className="pp-drawer__divider" />
 
-                {/* ── SECTION: Free Tools ─────────────────────────────── */}
                 <div className="pp-drawer__section-label">Free Tools</div>
 
                 <Link
@@ -314,7 +414,6 @@ export default function PretzelNav() {
 
                 <div className="pp-drawer__divider" />
 
-                {/* ── SECTION: Account ───────────────────────────────── */}
                 <div className="pp-drawer__section-label">Account</div>
 
                 <Link
@@ -358,7 +457,6 @@ export default function PretzelNav() {
 
                 <div className="pp-drawer__divider" />
 
-                {/* ── Sign Out ───────────────────────────────────────── */}
                 <button
                     className="pp-drawer__item"
                     onClick={() => logout()}
@@ -368,7 +466,6 @@ export default function PretzelNav() {
                     Sign Out
                 </button>
 
-                {/* Bottom spacer for safe area */}
                 <div style={{ height: 16 }} />
             </nav>
         </>

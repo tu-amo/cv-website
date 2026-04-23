@@ -21,12 +21,12 @@ export default function NutritionPanel({ ingredients = [], currentServings = 1, 
     const [loading, setLoading]   = useState(true);
     const [expanded, setExpanded] = useState(false); // ingredient breakdown
     const [error, setError]       = useState(null);
-    const [flagged, setFlagged]   = useState(new Set()); // ingredient names flagged this session
+    const [flagged, setFlagged]   = useState([]); // ingredient names flagged this session (plain array, no Set prototype issues)
     const [flagging, setFlagging] = useState(null);      // ingredient name currently in-flight
 
     /** Flag a bad USDA match for periodic maintenance review */
     const handleFlag = async (row) => {
-        if (flagging === row.name || flagged.has(row.name)) return;
+        if (flagging === row.name || flagged.includes(row.name)) return;
         setFlagging(row.name);
         try {
             const res = await fetch('/api/nutrition/flag', {
@@ -42,7 +42,7 @@ export default function NutritionPanel({ ingredients = [], currentServings = 1, 
                 }),
             });
             if (res.ok || res.status === 200) {
-                setFlagged(prev => new Set([...prev, row.name]));
+                setFlagged(prev => [...prev, row.name]);
             }
         } catch (_) {
             // silently ignore — flag is best-effort
@@ -344,7 +344,7 @@ export default function NutritionPanel({ ingredients = [], currentServings = 1, 
                                     </td>
                                     <td className="nutrition-flag-cell">
                                         {!row.skipped && (
-                                            flagged.has(row.name) || flagging === row.name
+                                            flagged.includes(row.name) || flagging === row.name
                                                 ? <span className="nutrition-flag-done" title="Flagged for review">{Icon.flag}</span>
                                                 : <button
                                                     className="nutrition-flag-btn"

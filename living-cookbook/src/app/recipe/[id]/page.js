@@ -14,6 +14,7 @@ import TimerWidget from "@/components/TimerWidget";
 import ImageCarousel from "@/components/ImageCarousel";
 import NutritionPanel from "@/components/NutritionPanel";
 import PlanProductionModal from "@/components/PlanProductionModal";
+import RecipeVersionHistory from "@/components/RecipeVersionHistory";
 
 export default function RecipePage({ params }) {
     const unwrappedParams = use(params);
@@ -25,14 +26,18 @@ export default function RecipePage({ params }) {
     const [steps, setSteps] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentServings, setCurrentServings] = useState(1);
-    const [notes, setNotes] = useState([]);
-    const [newNote, setNewNote] = useState("");
-    const [isSavingNote, setIsSavingNote] = useState(false);
-    const [toast, setToast] = useState(null);
-    const [activeTerm, setActiveTerm] = useState(null);
-    const [showInGrams, setShowInGrams] = useState(false);
-    const [showPlanModal, setShowPlanModal] = useState(false); // PK1
-    const [tier, setTier] = useState("free");
+    const [notes, setNotes]               = useState([]);
+    const [newNote, setNewNote]             = useState("");
+    const [isSavingNote, setIsSavingNote]   = useState(false);
+    const [toast, setToast]                 = useState(null);
+    const [activeTerm, setActiveTerm]       = useState(null);
+    const [showInGrams, setShowInGrams]     = useState(false);
+    const [showPlanModal, setShowPlanModal] = useState(false);
+    const [tier, setTier]                   = useState("free");
+    const [userId, setUserId]               = useState(null);
+    const [versions, setVersions]           = useState([]);   // version history (owner only)
+    const [forkCount, setForkCount]         = useState(0);
+    const [isForking, setIsForking]         = useState(false);
 
     const supabase = useMemo(() => createClient(), []);
     const router = useRouter();
@@ -45,15 +50,19 @@ export default function RecipePage({ params }) {
         async function loadData() {
             setLoading(true);
             try {
-                const { data: { user } } = await supabase.auth.getUser();
+                // getSession() reads from localStorage — no network lag
+                const { data: { session } } = await supabase.auth.getSession();
+                const user = session?.user ?? null;
                 if (user) {
+                    setUserId(user.id);
                     const { data: profile } = await supabase.from('profiles').select('tier').eq('id', user.id).single();
                     if (profile) setTier(profile.tier);
                 }
 
                 const [recipeRes, ingsRes, stepsRes, notesRes] = await Promise.all([
                     supabase.from("recipes")
-                        .select("*, sources(*), updated_by_profile:profiles!updated_by(display_name)")
+                        // sources!source_id — explicit FK hint required (LL-060)
+                        .select("*, sources!source_id(*), updated_by_profile:profiles!updated_by(display_name)")
                         .eq("id", recipeId).single(),
                     supabase.from("recipe_ingredients").select("*, ingredients(name)").eq("recipe_id", recipeId).order('sort_order', { ascending: true }),
                     supabase.from("instruction_steps").select("*").eq("recipe_id", recipeId).order("step_number", { ascending: true }),
@@ -69,6 +78,23 @@ export default function RecipePage({ params }) {
                 if (notesRes.data) setNotes(notesRes.data);
                 const { data: listItems } = await supabase.from("shopping_list").select("item_name").eq("recipe_id", recipeId);
                 if (listItems) setShoppingListItems(listItems.map(li => li.item_name));
+
+                // Fork count — visible to everyone on public recipes
+                const { count: forks } = await supabase
+                    .from('recipes')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('forked_from_recipe_id', recipeId);
+                setForkCount(forks || 0);
+
+                // Version history — owner only, lightweight (no snapshot payload)
+                if (user && recipeRes.data?.user_id === user.id) {
+                    const { data: vData } = await supabase
+                        .from('recipe_versions')
+                        .select('id, version_number, saved_at, change_note')
+                        .eq('recipe_id', recipeId)
+                        .order('version_number', { ascending: false });
+                    if (vData) setVersions(vData);
+                }
             } finally { setLoading(false); }
         }
         loadData();
@@ -130,6 +156,23 @@ export default function RecipePage({ params }) {
         setToast("Link copied! 📋"); setTimeout(() => setToast(null), 3000);
     };
 
+    const handleFork = async () => {
+        if (isForking) return;
+        setIsForking(true);
+        try {
+            const { data: newId, error: forkErr } = await supabase
+                .rpc('fork_recipe', { p_recipe_id: recipe.id });
+            if (forkErr) throw forkErr;
+            setToast("🍳 Your version is ready — make it your own!");
+            setTimeout(() => router.push(`/add?id=${newId}`), 1200);
+        } catch (err) {
+            console.error('[fork]', err);
+            setToast(`⚠️ Couldn’t create fork: ${err.message}`);
+        } finally {
+            setIsForking(false);
+        }
+    };
+
     const addToGoogleCalendar = () => {
         const title = encodeURIComponent(`Cook: ${recipe.title}`);
         const url = `${window.location.origin}/public/recipe/${recipeId}`;
@@ -164,16 +207,18 @@ export default function RecipePage({ params }) {
         const scaledQty = formatQuantity(ing.quantity, currentServings, recipe.servings || 1);
         if ("vibrate" in navigator) navigator.vibrate(50);
 
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) { setToast("Sign in to add items to your list."); setTimeout(() => setToast(null), 3000); return; }
+        // Use already-loaded userId — avoids a network round-trip on every click.
+        // Falls back to getUser() only if userId hasn't resolved yet (very first render race).
+        const uid = userId || (await supabase.auth.getUser()).data.user?.id;
+        if (!uid) { setToast("Sign in to add items to your list."); setTimeout(() => setToast(null), 3000); return; }
 
         const { error } = await supabase.from("shopping_list").insert([{
             item_name: name,
             quantity: scaledQty,
             unit: ing.unit,
             recipe_id: recipeId,
-            user_id: user.id,
-            group_id: null   // always adds to Personal list; use the Shopping page to move to a household list
+            user_id: uid,
+            group_id: null
         }]);
         if (error) setToast("Failed to add item. ⚠️");
         else { setShoppingListItems(prev => [...prev, name]); setToast(`Added ${scaledQty} ${ing.unit || ""} ${name} to list! 🛒`); }
@@ -212,11 +257,6 @@ export default function RecipePage({ params }) {
         transition: "all 0.18s ease", whiteSpace: "nowrap",
     };
 
-    // Source line: "Book Title · by Author"
-    const sourceLine = [
-        recipe.sources?.book_title,
-        recipe.sources?.author ? `by ${recipe.sources.author}` : null
-    ].filter(Boolean).join(" · ");
 
     return (
         <div className="recipe-detail-wrapper" data-title={recipe.title}>
@@ -248,45 +288,21 @@ export default function RecipePage({ params }) {
 
                     <div className="recipe-hero-bottom">
 
-                        {/* Pill badge: total time · servings */}
+                        {/* Pill badge: total time · servings · fork count */}
                         <div className="recipe-hero-pill">
                             {(recipe.prep_time_minutes || 0) + (recipe.cook_time_minutes || 0)} min
-                             · 
+                             · 
                             {currentServings} {currentServings === 1 ? 'serving' : 'servings'}
-                        </div>
-
-                        {/* Left: source + updated-by stacked */}
-                        <div className="recipe-hero-meta">
-                            {sourceLine && (
-                                <a
-                                    href={`/add?id=${recipe.id}`}
-                                    style={{
-                                        fontSize: "0.85rem",
-                                        color: "var(--color-accent-amber)",
-                                        fontWeight: 600,
-                                        textDecoration: "none",
-                                        transition: "opacity 0.15s ease",
-                                    }}
-                                    onMouseEnter={e => e.currentTarget.style.opacity = '0.75'}
-                                    onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-                                    title="Edit source details"
-                                >
-                                    {sourceLine}
-                                </a>
-                            )}
-                            {recipe.updated_by_profile?.display_name && (
-                                <span style={{
-                                    fontSize: "0.72rem",
-                                    color: "rgba(235,220,178,0.45)",
-                                    fontStyle: "italic",
-                                    fontWeight: 400,
-                                }}>
-                                    Updated by {recipe.updated_by_profile.display_name}
-                                </span>
+                            {forkCount > 0 && (
+                                <>
+                                     · 
+                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline', verticalAlign: 'middle', marginRight: '2px' }}><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
+                                    {forkCount} {forkCount === 1 ? 'fork' : 'forks'}
+                                </>
                             )}
                         </div>
 
-                        {/* Right: action buttons — aligned with source line */}
+                        {/* Action buttons */}
                         <div className="recipe-hero-actions">
                             <button onClick={() => window.print()} style={btnStyle}>
                                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
@@ -296,10 +312,26 @@ export default function RecipePage({ params }) {
                                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                                 Share
                             </button>
-                            <Link href={`/add?id=${recipe.id}`} style={btnStyle}>
-                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-                                Edit
-                            </Link>
+                            {/* Edit — only owner can edit (B5 guard also enforces server-side) */}
+                            {userId && userId === recipe.user_id && (
+                                <Link href={`/add?id=${recipe.id}`} style={btnStyle}>
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                                    Edit
+                                </Link>
+                            )}
+                            {/* Fork — logged-in non-owner on a public recipe */}
+                            {userId && userId !== recipe.user_id && recipe.is_public && (
+                                <button onClick={handleFork} disabled={isForking} style={{
+                                    ...btnStyle,
+                                    background: 'rgba(212,175,55,0.12)',
+                                    border: '1px solid rgba(212,175,55,0.3)',
+                                    color: 'var(--color-accent-amber)',
+                                    opacity: isForking ? 0.7 : 1,
+                                }}>
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="6" y1="3" x2="6" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg>
+                                    {isForking ? 'Forking…' : 'Make my version'}
+                                </button>
+                            )}
                             <button onClick={addToGoogleCalendar} style={btnStyle}>
                                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                                 Plan Meal
@@ -421,6 +453,79 @@ export default function RecipePage({ params }) {
                     {recipe.description && (
                         <p className="recipe-description">{recipe.description}</p>
                     )}
+
+                    {/* Source reference — below description, only when data exists */}
+                    {(recipe.sources?.book_title || recipe.sources?.author || recipe.updated_by_profile?.display_name || recipe.forked_from_recipe_id) && (
+                        <div style={{
+                            borderTop: '1px solid var(--color-hairline)',
+                            paddingTop: '16px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '4px',
+                        }}>
+                            <span className="pp-overline" style={{ marginBottom: '6px' }}>Source</span>
+
+                            {/* Original book/website */}
+                            {recipe.sources?.book_title && (
+                                recipe.sources.link ? (
+                                    <a
+                                        href={recipe.sources.link}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{
+                                            fontSize: '0.88rem', fontWeight: 600,
+                                            color: 'var(--color-primary)', textDecoration: 'none', lineHeight: 1.4,
+                                        }}
+                                    >
+                                        {recipe.sources.book_title} ↗
+                                    </a>
+                                ) : (
+                                    <span style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--color-on-surface)', lineHeight: 1.4 }}>
+                                        {recipe.sources.book_title}
+                                    </span>
+                                )
+                            )}
+                            {recipe.sources?.author && (
+                                <span style={{ fontSize: '0.8rem', color: 'var(--color-on-surface-muted)' }}>by {recipe.sources.author}</span>
+                            )}
+                            {recipe.sources?.publisher && (
+                                <span style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-muted)' }}>{recipe.sources.publisher}</span>
+                            )}
+                            {recipe.sources?.page_number && (
+                                <span style={{ fontSize: '0.78rem', color: 'var(--color-on-surface-muted)' }}>p. {recipe.sources.page_number}</span>
+                            )}
+
+                            {/* Attribution chain: forked from */}
+                            {recipe.forked_from_recipe_id && (
+                                <div style={{
+                                    marginTop: '10px', paddingTop: '10px',
+                                    borderTop: '1px solid rgba(255,255,255,0.05)',
+                                    display: 'flex', flexDirection: 'column', gap: '2px',
+                                }}>
+                                    <span style={{ fontSize: '0.73rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-on-surface-muted)', fontWeight: 600 }}>Adapted from</span>
+                                    <Link
+                                        href={`/recipe/${recipe.forked_from_recipe_id}`}
+                                        style={{ fontSize: '0.82rem', color: 'var(--color-primary)', textDecoration: 'none' }}
+                                    >
+                                        View original recipe ↗
+                                    </Link>
+                                </div>
+                            )}
+
+                            {/* Last updated by */}
+                            {recipe.updated_by_profile?.display_name && (
+                                <span style={{ fontSize: '0.75rem', color: 'var(--color-on-surface-muted)', fontStyle: 'italic', marginTop: '6px' }}>
+                                    Last updated by {recipe.updated_by_profile.display_name}
+                                </span>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Version history — owner only */}
+                    {userId === recipe.user_id && (
+                        <RecipeVersionHistory versions={versions} recipeId={recipe.id} />
+                    )}
+
                 </div>
 
             </div>

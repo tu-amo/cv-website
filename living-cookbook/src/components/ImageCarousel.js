@@ -38,7 +38,7 @@ export default function ImageCarousel({ images = [], title = "Recipe", type = "c
 
         const interval = setInterval(() => {
             setCurrentIndex((prev) => (prev + 1) % total);
-        }, type === 'hero' ? 4000 : 2500);
+        }, type === 'hero' ? 5000 : 2500);
 
         return () => clearInterval(interval);
     }, [total, isHovered, isVisible, type]);

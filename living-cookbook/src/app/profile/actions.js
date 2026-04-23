@@ -37,3 +37,25 @@ export async function updateEmail(formData) {
     // Supabase sends a confirmation to the new email before switching
     redirect('/profile?success=Check your new email inbox to confirm the change')
 }
+
+export async function updateUnitSystem(formData) {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) redirect('/login')
+
+    const unit_system = formData.get('unit_system')
+    const valid = ['metric', 'uk_imperial', 'us_imperial']
+    if (!valid.includes(unit_system)) {
+        redirect('/profile?error=Invalid unit system selection')
+    }
+
+    const { error } = await supabase
+        .from('profiles')
+        .upsert({ id: user.id, unit_system })
+
+    if (error) redirect(`/profile?error=${encodeURIComponent(error.message)}`)
+
+    revalidatePath('/', 'layout')
+    redirect('/profile?success=Measurement preference updated')
+}
+

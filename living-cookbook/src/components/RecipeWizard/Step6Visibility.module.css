@@ -1,0 +1,67 @@
+.step { display: flex; flex-direction: column; gap: 24px; }
+.hint { font-size: 0.85rem; color: var(--color-on-surface-muted); line-height: 1.6; margin: 0; }
+.options { display: flex; flex-direction: column; gap: 12px; }
+
+.option {
+    border: 2px solid var(--color-hairline);
+    border-radius: 14px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    cursor: pointer;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    transition: border-color var(--motion-fast), background var(--motion-fast);
+    min-height: 44px;
+}
+.option:hover { border-color: var(--color-primary); background: rgba(176,173,218,0.04); }
+.option.selected {
+    border-color: var(--color-primary);
+    background: rgba(176, 173, 218, 0.08);
+}
+
+.switchTrack {
+    width: 44px; height: 24px;
+    border-radius: 12px;
+    background: var(--color-hairline);
+    flex-shrink: 0;
+    position: relative;
+    transition: background var(--motion-fast);
+    margin-top: 2px;
+}
+.switchTrack.on { background: var(--color-primary); }
+.switchThumb {
+    position: absolute;
+    top: 3px; left: 3px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform var(--motion-fast);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.switchTrack.on .switchThumb { transform: translateX(20px); }
+
+.optionBody { flex: 1; }
+.optionTitle { font-size: 0.95rem; font-weight: 700; color: var(--color-on-surface); margin: 0 0 4px; }
+.optionDesc { font-size: 0.8rem; color: var(--color-on-surface-muted); margin: 0; line-height: 1.4; }
+
+/* Household sub-options */
+.groupList { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; padding-left: 60px; }
+.groupOption {
+    border: 1px solid var(--color-hairline);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-on-surface);
+    cursor: pointer;
+    background: transparent;
+    text-align: left;
+    width: 100%;
+    transition: border-color var(--motion-fast), background var(--motion-fast);
+    min-height: 44px;
+}
+.groupOption.selected { border-color: var(--color-primary); background: rgba(176,173,218,0.08); }
+.groupOption:hover { border-color: var(--color-primary); }

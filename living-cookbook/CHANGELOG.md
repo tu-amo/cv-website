@@ -5,7 +5,51 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [Unreleased] — since 2026-04-15
+
+### Added
+- **`docs/ROADMAP.md`** — canonical versioned home for the long-term phase plan, milestone tracker, full feature backlog (B1–B5), tech debt log, pre-launch checklist, and active engineering plan status. Replaces inline roadmap that was duplicated across `project_nexus.md` and a brain artifact.
+- **Feature backlog B2–B5** — logged in `docs/ROADMAP.md` and summarised in `REQUIREMENTS.md`: source references on recipe page (B2), nutrition panel width alignment (B3), carousel speed increase to 5s (B4), recipe edit authorisation guard (B5).
+- **Ingredient row reorder** — columns now display as `qty → name → prep → basket` (previously `name → prep → qty → basket`) using `grid-template-areas` for explicit, conflict-free placement. *(LL-053)*
+- **B2 — Source reference block in recipe detail** — new right-panel block (below description) showing Book Title (linked if URL set), Author, Publisher, Page #, and Last Updated By. Conditional — only renders when source or attribution data exists. Uses canonical M3 tokens. *(Session: 2026-04-19)*
+- **B7 — Dev tooling backlog: Playwright smoke-test script for form verification** — browser subagent approach is slow and unreliable for form-heavy pages (`/add`, `/create`). Proposed fix: `scripts/smoke-test-add.js` (Playwright headless, assumes dev server on port 3000) covering the 5 critical add/edit flows in < 30s. Use instead of subagent in refactoring checklists. *(Session: 2026-04-19)*
+- **`src/components/recipe-form/SourceReferenceFields.js`** — first extraction from the `add/page.js` God component (1 of 4). Presentational: 5 controlled source inputs. State stays lifted in parent (needed by `handleSubmit`). *(Session: 2026-04-19)*
+- **Migration `20260422000002_security_linter_fixes.sql`** — Resolves all 5 Supabase Security Linter warnings: (1) `increment_usage()` `search_path` pinned to `public`; (2) orphaned `create_profile_on_signup` trigger dropped (superseded by `on_auth_user_created`); (3) permissive anon INSERT policies on `adaptation_notes` and `ingredients` tables replaced with auth-only policies. *(Session: 2026-04-22)*
+- **Migration `20260422000003_performance_advisor_fixes.sql`** — Comprehensive performance hardening addressing all Supabase Performance Advisor warnings: (1) 22 missing B-tree indexes added on FK columns across 9 tables; (2) unused `nutrition_cache_fetched_at_idx` dropped; (3) 40+ RLS policies refactored from `auth.uid()` to `(SELECT auth.uid())` — hoist from per-row to per-statement evaluation; (4) redundant permissive policies consolidated into single canonical policies per table/role/action. Guarded with `IF EXISTS` blocks for staging compatibility. *(Session: 2026-04-22)*
+- **Migration `20260422000004_index_advisor_sort_indexes.sql`** — Adds B-tree indexes on the two highest-cost `ORDER BY` columns identified by the Supabase Index Advisor query stats: `idx_recipes_created_at` (DESC) and `idx_recipe_ingredients_sort_order` (ASC). These queries accounted for ~65% of total application DB query time. Planner cost: `recipes(created_at)` 62.62 → 27.75 (~56%↓); `recipe_ingredients(sort_order)` 43.92 → 8.97 (~80%↓). *(Session: 2026-04-22)*
+
+### Fixed
+- **CSS — `.recipe-panels` layout collapse** — Batch merger (phase 5b) incorrectly retained a `display: flex` responsive override instead of the canonical `display: grid`. Restored two-column grid (ingredients left, nutrition right). *(LL-055)*
+- **CSS — `.step-number` badge alignment** — Batch merger replaced `display: flex` (M3 canonical, centres number inside badge) with legacy `display: inline-block`. Badge numbers no longer centred. Restored. *(LL-055)*
+- **CSS — Ingredient name wrapping at narrow viewports** — Ingredient names wrapped to one word per line at ~580px. Root causes: (1) `.ingredient-name` had `grid-column: 2` conflicting with compound selector `grid-area: name`; (2) `min-width: auto` (CSS grid default) prevented the `1fr` column from shrinking. Fixed: `grid-area: name` on standalone rule + `min-width: 0`. *(LL-054, LL-057)*
+- **CSS — Orphaned `flex-direction: column` on `.ingredient-text`** — Batch merger one-liner compression left a bare `flex-direction: column;` declaration floating after a compressed block; browser attached it to the next rule. Removed. *(LL-056)*
+- **🔴 `sources` table — schema/code mismatch (feature broken since launch)** — `sources` table had legacy columns (`name`, `url`, `page`) while application code uses canonical names (`book_title`, `link`, `page_number`) and a `publisher` column that didn't exist. Every source insert was silently rejected by Postgres. The `recipes.source_id → sources.id` FK constraint also never existed, so PostgREST couldn't resolve the join in `loadRecipe`. Fixed by migration `20260419200000_fix_sources_schema.sql`: adds `book_title`, `publisher`, `link`, `page_number` columns; migrates existing legacy data; adds FK constraint. *(LL-059, Session: 2026-04-19)*
+- **`sources` — silent error swallowing in save path (`add/page.js` + `RecipeWizard/index.js`)** — all three source save/update paths had no `error` destructuring; any failure was invisible to the user and the developer. Added `{error: srcErr}` + `showToast()` on all three paths in both components. *(LL-059, Session: 2026-04-19)*
+- **`sources` — `loadRecipe` join resolution via explicit FK hint** — Changed `sources(*)` → `sources!source_id(*)` so PostgREST resolves the join correctly regardless of auto-detection ambiguity. Added `recipe.sources?.page_number` fallback. *(LL-060, Session: 2026-04-19)*
+
+### Changed — CSS Audit (globals.css — Phases 1–5)
+*Context: `globals.css` was 5,302 lines / 150KB with 50+ duplicate class definitions, 183 legacy `--pp-*` tokens, and 27 `!important` declarations. Audit target: ≤2,000 lines, 0 duplicates, 0 legacy tokens.*
+
+- **Phase 1 — Legacy token replacement** — 183 `--pp-*` and `§B` alias usages replaced with canonical `--color-*` / `--font-*` equivalents. 23 pre-existing `));` CSS syntax errors removed simultaneously.
+- **Phase 2 — Duplicate consolidation (priority 10)** — 10 highest-duplication classes manually merged to single canonical definitions (`.ingredient-item` 10×, `.recipe-left` 7×, `.pp-auth-left` 6×, etc.).
+- **Phase 3 — Dead code removal** — 34 dead CSS classes deleted; 541 lines saved. Classes verified against all `.js` source files before deletion.
+- **Phase 4 — `!important` audit** — 27 → **12** `!important` declarations (target was ≤23). 15 illegitimate overrides removed; specificity fixed at source.
+- **Phase 5a — Structural reorganisation** — Table of Contents added, file restructured into 11 documented sections (§0 Reset → §11 Print/A11y). Deferred merges completed, banner blocks compressed.
+- **Phase 5b — Batch merge remaining duplicates** — 56 remaining duplicate base class definitions merged. AC-1 (zero duplicates) and AC-2 (zero legacy tokens) now passing.
+- **B4 — Hero carousel autoplay 4000ms → 5000ms** — `ImageCarousel.js` interval bumped so hero images are readable before advancing. *(Session: 2026-04-19)*
+- **B2 — Removed duplicate source/attribution from recipe hero overlay** — `sourceLine` variable deleted; source data is now displayed only in the right-panel source reference block. Single source of truth. *(Session: 2026-04-19)*
+
+### Documentation
+- **`CATALOGUE.md`** — Added `docs/ROADMAP.md` as entry #3; added "Active Engineering Plans" section tracking CSS audit and business plan status.
+- **`project_nexus.md`** — Added `docs/ROADMAP.md` to document catalog; added "Active Engineering Plans" section; replaced 100-line inline roadmap with a summary + link.
+- **`/update-docs` workflow** — Added Step 2: explicit backlog and active-plans consolidation check every session. Updated git commit command to include `docs/ROADMAP.md` and corrected branch to `main`.
+- **`LESSONS_LEARNT.md`** — Added LL-054–058 from CSS audit meta-analysis (min-width:0, batch merger failure mode, orphaned properties, grid-area/grid-column mixing, document fragmentation). Added LL-059–060 from sources schema post-mortem. Two new draft skills identified: `css-automated-cleanup`, `documentation-hygiene`.
+- **`REQUIREMENTS.md`, `ROADMAP.md`, `project_nexus.md`, `CHANGELOG.md`** — Updated after DB hardening session (2026-04-22): security linter + performance advisor + index advisor migrations logged; Tech Debt backlog in `project_nexus.md` and `ROADMAP.md` cleared (all 3 items resolved prior sessions); new S10/P8/P9 requirements added; migration file map updated.
+
+---
+
 ## [5.1.0] — 2026-04-15
+
 
 ### Added & Changed
 - **Manage Kitchens UI Refinement** — Converted the active kitchen list into a responsive, symmetric grid. Standardized all data points into `InfoRow` key-value pairs (matching System Info page). Members list auto-caches and renders natively inside the card. "Share Link" and "Leave" actions isolated neatly into a stacked footer action bar. Invite Code pill moved to the header right. Free-tier Pro Kitchen preview card transformed into a clickable "EARLY ACCESS" waitlist link. (2026-04-15)

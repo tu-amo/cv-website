@@ -9,6 +9,7 @@ import RecipeNotes from "@/components/RecipeNotes";
 import GlossaryModal from "@/components/GlossaryModal";
 import TimerWidget from "@/components/TimerWidget";
 import ImageCarousel from "@/components/ImageCarousel";
+import NutritionPanel from "@/components/NutritionPanel";
 
 /**
  * Public recipe page — read-only shell.
@@ -182,10 +183,10 @@ export default function PublicRecipeClient({
                                 Plan Meal
                             </button>
                             <Link
-                                href="/"
-                                style={{ ...btnStyle, background: "var(--color-accent-amber)", color: "var(--color-bg-deep-olive)", border: "none", fontWeight: 700 }}
+                                href="/login"
+                                style={{ ...btnStyle, background: "rgba(176,173,218,0.15)", border: "1px solid rgba(176,173,218,0.3)", fontWeight: 600 }}
                             >
-                                Open in App →
+                                Sign in to save →
                             </Link>
                         </div>
                     </div>
@@ -194,38 +195,35 @@ export default function PublicRecipeClient({
 
             {/* ── UTILITY BAR: Prep · Cook · Serve ─────────────── */}
             <div className="recipe-stat-strip">
-                <div className="recipe-stat-info-group">
-                    <span>Prep</span>
-                    <strong>{recipe.prep_time_minutes || 0} mins</strong>
+                <div className="recipe-stat-triptych">
 
-                    <span className="recipe-stat-sep">·</span>
-
-                    <span>Cook</span>
-                    <strong>{recipe.cook_time_minutes || 0} mins</strong>
-
-                    <span className="recipe-stat-sep">·</span>
-
-                    <span>Serve</span>
-                    <div className="recipe-stat-controls">
-                        <button
-                            onClick={() => setCurrentServings(Math.max(1, currentServings - 1))}
-                            className="recipe-stat-btn"
-                        >−</button>
-                        <strong>{currentServings}</strong>
-                        <button
-                            onClick={() => setCurrentServings(currentServings + 1)}
-                            className="recipe-stat-btn"
-                        >+</button>
+                    <div className="recipe-stat-cell">
+                        <span className="recipe-stat-cell__value">{recipe.prep_time_minutes || 0} min</span>
+                        <span className="recipe-stat-cell__label">Prep</span>
                     </div>
 
-                    <span className="recipe-stat-sep">·</span>
+                    <div className="recipe-stat-cell">
+                        <span className="recipe-stat-cell__value">{recipe.cook_time_minutes || 0} min</span>
+                        <span className="recipe-stat-cell__label">Cook</span>
+                    </div>
 
-                    <button
-                        onClick={() => setShowInGrams(g => !g)}
-                        className="recipe-stat-link-btn"
-                    >
-                        {showInGrams ? "↺ Reset layout" : "Convert for scale"}
-                    </button>
+                    <div className="recipe-stat-cell">
+                        <div className="recipe-stat-stepper">
+                            <button
+                                className="recipe-stat-stepper__btn"
+                                onClick={() => setCurrentServings(Math.max(1, currentServings - 1))}
+                                aria-label="Decrease servings"
+                            >−</button>
+                            <span className="recipe-stat-cell__value">{currentServings}</span>
+                            <button
+                                className="recipe-stat-stepper__btn"
+                                onClick={() => setCurrentServings(currentServings + 1)}
+                                aria-label="Increase servings"
+                            >+</button>
+                        </div>
+                        <span className="recipe-stat-cell__label">Servings</span>
+                    </div>
+
                 </div>
             </div>
 
@@ -246,7 +244,6 @@ export default function PublicRecipeClient({
                             onAddToList={handleAddToShoppingList}
                             showInGrams={showInGrams}
                             onToggleGrams={() => setShowInGrams(g => !g)}
-                            hideToggle={true}
                         />
                     </section>
 
@@ -273,12 +270,19 @@ export default function PublicRecipeClient({
                     </footer>
                 </div>
 
-                {/* RIGHT — description (conditional) */}
-                {recipe.description && (
-                    <div className="recipe-right">
+                {/* RIGHT — nutrition + description */}
+                <div className="recipe-right">
+                    <NutritionPanel
+                        ingredients={ingredients}
+                        currentServings={currentServings}
+                        originalServings={recipe.servings || 1}
+                        recipeId={recipe.id}
+                        tier="free"
+                    />
+                    {recipe.description && (
                         <p className="recipe-description">{recipe.description}</p>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
 
             <TimerWidget

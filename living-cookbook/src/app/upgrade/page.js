@@ -50,7 +50,6 @@ const TOTAL_SPOTS = 50
 
 export default function UpgradePage() {
   const [email, setEmail]           = useState('')
-  const [userId, setUserId]         = useState('')
   const [status, setStatus]         = useState('idle') // idle | success | duplicate | error
   const [errorMsg, setErrorMsg]     = useState('')
   const [spotsLeft, setSpotsLeft]   = useState(null)
@@ -61,7 +60,6 @@ export default function UpgradePage() {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user?.email) setEmail(user.email)
-      if (user?.id)    setUserId(user.id)
     })
 
     // Fetch current waitlist count to derive spots remaining
@@ -80,8 +78,7 @@ export default function UpgradePage() {
 
     startTransition(async () => {
       const fd = new FormData()
-      fd.append('email',   email)
-      fd.append('user_id', userId)
+      fd.append('email', email)
 
       const result = await joinWaitlist(fd)
 

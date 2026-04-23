@@ -1,6 +1,6 @@
 # Project Nexus: Living Cookbook
-**Version:** 4.5 | **Updated:** 2026-04-15 | **Branch:** `main`  
-**Status:** Tier A complete — Recipe Scaler live (6 languages, EN/DE/ES/FR/IT/NL), UX-4 empty state shipped. Next: UX-2 mobile audit, then Tier B (Stripe + onboarding — requires legal clearance).
+**Version:** 4.6 | **Updated:** 2026-04-22 | **Branch:** `main`  
+**Status:** DB hardening complete (security linter + performance advisor + index advisor migrations deployed to staging + prod). Next: continue `add/page.js` God component decomposition (B8 phase 1 — `VisibilityToggle` extraction).
 
 ---
 
@@ -78,6 +78,9 @@ A secure, household-aware recipe manager with AI-powered photo generation, dual-
 | `supabase/migrations/20260403232959_add_nutrition_cache.sql` | `nutrition_cache` table + public SELECT RLS |
 | `supabase/migrations/20260404220000_allow_anon_read_recipe_images.sql` | Anon SELECT on `storage.objects` (recipe-images bucket) |
 | `supabase/migrations/20260404221500_allow_anon_read_public_recipe_data.sql` | Anon SELECT on `recipe_ingredients`, `instruction_steps`, `recipe_notes`, `ingredients`, `sources` for public recipes |
+| `supabase/migrations/20260422000002_security_linter_fixes.sql` | Security linter remediation: `search_path` pinned on `increment_usage()`; orphaned trigger dropped; anon INSERT policies hardened |
+| `supabase/migrations/20260422000003_performance_advisor_fixes.sql` | 22 FK indexes added; `nutrition_cache_fetched_at_idx` dropped; 40+ RLS policies refactored to `(SELECT auth.uid())`; redundant policies consolidated |
+| `supabase/migrations/20260422000004_index_advisor_sort_indexes.sql` | `idx_recipes_created_at` (DESC) + `idx_recipe_ingredients_sort_order` (ASC) — top 2 Index Advisor recommendations, ~65% of app query time |
 
 ---
 
@@ -89,13 +92,15 @@ This is the single reference for every artifact in the project. **If you don't k
 
 | Document | Location | Use It When... | Last Reviewed |
 |---|---|---|---|
-| **This file** — Project Nexus | `project_nexus.md` | You need a fast orientation to the project: architecture, file map, what everything is | 2026-04-03 |
-| **Requirements** | `REQUIREMENTS.md` | You want to see what features are done, pending, or out of scope | 2026-04-10 |
+| **This file** — Project Nexus | `project_nexus.md` | You need a fast orientation to the project: architecture, file map, what everything is | 2026-04-16 |
+| **Requirements** | `REQUIREMENTS.md` | You want to see what features are done, pending, or out of scope | 2026-04-16 |
+| **Roadmap** | `docs/ROADMAP.md` | Long-term phase plan, milestone tracker, **consolidated feature backlog (B1–B5)**, tech debt, pre-launch checklist | 2026-04-16 |
 | **Changelog** | `CHANGELOG.md` | You're deploying — log every change before merging to `main` | 2026-04-10 |
 | **Schema Snapshot** | `supabase/schema_snapshot.sql` | You need to check what the database should look like, or run a drift check | 2026-04-03 |
 | **README** | `README.md` | Onboarding a new dev — setup steps, env vars, scripts | 2026-04-03 |
 | **Architecture Decision Records** | `docs/ADR-*.md` | You need to understand *why* a decision was made, its trade-offs, and when to revisit. ADR-001 through ADR-018. | 2026-04-11 |
 | **CSS Architecture Guide** | `docs/CSS_ARCHITECTURE.md` | You are making any styling change. Token system, heading map, icon library, utility classes, decision tree. | 2026-04-11 |
+
 
 ### Agent Docs (in `.agent/docs/`)
 
@@ -128,6 +133,18 @@ This is the single reference for every artifact in the project. **If you don't k
 | `ui-ux-designer` | Designing new components or reviewing layout decisions | 2026-04-10 |
 | `seo-meta-optimizer` | Adding or editing any public-facing page | 2026-04-04 |
 | `css-architecture` | Making ANY styling change — tokens, icons, fonts, heading levels, utility classes | 2026-04-11 |
+
+---
+
+### Active Engineering Plans
+
+Plans currently in progress with their own detailed task tracking documents.
+
+| Plan | Document | Status |
+|---|---|---|
+| **CSS Architecture Audit** | `.gemini/antigravity/.../implementation_plan.md` (brain artifact) | 🟡 Phase 5 done — Phase 6 (@media consolidation) next. AC-4 line count outstanding. |
+| **Business Implementation** | `.gemini/antigravity/.../pretzel_prep_business_plan.md` (brain artifact) | 🟡 7/15 sprints complete — Sprint 8 (Launch Strategy) next. Blocked on legal clearance. |
+| **`add/page.js` God Component Decomposition** | `brain/ad6a946e.../implementation_plan.md` (brain artifact) | 🟡 Phase 1 in progress — `SourceReferenceFields` extracted (1/4). Next: `VisibilityToggle`. Phase 2 (B8–B11) in backlog. |
 
 ---
 
@@ -210,18 +227,19 @@ Expected: 18/18 PASS
 
 ## 🗺️ Long-Term Stability & Deployment Roadmap
 
-> **Current reality:** Active `feature/collab-kitchen-v2` branch. Production (`main`) is behind current dev state. The goal is a structured path from fast development cycles to a stable, tiered, production-grade delivery system.
+> See **[`docs/ROADMAP.md`](docs/ROADMAP.md)** for the full long-term roadmap, milestone tracker, feature backlog (B1–B5), and pre-launch checklist.
 
-### Phase Overview
+**Quick summary:**
 
 ```
 Phase 0 (DONE)      → Stabilise localhost dev, close all critical gaps ✅
-M1 → M2 → v1.0     → Ship to production via feature branch merge (current focus)
-Phase 2 (POST-SHIP) → CI/CD pipeline, automated testing, deployment gates
-Phase 1 (BETA)      → Tiered environments — only if user base grows (deferred)
+M1 → M4 (DONE)     → Household engine, library tabs, deploy, tools live ✅
+Phase 2 (POST-SHIP) → CI/CD pipeline, automated testing
+Phase 1 (BETA)      → Tiered environments — deferred until beta users exist
 Phase 3 (LATER)     → Performance & security hardening, monitoring
 Phase 4 (LAUNCH)    → Phased marketing rollout
 ```
+
 
 ---
 
@@ -317,7 +335,9 @@ DB:     Run inverse SQL from last migration file
 
 | Priority | Item | Context |
 |---|---|---|
-| 🟡 Medium | **Replace `supabaseAdmin` profile upsert in signup with a DB trigger** | Current: service role used in `signup()` server action to bypass RLS (user has no session pre-confirmation). Better: `AFTER INSERT ON auth.users` trigger with `SECURITY DEFINER`. Low risk as-is — `id` is Supabase-generated, not user-supplied. See `src/app/login/actions.js`. |
-| 🟡 Medium | **Replace RLS bypass in household join flow** | `group_members` INSERT uses service role during join. Should be a proper `INSERT` policy on `group_members`. |
-| 🟠 Low | **Add `display_name` length validation on signup** | No max-length check — very long names stored unchecked. Add 100-char server-side limit in `signup()`. |
+| ✅ Resolved | **Replace `supabaseAdmin` profile upsert in signup with a DB trigger** | **Resolved 2026-04-19** — `on_auth_user_created` trigger (migration 20260419090000) handles profile creation with `SECURITY DEFINER`. Service role removed from signup. |
+| ✅ Resolved | **Replace RLS bypass in household join flow** | **Resolved 2026-04-21** — `join_household_by_invite_code()` SECURITY DEFINER function handles lookup + membership insert atomically. `supabaseAdmin` import removed from `/join/[code]/page.js`. |
+| ✅ Resolved | **Add `display_name` length validation on signup** | **Resolved 2026-04-21** — 100-char server-side guard in `signup()` + `maxLength={100}` on form input. |
+
+> ✅ **All recorded tech debt items resolved as of 2026-04-22.** Security linter warnings and Performance Advisor findings also fully remediated (migrations 20260422000002–04).
 

@@ -1,26 +1,33 @@
 'use server'
 
+import { createClient } from '@/lib/supabase/server'
 import { supabaseAdmin } from '@/lib/supabase/admin'
 
 /**
  * joinWaitlist — server action for the /upgrade waitlist form
  *
- * Uses admin client because:
- * - The page is accessible to non-authenticated users (SEO / tool traffic)
- * - The waitlist table has no RLS (public insert is handled server-side)
- * - We append the user_id if the session is available, but don't require it
+ * Security note (ADR-security-001):
+ * - user_id is derived server-side from the verified JWT session, never from form data.
+ * - The page is accessible to non-authenticated users (SEO / tool traffic) so
+ *   user_id is optional — anonymous submissions are valid.
+ * - Uses admin client for the insert because the waitlist table has no RLS
+ *   (public insert is safer via server action than exposed anon key).
  */
 export async function joinWaitlist(formData) {
-  const email  = (formData.get('email') || '').trim().toLowerCase()
-  const userId = formData.get('user_id') || null
+  const email = (formData.get('email') || '').trim().toLowerCase()
 
   if (!email || !email.includes('@')) {
     return { error: 'Please enter a valid email address.' }
   }
 
+  // Derive user_id server-side — never trust it from client form data
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const userId = user?.id ?? null
+
   const { error } = await supabaseAdmin
     .from('waitlist')
-    .insert({ email, user_id: userId || null })
+    .insert({ email, user_id: userId })
 
   if (error) {
     // 23505 = unique_violation — already on the list

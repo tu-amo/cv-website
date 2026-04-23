@@ -1,0 +1,2 @@
+.step { display: flex; flex-direction: column; gap: 20px; }
+.hint { font-size: 0.85rem; color: var(--color-on-surface-muted); line-height: 1.6; margin: 0; }

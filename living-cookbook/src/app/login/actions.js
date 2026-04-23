@@ -3,11 +3,11 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-// ADR-007: supabaseAdmin used here deliberately — profile creation at signup requires bypassing RLS.
-// The regular Supabase client has no session before email confirmation (auth.uid() returns null),
-// so there is no valid JWT to satisfy the INSERT policy on the profiles table.
-// The user.id written here comes from Supabase's own signUp() response — it cannot be spoofed.
-import { supabaseAdmin } from '@/lib/supabase/admin'
+// ADR-007 (updated 2026-04-19): supabaseAdmin profile upsert removed.
+// Profile creation is now handled by the on_auth_user_created PostgreSQL trigger
+// (migration 20260419090000). The trigger reads display_name from
+// raw_user_meta_data and inserts into public.profiles with SECURITY DEFINER.
+
 
 export async function login(formData) {
   const supabase = await createClient()
@@ -40,6 +40,11 @@ export async function signup(formData) {
   // instead of /login (set as a hidden field in the form)
   const errorOrigin  = formData.get('error_origin') || '/login'
 
+  // TD-3: Server-side display_name length guard (100-char limit)
+  if (displayName.length > 100) {
+    redirect(`${errorOrigin}?error=${encodeURIComponent('Your name must be 100 characters or fewer.')}${next !== '/' ? `&next=${encodeURIComponent(next)}` : ''}`)
+  }
+
   // Pass display_name in auth metadata so it's in the JWT immediately,
   // even before the profiles row is confirmed/readable via RLS.
   const { data: signUpData, error } = await supabase.auth.signUp({
@@ -54,16 +59,8 @@ export async function signup(formData) {
     redirect(`${errorOrigin}?error=${encodeURIComponent(error.message)}${next !== '/' ? `&next=${encodeURIComponent(next)}` : ''}`)
   }
 
-  // Upsert the profile using admin client — the regular client has no session
-  // at signup time (email not yet confirmed) so RLS blocks the insert.
-  if (signUpData?.user && displayName) {
-    const { error: profileError } = await supabaseAdmin
-      .from('profiles')
-      .upsert({ id: signUpData.user.id, display_name: displayName })
-    if (profileError) {
-      console.error('[signup] profile upsert failed:', profileError.message)
-    }
-  }
+  // Profile row is created automatically by the on_auth_user_created
+  // PostgreSQL trigger (migration 20260419090000). No admin client needed.
 
   // ── Detect user_repeated_signup ─────────────────────────────────────────────
   // Supabase never returns an error when the email already exists (prevents

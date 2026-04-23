@@ -1,0 +1,118 @@
+/* ================================================================
+   PAGE SHELLS — Consistent layout wrappers
+   Every page <main> uses exactly one of these classes.
+   Nav is always BEFORE <main>, as first child of <body>.
+
+   Structure every page like this:
+   <body>
+     <a class="skip-link">...</a>
+     <div class="background-globes">...</div>
+     <nav class="site-nav">...</nav>
+     <main class="page-shell" id="main-content">
+       ...page content...
+     </main>
+   </body>
+   ================================================================ */
+
+/* ----------------------------------------------------------------
+   BASE SHELL — Home, Writing, Booking
+   ---------------------------------------------------------------- */
+.page-shell {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 2rem 5rem;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 64px);
+}
+
+/* ----------------------------------------------------------------
+   CARD SHELL — CV only (wraps the glassmorphism card)
+   ---------------------------------------------------------------- */
+.page-shell--cv {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 2rem 5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ----------------------------------------------------------------
+   PAGE HERO — the top header block inside page-shell
+   ---------------------------------------------------------------- */
+.page-hero {
+    text-align: center;
+    padding: var(--space-2xl) 0 var(--space-xl);
+}
+
+/* ----------------------------------------------------------------
+   SHARED TYPOGRAPHY COMPONENTS
+   ---------------------------------------------------------------- */
+.page-eyebrow {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+    padding: 0.35em 0.9em;
+    border-radius: var(--radius-full);
+    margin-bottom: var(--space-md);
+}
+
+.page-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    line-height: 1.15;
+    margin-bottom: var(--space-sm);
+}
+
+.page-title--gradient {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.page-subtitle {
+    font-size: 1.05rem;
+    color: var(--color-text-secondary);
+    max-width: 640px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+/* ----------------------------------------------------------------
+   PAGE FOOTER — bottom of every page
+   ---------------------------------------------------------------- */
+.page-footer {
+    text-align: center;
+    padding: var(--space-xl) 0 var(--space-md);
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+    border-top: 1px solid var(--color-border);
+    margin-top: auto;
+}
+
+/* ----------------------------------------------------------------
+   RESPONSIVE
+   ---------------------------------------------------------------- */
+@media (max-width: 768px) {
+    .page-shell,
+    .page-shell--cv {
+        padding: 0 1.25rem 3rem;
+    }
+
+    .page-shell--cv {
+        padding-top: 1.25rem;
+    }
+
+    .page-hero {
+        padding: var(--space-xl) 0 var(--space-lg);
+    }
+}

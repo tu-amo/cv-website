@@ -1,9 +1,7 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { NextResponse }        from "next/server";
+import { getGeminiModel } from "@/lib/ai/gemini";
+import { NextResponse }   from "next/server";
 import { checkUsage, gateResponse } from "@/lib/usageGate";
 
-// Initialize Gemini Client
-const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 export async function POST(req) {
   try {
@@ -11,16 +9,25 @@ export async function POST(req) {
     const gate = await checkUsage('scans');
     if (!gate.allowed) return gateResponse(gate);
 
-    const { imageBase64, mimeType } = await req.json();
+    const { imageBase64, mimeType, unitSystem = 'metric' } = await req.json();
 
     if (!imageBase64) {
       return NextResponse.json({ error: "No image provided" }, { status: 400 });
     }
 
+    // Map the user's unit preference to a clear Gemini instruction
+    const unitInstruction = {
+      metric:      'Convert all ingredient measurements to metric units (grams, millilitres, °C). E.g. 2 sticks of butter → 225g, 1 cup → 240ml.',
+      uk_imperial: 'Use UK Imperial units: ounces (oz), pounds (lb), UK fluid ounces (UK fl oz), UK pints (568ml), tablespoons, teaspoons, and °C for temperatures.',
+      us_imperial: 'Use US Customary units: cups, teaspoons (tsp), tablespoons (tbsp), US fluid ounces, US pints (473ml), and °F for temperatures.',
+    }[unitSystem] ?? 'Convert all ingredient measurements to metric units (grams, millilitres, °C).';
+
     const prompt = `
     You are an expert culinary AI designed to extract recipe data from photos of cookbooks and handwritten recipe cards.
     Please read the provided image and extract the following information strictly in JSON format.
     Do not include any markdown formatting (like \`\`\`json) in your response, just the raw JSON object.
+
+    UNIT SYSTEM: ${unitInstruction}
 
     IMPORTANT TITLE FORMATTING RULES:
     1. Never use ALL CAPS for the title. 
@@ -69,9 +76,8 @@ export async function POST(req) {
       },
     };
 
-    // Create the model instance
-    const model = ai.getGenerativeModel({
-      model: "gemini-3-flash-preview",
+    // Create the model instance via shared client
+    const model = getGeminiModel('gemini-3-flash-preview', {
       generationConfig: { responseMimeType: "application/json" }
     });
 
@@ -83,7 +89,10 @@ export async function POST(req) {
     // Parse the JSON response
     try {
       const recipeData = JSON.parse(responseText);
-      return NextResponse.json(recipeData);
+      // Include usage info so the wizard Step 1 can render the meter
+      // without a separate API round-trip
+      const { used, limit } = gate;
+      return NextResponse.json({ ...recipeData, _meta: { scansUsed: used ?? null, scansLimit: limit ?? null } });
     } catch (parseError) {
       console.error("Gemini Response Parse Error:", responseText);
       return NextResponse.json({ error: "Failed to parse API response into JSON." }, { status: 500 });

@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { standardizeText, standardizeIngredient, smartParseIngredient, scaleRecipe } from "@/lib/recipe-utils";
 import ImageManager from "@/components/ImageManager";
 import AuthStatus from "@/components/AuthStatus";
+import SourceReferenceFields from "@/components/recipe-form/SourceReferenceFields";
 
 function AddRecipeForm() {
     const router = useRouter();
@@ -30,10 +31,10 @@ function AddRecipeForm() {
     const [imageUrls, setImageUrls] = useState([]);
     const [aiImagesUsed, setAiImagesUsed] = useState(0);
     const [groups, setGroups] = useState([]);
-    const [selectedGroupIds, setSelectedGroupIds] = useState(new Set());
+    const [selectedGroupId, setSelectedGroupId] = useState(null); // single group — B1 (multi-household) not yet implemented
     const [isPublic, setIsPublic] = useState(false);
     // Derived: private when nothing is shared
-    const isPrivate = selectedGroupIds.size === 0 && !isPublic;
+    const isPrivate = !selectedGroupId && !isPublic;
 
     const [ingredients, setIngredients] = useState([
         { id: Date.now(), row_type: 'ingredient', qty: "", unit: "", name: "", prep: "" },
@@ -76,25 +77,49 @@ function AddRecipeForm() {
         if (editId) {
             async function loadRecipe() {
                 try {
-                    const { data: recipe } = await supabase.from("recipes").select("*, sources(*)").eq("id", editId).single();
-                    if (recipe) {
-                        setTitle(recipe.title || "");
-                        setPrepTime(recipe.prep_time_minutes || "");
-                        setCookTime(recipe.cook_time_minutes || "");
-                        setServings(recipe.servings || "");
-                        setPageNumber(recipe.page_number || "");
-                        setImageUrls(recipe.images || [recipe.image].filter(Boolean));
-                        setAiImagesUsed(recipe.ai_images_used || 0);
-                        if (recipe.group_id) setSelectedGroupIds(new Set([recipe.group_id]));
-                        setIsPublic(recipe.is_public || false);
-
-                        if (recipe.sources) {
-                            setBookTitle(recipe.sources.book_title || "");
-                            setAuthor(recipe.sources.author || "");
-                            setPublisher(recipe.sources.publisher || "");
-                            setLink(recipe.sources.link || "");
-                        }
+                    // B5: Verify authentication and ownership before loading the edit form.
+                    // Redirect rather than show a 403-style inline error — avoids leaking
+                    // recipe data to non-owners even briefly.
+                    const { data: { user: currentUser } } = await supabase.auth.getUser();
+                    if (!currentUser) {
+                        router.push('/login?next=/add?id=' + editId);
+                        return;
                     }
+
+                    const { data: recipe } = await supabase
+                        .from("recipes")
+                        // Explicit FK hint ensures the join works regardless of Supabase
+                        // auto-detection — without it, sources(*) may silently return null
+                        .select("*, sources!source_id(*)")
+                        .eq("id", editId)
+                        .single();
+
+                    // B5: Ownership guard — only the recipe's owner may edit it.
+                    // recipe.user_id is verified server-side by the JWT auth above.
+                    if (!recipe || recipe.user_id !== currentUser.id) {
+                        console.warn('[B5] Unauthorised edit attempt — redirecting to home.');
+                        router.push('/');
+                        return;
+                    }
+
+                    setTitle(recipe.title || "");
+                    setPrepTime(recipe.prep_time_minutes || "");
+                    setCookTime(recipe.cook_time_minutes || "");
+                    setServings(recipe.servings || "");
+                    // page_number lives on the recipe row; fall back to sources if somehow set there
+                    setPageNumber(recipe.page_number || recipe.sources?.page_number || "");
+                    setImageUrls(recipe.images || [recipe.image].filter(Boolean));
+                    setAiImagesUsed(recipe.ai_images_used || 0);
+                    if (recipe.group_id) setSelectedGroupId(recipe.group_id);
+                    setIsPublic(recipe.is_public || false);
+
+                    if (recipe.sources) {
+                        setBookTitle(recipe.sources.book_title || "");
+                        setAuthor(recipe.sources.author || "");
+                        setPublisher(recipe.sources.publisher || "");
+                        setLink(recipe.sources.link || "");
+                    }
+
 
                     // Load ingredients
                     const { data: recipeIngs } = await supabase.from("recipe_ingredients").select("*, ingredients(name)").eq("recipe_id", editId).order('sort_order', { ascending: true });
@@ -373,19 +398,119 @@ function AddRecipeForm() {
                 if (editId) {
                     const { data: checkRec } = await supabase.from("recipes").select("source_id").eq("id", editId).single();
                     if (checkRec && checkRec.source_id) {
-                        await supabase.from("sources").update(sourceData).eq("id", checkRec.source_id);
+                        const { error: srcErr } = await supabase.from("sources").update(sourceData).eq("id", checkRec.source_id);
+                        if (srcErr) {
+                            console.error("[add] source update failed:", srcErr.message);
+                            showToast(`⚠️ Source could not be saved: ${srcErr.message}`);
+                        }
                         finalSourceId = checkRec.source_id;
                     } else {
-                        const { data: newSrc } = await supabase.from("sources").insert([sourceData]).select().single();
+                        const { data: newSrc, error: srcErr } = await supabase.from("sources").insert([sourceData]).select().single();
+                        if (srcErr) {
+                            console.error("[add] source insert failed:", srcErr.message);
+                            showToast(`⚠️ Source could not be saved: ${srcErr.message}`);
+                        }
                         finalSourceId = newSrc?.id;
                     }
                 } else {
-                    const { data: newSrc } = await supabase.from("sources").insert([sourceData]).select().single();
+                    const { data: newSrc, error: srcErr } = await supabase.from("sources").insert([sourceData]).select().single();
+                    if (srcErr) {
+                        console.error("[add] source insert failed:", srcErr.message);
+                        showToast(`⚠️ Source could not be saved: ${srcErr.message}`);
+                    }
                     finalSourceId = newSrc?.id;
                 }
             }
 
+
             const { data: { user } } = await supabase.auth.getUser();
+
+            // B5: Defence-in-depth ownership check at save time.
+            // loadRecipe() already blocks non-owners from seeing the form, but we
+            // re-verify here in case of race conditions or direct API calls.
+            if (editId) {
+                const { data: ownerRow } = await supabase
+                    .from('recipes').select('user_id').eq('id', editId).single();
+                if (!ownerRow || ownerRow.user_id !== user.id) {
+                    showToast('❌ You do not have permission to edit this recipe.');
+                    return;
+                }
+            }
+
+            // ── Snapshot existing child rows before delete — enables restore if re-insert fails
+            //    Also used as the version snapshot payload below (per ADR-017).
+            let existingIngredientSnapshot = [];
+            let existingStepsSnapshot = [];
+            if (editId) {
+                const { data: snap } = await supabase
+                    .from('recipe_ingredients')
+                    .select('*')
+                    .eq('recipe_id', editId);
+                existingIngredientSnapshot = snap || [];
+
+                const { data: stepSnap } = await supabase
+                    .from('instruction_steps')
+                    .select('*')
+                    .eq('recipe_id', editId)
+                    .order('step_number', { ascending: true });
+                existingStepsSnapshot = stepSnap || [];
+
+                // ── Auto-version snapshot (Epistemic Provenance feature) ──────────
+                // Persist the current recipe state to recipe_versions before any
+                // writes are made. Silent — does not block the save if it fails.
+                try {
+                    const { data: versionRow } = await supabase
+                        .from('recipe_versions')
+                        .select('version_number')
+                        .eq('recipe_id', editId)
+                        .order('version_number', { ascending: false })
+                        .limit(1)
+                        .maybeSingle();
+
+                    const nextVersion = (versionRow?.version_number ?? 0) + 1;
+
+                    // Fetch current recipe + source for full snapshot
+                    const { data: currentRecipe } = await supabase
+                        .from('recipes')
+                        .select('*, sources!source_id(*)')
+                        .eq('id', editId)
+                        .single();
+
+                    const versionSnapshot = {
+                        title:               currentRecipe?.title,
+                        prep_time_minutes:   currentRecipe?.prep_time_minutes,
+                        cook_time_minutes:   currentRecipe?.cook_time_minutes,
+                        servings:            currentRecipe?.servings,
+                        images:              currentRecipe?.images,
+                        source: currentRecipe?.sources ? {
+                            book_title:  currentRecipe.sources.book_title,
+                            author:      currentRecipe.sources.author,
+                            publisher:   currentRecipe.sources.publisher,
+                            page_number: currentRecipe.sources.page_number,
+                            link:        currentRecipe.sources.link,
+                        } : null,
+                        ingredients: existingIngredientSnapshot.map(ri => ({
+                            qty:     ri.quantity,
+                            unit:    ri.unit,
+                            name:    ri.display_name,
+                            prep:    ri.preparation,
+                            section: ri.section,
+                        })),
+                        steps: existingStepsSnapshot.map(s => s.instruction_text),
+                    };
+
+                    await supabase.from('recipe_versions').insert({
+                        recipe_id:      editId,
+                        version_number: nextVersion,
+                        snapshot:       versionSnapshot,
+                        created_by:     user.id,
+                    });
+                } catch (vErr) {
+                    // Non-fatal: log and continue with the save
+                    console.warn('[version] Failed to create version snapshot:', vErr.message);
+                }
+            }
+
             const recipeData = {
                 title,
                 prep_time_minutes: parseInt(prepTime) || 0,
@@ -396,21 +521,11 @@ function AddRecipeForm() {
                 ai_images_used: aiImagesUsed,
                 source_id: finalSourceId,
                 page_number: pageNumber,
-                group_id: [...selectedGroupIds][0] || null,
+                group_id: selectedGroupId,
                 is_public: isPublic,
                 updated_by: user.id,
                 user_id: editId ? undefined : user.id
             };
-
-            // First, snapshot existing ingredients in case we need to abort
-            let existingIngredientSnapshot = [];
-            if (editId) {
-                const { data: snap } = await supabase
-                    .from('recipe_ingredients')
-                    .select('*')
-                    .eq('recipe_id', editId);
-                existingIngredientSnapshot = snap || [];
-            }
 
             // Only delete AFTER we have a snapshot
             if (editId) {
@@ -498,12 +613,28 @@ function AddRecipeForm() {
             }
 
             const validSteps = steps.filter(s => s.text.trim() !== "");
+            let stepSaveFailed = false;
             for (let i = 0; i < validSteps.length; i++) {
-                await supabase.from("instruction_steps").insert([{
+                const { error: stepErr } = await supabase.from("instruction_steps").insert([{
                     recipe_id: finalRecipeId,
                     step_number: i + 1,
                     instruction_text: validSteps[i].text
                 }]);
+                if (stepErr) {
+                    console.error('[add] instruction_steps insert failed at step', i + 1, stepErr.message);
+                    stepSaveFailed = true;
+                }
+            }
+
+            // ── Guard: if any step failed to insert, restore the snapshot ─
+            if (stepSaveFailed && existingStepsSnapshot.length > 0) {
+                showToast('❌ Method save failed — your original steps have been restored. Fix the issue and try again.');
+                await supabase.from('instruction_steps').delete().eq('recipe_id', finalRecipeId);
+                const toRestore = existingStepsSnapshot.map(({ id: _id, ...row }) => row);
+                if (toRestore.length > 0) {
+                    await supabase.from('instruction_steps').insert(toRestore);
+                }
+                return; // Abort navigation
             }
 
             router.push("/");
@@ -522,6 +653,15 @@ function AddRecipeForm() {
             return;
         }
         try {
+            // B5: Verify ownership before delete (defence-in-depth — RLS also blocks this at DB level)
+            const { data: { user: currentUser } } = await supabase.auth.getUser();
+            const { data: ownerRow } = await supabase
+                .from('recipes').select('user_id').eq('id', editId).single();
+            if (!ownerRow || ownerRow.user_id !== currentUser?.id) {
+                showToast('❌ You do not have permission to delete this recipe.');
+                return;
+            }
+
             await supabase.from("instruction_steps").delete().eq("recipe_id", editId);
             await supabase.from("recipe_ingredients").delete().eq("recipe_id", editId);
             await supabase.from("recipes").delete().eq("id", editId);
@@ -632,30 +772,13 @@ function AddRecipeForm() {
                     />
 
                     <h2 className="pp-section-heading">Source Reference</h2>
-                        <div className="form-row" style={{ marginBottom: "15px" }}>
-                            <div className="form-group" style={{ marginBottom: 0 }}>
-                                <label>Book / Website Title</label>
-                                <input type="text" className="form-control" value={bookTitle} onChange={e => setBookTitle(e.target.value)} placeholder="e.g. The Essentials of Classic Italian Cooking" />
-                            </div>
-                            <div className="form-group" style={{ marginBottom: 0 }}>
-                                <label>Author</label>
-                                <input type="text" className="form-control" value={author} onChange={e => setAuthor(e.target.value)} placeholder="e.g. Marcella Hazan" />
-                            </div>
-                        </div>
-                        <div className="form-row">
-                            <div className="form-group" style={{ marginBottom: 0 }}>
-                                <label>Publisher</label>
-                                <input type="text" className="form-control" value={publisher} onChange={e => setPublisher(e.target.value)} placeholder="e.g. Alfred A. Knopf" />
-                            </div>
-                            <div className="form-group" style={{ marginBottom: 0, flex: "0 0 120px" }}>
-                                <label>Page #</label>
-                                <input type="text" className="form-control" value={pageNumber} onChange={e => setPageNumber(e.target.value)} placeholder="e.g. 214" />
-                            </div>
-                            <div className="form-group" style={{ marginBottom: 0 }}>
-                                <label>URL Link</label>
-                                <input type="text" className="form-control" value={link} onChange={e => setLink(e.target.value)} placeholder="https://..." />
-                            </div>
-                        </div>
+                    <SourceReferenceFields
+                        bookTitle={bookTitle}   setBookTitle={setBookTitle}
+                        author={author}         setAuthor={setAuthor}
+                        publisher={publisher}   setPublisher={setPublisher}
+                        pageNumber={pageNumber} setPageNumber={setPageNumber}
+                        link={link}             setLink={setLink}
+                    />
 
                     <h2 className="pp-section-heading">Prep Overview</h2>
                     <div className="form-row">
@@ -684,7 +807,7 @@ function AddRecipeForm() {
                                 const on = isPrivate;
                                 return (
                                     <div
-                                        onClick={() => { setSelectedGroupIds(new Set()); setIsPublic(false); }}
+                                        onClick={() => { setSelectedGroupId(null); setIsPublic(false); }}
                                         style={{
                                             display: 'flex', alignItems: 'center', gap: '12px', padding: '16px',
                                             background: 'rgba(212,175,55,0.05)', borderRadius: '12px',
@@ -705,16 +828,13 @@ function AddRecipeForm() {
 
                             {/* Independent toggle per household */}
                             {groups.map(g => {
-                                const on = selectedGroupIds.has(g.id);
+                                const on = selectedGroupId === g.id;
                                 return (
                                     <div
                                         key={g.id}
                                         onClick={() => {
-                                            setSelectedGroupIds(prev => {
-                                                const next = new Set(prev);
-                                                if (next.has(g.id)) next.delete(g.id); else next.add(g.id);
-                                                return next;
-                                            });
+                                            // Toggle: select this group, or deselect if already selected
+                                            setSelectedGroupId(prev => prev === g.id ? null : g.id);
                                         }}
                                         style={{
                                             display: 'flex', alignItems: 'center', gap: '12px', padding: '16px',
@@ -773,7 +893,7 @@ function AddRecipeForm() {
 
                         <p style={{ fontSize: '0.75rem', color: 'var(--color-text-muted)', marginTop: '10px' }}>
                             {isPrivate && 'Only you can see this recipe.'}
-                            {selectedGroupIds.size > 0 && `Shared with ${selectedGroupIds.size} household${selectedGroupIds.size > 1 ? 's' : ''}.`}
+                             {selectedGroupId && 'Shared with your household.'}
                         </p>
 
                     <div className="form-group dynamic-list" style={{ marginTop: '40px' }}>

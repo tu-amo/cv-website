@@ -157,6 +157,9 @@ const INGREDIENT_DENSITY = {
     'poppy seeds':          0.53,
     'chia seeds':           0.53,
     'flaxseed':             0.53,
+    'black mustard seeds':  0.55,   // whole — density miss log 2026-04-17
+    'mustard seeds':        0.55,   // whole
+    'peppercorns':          0.53,   // whole black/white peppercorns — density miss log 2026-04-19 (count 2)
     'pine nuts':            0.56,
     'walnuts':              0.47,
     'walnut':               0.47,

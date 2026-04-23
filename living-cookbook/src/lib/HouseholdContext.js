@@ -15,21 +15,33 @@ export function HouseholdProvider({ children }) {
     const [activeView, setActiveView] = useState("public");
 
     // ── 1. Resolve auth ──────────────────────────────────────────────
+    // getSession() reads from localStorage — ~1ms, no network.
+    // onAuthStateChange fires INITIAL_SESSION almost immediately and
+    // keeps state current for token refresh, sign-in, sign-out.
+    // getUser() (HTTP round-trip) is reserved for security-sensitive mutations.
     useEffect(() => {
-        supabase.auth.getUser().then(({ data: { user } }) => {
-            setUser(user ?? null);
-            if (user) {
+        // Fast path: populate state from local storage immediately
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            const u = session?.user ?? null;
+            setUser(u);
+            if (u) {
                 const storedView = localStorage.getItem("activeView");
                 setActiveView(storedView || "mine");
             } else {
                 setActiveView("public");
             }
         });
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+
+        // Live updates: sign-in, sign-out, token refresh, tab-switch
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
             setUser(session?.user ?? null);
             if (!session?.user) {
                 setActiveView("public");
                 setActiveGroupId("");
+            } else if (event === 'SIGNED_IN') {
+                // Fresh login — restore stored view preference
+                const storedView = localStorage.getItem("activeView");
+                setActiveView(storedView || "mine");
             }
         });
         return () => subscription.unsubscribe();

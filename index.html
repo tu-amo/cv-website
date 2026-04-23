@@ -54,142 +54,12 @@
     }
     </script>
 
-    <!-- Inline CSS to eliminate render-blocking requests -->
+    <!-- Shared framework: tokens → nav → shells → page CSS -->
+    <link rel="stylesheet" href="/src/tokens.css" />
+    <link rel="stylesheet" href="/src/nav.css" />
+    <link rel="stylesheet" href="/src/shells.css" />
+
     <style>
-        /* ===== DESIGN TOKENS ===== */
-        :root {
-            /* Colors (Unified Nature-Inspired Theme) */
-            --color-primary: #d4a373; /* Wheat */
-            --color-primary-hover: #faedcd;
-            --color-secondary: #7b906f; /* Sage */
-            --color-text-primary: #f8fafc;
-            --color-text-secondary: #cbd5e1;
-            --color-text-muted: #94a3b8;
-            --color-background: #0d1a16; /* Deep Forest Green */
-            --color-surface: rgba(30, 41, 59, 0.7);
-            --color-border: rgba(255, 255, 255, 0.1);
-            --color-accent: #ccd5ae; /* Moss */
-            --color-accent-soft: rgba(204, 213, 174, 0.15);
-            --color-primary-soft: rgba(212, 163, 115, 0.15);
-
-            /* Typography */
-            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            --font-display: 'Playfair Display', Georgia, serif;
-
-            /* Spacing */
-            --space-xs: 0.5rem;
-            --space-sm: 1rem;
-            --space-md: 1.5rem;
-            --space-lg: 2rem;
-            --space-xl: 3rem;
-            --space-2xl: 4rem;
-            --space-3xl: 6rem;
-
-            /* Shadows */
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-
-            /* Border Radius */
-            --radius-sm: 0.375rem;
-            --radius-md: 0.5rem;
-            --radius-lg: 0.75rem;
-            --radius-xl: 1rem;
-            --radius-full: 9999px;
-
-            /* Transitions */
-            --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
-
-            /* Modern Effects */
-            --glass-bg: rgba(30, 41, 59, 0.7);
-            --glass-border: rgba(255, 255, 255, 0.08);
-        }
-
-        /* ===== RESET & BASE ===== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            font-size: 16px;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        body {
-            font-family: var(--font-sans);
-            color: var(--color-text-primary);
-            background: var(--color-background);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        /* ===== BACKGROUND ANIMATION ===== */
-        .background-globes {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
-            pointer-events: none;
-        }
-
-        .globe {
-            position: absolute;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, rgba(212, 163, 115, 0.2), rgba(123, 144, 111, 0.1));
-            filter: blur(80px);
-            opacity: 0.4;
-            animation: float 25s infinite ease-in-out;
-        }
-
-        .globe-1 {
-            width: 500px;
-            height: 500px;
-            top: -200px;
-            right: -100px;
-            animation-delay: 0s;
-        }
-
-        .globe-2 {
-            width: 400px;
-            height: 400px;
-            bottom: -150px;
-            left: -100px;
-            animation-delay: -7s;
-        }
-
-        .globe-3 {
-            width: 350px;
-            height: 350px;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            animation-delay: -14s;
-        }
-
-        @keyframes float {
-
-            0%,
-            100% {
-                transform: translate(0, 0) scale(1);
-            }
-
-            33% {
-                transform: translate(30px, -30px) scale(1.1);
-            }
-
-            66% {
-                transform: translate(-20px, 20px) scale(0.9);
-            }
-        }
 
         /* ===== NAV BAR ===== */
         .nav {
@@ -340,17 +210,43 @@
             box-shadow: 0 5px 15px rgba(37, 99, 235, 0.2);
         }
 
+        /* ===== SECTION LAYOUT SYSTEM ===== */
+        .writing-section,
+        .sources-section,
+        .expertise {
+            border-top: 1px solid var(--color-border);
+            padding-top: var(--space-3xl);
+            margin-top: var(--space-xl);
+        }
+
+        .section-eyebrow {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--color-accent);
+            margin-bottom: var(--space-sm);
+        }
+
+        .section-subtitle {
+            font-size: 0.9rem;
+            color: var(--color-text-muted);
+            margin-top: 0.35rem;
+            margin-bottom: var(--space-xl);
+        }
+
         /* ===== EXPERTISE SECTION ===== */
         .expertise {
-            padding: var(--space-3xl) 0;
+            padding-bottom: var(--space-3xl);
         }
 
         .section-title {
             font-family: var(--font-display);
-            font-size: clamp(2rem, 4vw, 3rem);
+            font-size: clamp(1.4rem, 2.5vw, 1.75rem);
             font-weight: 700;
-            text-align: center;
-            margin-bottom: var(--space-2xl);
+            text-align: left;
+            margin-bottom: var(--space-sm);
             color: var(--color-text-primary);
         }
 
@@ -372,11 +268,10 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            text-align: center;
-            min-height: 350px;
-            /* Consistent height */
-            justify-content: center;
+            align-items: flex-start;
+            text-align: left;
+            min-height: 300px;
+            justify-content: flex-start;
         }
 
         .expertise-card::before {
@@ -483,8 +378,7 @@
             }
 
             .section-title {
-                text-align: left;
-                margin-bottom: var(--space-xl);
+                margin-bottom: var(--space-md);
             }
 
             .expertise-grid {
@@ -525,6 +419,282 @@
             outline-offset: 2px;
         }
 
+        /* ===== BLOG POST CARDS (Writing & Ideas section) ===== */
+        .posts {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2xl);
+        }
+
+        .post {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            transition: all var(--transition-base);
+            position: relative;
+        }
+
+        .post::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+            opacity: 0;
+            transition: opacity var(--transition-base);
+        }
+
+        .post:hover::before { opacity: 1; }
+
+        .post:hover {
+            border-color: rgba(212, 163, 115, 0.3);
+            box-shadow: var(--shadow-xl), 0 0 40px rgba(212, 163, 115, 0.08);
+            transform: translateY(-2px);
+        }
+
+        .post-header {
+            padding: var(--space-xl) var(--space-xl) var(--space-md);
+        }
+
+        .post-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            margin-bottom: var(--space-md);
+            flex-wrap: wrap;
+        }
+
+        .post-tag {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--color-accent);
+            background: var(--color-accent-soft);
+            padding: 0.25em 0.75em;
+            border-radius: var(--radius-full);
+        }
+
+        .post-date {
+            font-size: 0.8rem;
+            color: var(--color-text-muted);
+        }
+
+        .post-title {
+            font-family: var(--font-display);
+            font-size: clamp(1.3rem, 3vw, 1.75rem);
+            font-weight: 700;
+            color: var(--color-text-primary);
+            line-height: 1.3;
+            margin-bottom: var(--space-sm);
+            text-decoration: none;
+        }
+
+        .post-excerpt {
+            font-size: 0.975rem;
+            color: var(--color-text-secondary);
+            line-height: 1.7;
+        }
+
+        .embed-wrapper {
+            padding: 0 var(--space-xl) var(--space-xl);
+        }
+
+        .embed-container {
+            position: relative;
+            width: 100%;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+            background: rgba(15, 23, 42, 0.5);
+            cursor: pointer;
+        }
+
+        .embed-container iframe {
+            display: block;
+            width: 100%;
+            height: 420px;
+            border: none;
+            pointer-events: none;
+        }
+
+        /* Pan keyframes — each direction unique */
+        @keyframes pan-left-right {
+            0%   { transform: scale(1.12) translateX(-4%); }
+            50%  { transform: scale(1.12) translateX(4%); }
+            100% { transform: scale(1.12) translateX(-4%); }
+        }
+        @keyframes pan-right-left {
+            0%   { transform: scale(1.12) translateX(4%) translateY(-2%); }
+            50%  { transform: scale(1.12) translateX(-4%) translateY(2%); }
+            100% { transform: scale(1.12) translateX(4%) translateY(-2%); }
+        }
+        @keyframes pan-vertical {
+            0%   { transform: scale(1.12) translateY(-4%); }
+            50%  { transform: scale(1.12) translateY(4%); }
+            100% { transform: scale(1.12) translateY(-4%); }
+        }
+
+        .embed-container .post-cover {
+            display: block;
+            width: 100%;
+            height: 340px;
+            object-fit: cover;
+            object-position: center;
+            pointer-events: none;
+            filter: sepia(20%) brightness(0.88);
+            transition: filter 0.6s ease;
+            will-change: transform;
+        }
+
+        /* Per-card pan directions */
+        .featured-post .post-cover {
+            animation: pan-left-right 22s ease-in-out infinite;
+        }
+        article.post:nth-child(2) .post-cover {
+            animation: pan-right-left 26s ease-in-out infinite;
+        }
+        article.post:nth-child(3) .post-cover {
+            animation: pan-vertical 20s ease-in-out infinite;
+        }
+
+        .embed-container:hover .post-cover {
+            filter: sepia(5%) brightness(1.0);
+            animation-play-state: paused;
+        }
+
+        .embed-expand-hint {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity var(--transition-base);
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(2px);
+            border-radius: var(--radius-lg);
+        }
+
+        .embed-container:hover .embed-expand-hint { opacity: 1; }
+
+        .expand-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(212, 163, 115, 0.85);
+            color: white;
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius-full);
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(212, 163, 115, 0.4);
+            transform: scale(0.95);
+            transition: transform var(--transition-base);
+            pointer-events: none;
+        }
+
+        .embed-container:hover .expand-btn { transform: scale(1); }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(9, 14, 30, 0.92);
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .modal-overlay.is-open { opacity: 1; pointer-events: all; }
+        .modal-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--glass-border);
+            flex-shrink: 0;
+        }
+        .modal-title {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--color-text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: calc(100% - 60px);
+        }
+        .modal-close {
+            width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid var(--glass-border);
+            border-radius: 50%;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-base);
+        }
+        .modal-close:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: #f87171; }
+        .modal-body { flex: 1; overflow: hidden; }
+        .modal-body iframe { width: 100%; height: 100%; border: none; display: block; }
+        body.modal-open { overflow: hidden; }
+
+        .writing-section {
+            padding: var(--space-3xl) 0;
+        }
+
+        @media (max-width: 768px) {
+            .post-header { padding: var(--space-lg) var(--space-md) var(--space-sm); }
+            .embed-wrapper { padding: 0 var(--space-md) var(--space-md); }
+            .embed-container iframe { height: 300px; }
+        }
+
+        /* ===== POST IMAGES ===== */
+        .post-image {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            object-position: center top;
+            display: block;
+            border-bottom: 1px solid var(--glass-border);
+            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        filter 0.4s ease;
+            filter: sepia(15%) brightness(0.92);
+        }
+
+        .post:hover .post-image {
+            transform: scale(1.02);
+            filter: sepia(5%) brightness(1.0);
+        }
+
+        .post-image-wrap {
+            overflow: hidden;
+            position: relative;
+        }
+
+        .post-image-wrap::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                to bottom,
+                transparent 55%,
+                rgba(13, 26, 22, 0.55) 100%
+            );
+            pointer-events: none;
+        }
+
         /* New expertise cards — accent colour variant */
         .expertise-card--new {
             border-color: rgba(139, 92, 246, 0.2);
@@ -559,27 +729,128 @@
         .expertise-card--new:hover .card-cta {
             color: white;
         }
+
+        /* ===== SOURCES OF INSPIRATION ===== */
+        .sources-section {
+            padding: var(--space-3xl) 0 var(--space-xl);
+        }
+
+        .sources-section .section-header {
+            display: flex;
+            align-items: baseline;
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+        }
+
+        /* .section-eyebrow global style handles all section labels */
+
+        .sources-section .section-title {
+            font-family: var(--font-display);
+            font-size: clamp(1.4rem, 3vw, 2rem);
+            font-weight: 700;
+            color: var(--color-text-primary);
+            line-height: 1.2;
+        }
+
+        .sources-section .section-subtitle {
+            font-size: 0.925rem;
+            color: var(--color-text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .sources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--space-md);
+        }
+
+        .source-card {
+            position: relative;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-md);
+            cursor: default;
+            transition: border-color var(--transition-base), transform var(--transition-base), box-shadow var(--transition-base);
+        }
+
+        .source-card:hover {
+            border-color: rgba(212, 163, 115, 0.35);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        .source-card__author {
+            font-size: 0.825rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            margin-bottom: 0.35rem;
+            line-height: 1.3;
+        }
+
+        .source-card__title {
+            font-size: 0.8rem;
+            color: var(--color-text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Insight tooltip */
+        .source-card__insight {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%) translateY(4px);
+            width: 220px;
+            background: rgba(13, 26, 22, 0.97);
+            border: 1px solid rgba(212, 163, 115, 0.3);
+            border-radius: var(--radius-md);
+            padding: 0.6rem 0.85rem;
+            font-size: 0.78rem;
+            color: var(--color-accent);
+            line-height: 1.5;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 200ms ease, transform 200ms ease;
+            z-index: 10;
+            backdrop-filter: blur(8px);
+            text-align: center;
+        }
+
+        .source-card:hover .source-card__insight {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 600px) {
+            .sources-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
     </style>
 </head>
 
 <body>
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    <div class="background-globes">
+    <div class="background-globes" aria-hidden="true">
         <div class="globe globe-1"></div>
         <div class="globe globe-2"></div>
         <div class="globe globe-3"></div>
     </div>
 
-    <main class="container" id="main-content">
-        <!-- Nav -->
-        <nav class="nav" aria-label="Page navigation">
-            <span class="nav-label">Professional Portfolio</span>
-            <div style="display: flex; gap: var(--space-md);">
-                <a href="/cv" class="nav-link">CV</a>
-                <a href="/blog" class="nav-link">Blog</a>
-                <a href="/booking.html" class="nav-link">Booking</a>
-            </div>
-        </nav>
+    <nav class="site-nav" aria-label="Site navigation">
+        <a href="/" class="site-nav__brand" aria-label="Jane Petra Scott — Home">
+            <span class="site-nav__brand-name">Jane Petra Scott</span>
+            <span class="site-nav__brand-sub">SAP Architect &amp; Digital Transformation</span>
+        </a>
+        <div class="site-nav__links">
+            <a href="/" class="site-nav__link site-nav__link--active">Home</a>
+            <a href="/blog.html" class="site-nav__link">Writing</a>
+            <a href="/booking.html" class="site-nav__link">Booking</a>
+            <a href="/cv" class="site-nav__link">CV</a>
+        </div>
+    </nav>
+
+    <main class="page-shell" id="main-content">
 
         <header class="hero">
             <span class="hero-eyebrow">Expertise & Strategy</span>
@@ -624,175 +895,354 @@
             </div>
         </header>
 
-        <section class="expertise">
+        <!-- ===================== SECTION 2: WRITING & IDEAS ===================== -->
+        <section class="writing-section" id="writing-ideas" aria-label="Writing and Ideas">
+            <p class="section-eyebrow">❖ Writing</p>
+            <h2 class="section-title">Writing &amp; Ideas</h2>
+            <p class="section-subtitle">Perspectives on enterprise architecture, knowledge systems, and digital transformation.</p>
+
+            <div class="posts">
+
+                <!-- Featured: Unified Knowledge Systems -->
+                <article class="post featured-post" aria-labelledby="home-post-featured">
+                    <div class="post-header">
+                        <div class="post-meta">
+                            <span class="post-tag" style="background: var(--color-primary-soft); color: var(--color-primary);">Featured Long-Read</span>
+                            <span class="post-tag">Knowledge Management</span>
+                            <time class="post-date" datetime="2024">NEW</time>
+                        </div>
+                        <h3 class="post-title" id="home-post-featured">Unified Knowledge Systems: The Software Architecture of Permeability</h3>
+                        <p class="post-excerpt">Rethinking software as a bridge between the private vault and the collective repo — featuring the 'Agentic Triage Layer' and 'Autonomous Node' blueprints.</p>
+                    </div>
+                    <div class="embed-wrapper">
+                        <div class="embed-container" role="button" tabindex="0"
+                            aria-label="Read full article: Unified Knowledge Systems"
+                            data-src="/unified-knowledge-software.html"
+                            data-title="Unified Knowledge Systems">
+                            <img
+                                src="/images/blog/post-unified-knowledge.png"
+                                alt="Systema Permeabilis — antique hydrographic map of converging knowledge rivers"
+                                class="post-cover"
+                                loading="lazy"
+                            />
+                            <div class="embed-expand-hint" aria-hidden="true">
+                                <span class="expand-btn">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2H14V6M14 2L9 7M6 14H2V10M2 14L7 9" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    Read Full Article
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Knowledge Sharing -->
+                <article class="post" aria-labelledby="home-post-sharing">
+                    <div class="post-header">
+                        <div class="post-meta">
+                            <span class="post-tag" style="background: rgba(212,163,115,0.15); color: #d4a373;">Strategic Series</span>
+                            <span class="post-tag">Digital Culture</span>
+                            <time class="post-date" datetime="2024">NEW</time>
+                        </div>
+                        <h3 class="post-title" id="home-post-sharing">Knowledge Sharing in the Digital Workplace</h3>
+                        <p class="post-excerpt">From 'Desire Lines' to Epistemic Injustice: a strategic framework for listening to your organisation's informal paths and bridging the gap between tacit and explicit knowledge.</p>
+                    </div>
+                    <div class="embed-wrapper">
+                        <div class="embed-container" role="button" tabindex="0"
+                            aria-label="Read full article: Knowledge Sharing"
+                            data-src="/knowledge-sharing-digital-workplace.html"
+                            data-title="Knowledge Sharing in the Digital Workplace">
+                            <img
+                                src="/images/blog/post-knowledge-sharing.png"
+                                alt="Itinerarium — antique portolan trade-route map of knowledge sharing paths"
+                                class="post-cover"
+                                loading="lazy"
+                            />
+                            <div class="embed-expand-hint" aria-hidden="true">
+                                <span class="expand-btn">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2H14V6M14 2L9 7M6 14H2V10M2 14L7 9" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    Read Full Article
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Concern to Measure -->
+                <article class="post" aria-labelledby="home-post-0">
+                    <div class="post-header">
+                        <div class="post-meta">
+                            <span class="post-tag">Architecture Practice</span>
+                            <time class="post-date" datetime="2026">2026</time>
+                        </div>
+                        <h3 class="post-title" id="home-post-0">From Verbatim to Values: The 'Concern to Measure' Workflow</h3>
+                        <p class="post-excerpt">Stakeholder language is often messy and ambiguous. This interactive tool helps you structure raw statements into measurable requirements using ISO 42010 and SMART principles.</p>
+                    </div>
+                    <div class="embed-wrapper">
+                        <div class="embed-container" role="button" tabindex="0"
+                            aria-label="Launch tool: Concern to Measure"
+                            data-src="/concern-to-measure/index.html"
+                            data-title="Concern to Measure Tool">
+                            <img
+                                src="/images/blog/post-concern-to-measure.png"
+                                alt="Ex Verbis, Mensura — antique theodolite survey instrument with measurement arcs"
+                                class="post-cover"
+                                loading="lazy"
+                            />
+                            <div class="embed-expand-hint" aria-hidden="true">
+                                <span class="expand-btn">
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 2H14V6M14 2L9 7M6 14H2V10M2 14L7 9" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    Open Interactive Tool
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- View all posts CTA -->
+                <div style="text-align:center; padding: var(--space-md) 0 var(--space-lg);">
+                    <a href="/blog.html" class="btn btn-secondary" style="display:inline-flex;">
+                        <svg class="btn-icon" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M4 4C4 3.44772 4.44772 3 5 3H15C15.5523 3 16 3.44772 16 4V16C16 16.5523 15.5523 17 15 17H5C4.44772 17 4 16.5523 4 16V4ZM7 7H13M7 10H13M7 13H11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        All Writing &amp; Ideas &rarr;
+                    </a>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ===================== SOURCES OF INSPIRATION ===================== -->
+        <section class="sources-section" aria-labelledby="sources-title" id="sources-of-inspiration">
+            <div class="section-header">
+                <div>
+                    <p class="section-eyebrow">📚 Intellectual Foundations</p>
+                    <h2 class="section-title" id="sources-title">Sources of Inspiration</h2>
+                    <p class="section-subtitle">The thinkers and frameworks that shaped the ideas on this site.</p>
+                </div>
+            </div>
+
+            <div class="sources-grid">
+
+                <div class="source-card">
+                    <div class="source-card__insight">Externalizing tacit knowledge is the only way to scale innovation.</div>
+                    <p class="source-card__author">Davenport &amp; Prusak (1998)</p>
+                    <p class="source-card__title">Working Knowledge: How Organizations Manage What They Know.</p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-card__insight">Knowledge isn't a thing — it's a process of conversion.</div>
+                    <p class="source-card__author">Nonaka &amp; Takeuchi (1995)</p>
+                    <p class="source-card__title">The Knowledge-Creating Company (SECI Model).</p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-card__insight">Master your own knowledge first to contribute to the whole.</div>
+                    <p class="source-card__author">Harold Jarche</p>
+                    <p class="source-card__title">Personal Knowledge Mastery (PKM) Framework.</p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-card__insight">Knowledge is Energy — don't let it drift.</div>
+                    <p class="source-card__author">Paul Merino</p>
+                    <p class="source-card__title">The Merino's Eye: How to Turn Knowledge into Energy.</p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-card__insight">Formal format obsession kills informal genius.</div>
+                    <p class="source-card__author">Miranda Fricker</p>
+                    <p class="source-card__title">Epistemic Injustice: Power and the Ethics of Knowing.</p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-card__insight">Value is built at the immediate, potential, and applied levels.</div>
+                    <p class="source-card__author">Wenger &amp; Trayner (2011)</p>
+                    <p class="source-card__title">Value Creation in Communities and Networks.</p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-card__insight">19% of working time is lost to knowledge hunting.</div>
+                    <p class="source-card__author">McKinsey Global (2012)</p>
+                    <p class="source-card__title">The Social Economy: Unlocking Value and Productivity.</p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-card__insight">Your tools are part of your brain.</div>
+                    <p class="source-card__author">Clark &amp; Chalmers (1998)</p>
+                    <p class="source-card__title">The Extended Mind.</p>
+                </div>
+
+                <div class="source-card">
+                    <div class="source-card__insight">Organizations are living ecosystems, not machines.</div>
+                    <p class="source-card__author">Holland &amp; Kauffman</p>
+                    <p class="source-card__title">Complex Adaptive Systems and Self-Organization.</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ===================== SECTION 3: AREAS OF EXPERTISE ===================== -->
+        <section class="expertise" id="areas-of-expertise">
+            <p class="section-eyebrow">❖ Expertise</p>
             <h2 class="section-title">Areas of Expertise</h2>
+            <p class="section-subtitle">The disciplines I bring to every engagement.</p>
             <div class="expertise-grid">
 
-                <!-- Existing 4 — link to CV -->
+
                 <a href="/cv" class="expertise-card" style="text-decoration:none;">
                     <div class="card-icon">
-                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            aria-hidden="true" role="img">
-                            <path d="M16 4L4 10L16 16L28 10L16 4Z M4 22L16 28L28 22 M4 16L16 22L28 16"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+                            <path d="M16 4L4 10L16 16L28 10L16 4Z M4 22L16 28L28 22 M4 16L16 22L28 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </div>
                     <h3 class="card-title">S/4HANA Transformation</h3>
-                    <p class="card-description">Leading enterprise-wide migrations from ECC to S/4HANA with focus on
-                        retail and supply chain optimization.</p>
+                    <p class="card-description">Leading enterprise-wide migrations from ECC to S/4HANA with focus on retail and supply chain optimization.</p>
                 </a>
 
                 <a href="/cv" class="expertise-card" style="text-decoration:none;">
                     <div class="card-icon">
-                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            aria-hidden="true" role="img">
-                            <path
-                                d="M16 28C22.6274 28 28 22.6274 28 16C28 9.37258 22.6274 4 16 4C9.37258 4 4 9.37258 4 16C4 22.6274 9.37258 28 16 28Z M16 12V16L19 19"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+                            <path d="M16 28C22.6274 28 28 22.6274 28 16C28 9.37258 22.6274 4 16 4C9.37258 4 4 9.37258 4 16C4 22.6274 9.37258 28 16 28Z M16 12V16L19 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </div>
                     <h3 class="card-title">AI &amp; Automation</h3>
-                    <p class="card-description">Implementing AI-driven supply chain solutions and intelligent automation
-                        for demand forecasting and inventory optimization.</p>
+                    <p class="card-description">Implementing AI-driven supply chain solutions and intelligent automation for demand forecasting and inventory optimization.</p>
                 </a>
 
                 <a href="/cv" class="expertise-card" style="text-decoration:none;">
                     <div class="card-icon">
-                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            aria-hidden="true" role="img">
-                            <path
-                                d="M8 4H24C25.1046 4 26 4.89543 26 6V26C26 27.1046 25.1046 28 24 28H8C6.89543 28 6 27.1046 6 26V6C6 4.89543 6.89543 4 8 4Z M16 8V24 M10 14H22 M10 20H22"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+                            <path d="M8 4H24C25.1046 4 26 4.89543 26 6V26C26 27.1046 25.1046 28 24 28H8C6.89543 28 6 27.1046 6 26V6C6 4.89543 6.89543 4 8 4Z M16 8V24 M10 14H22 M10 20H22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </div>
                     <h3 class="card-title">Cloud Architecture</h3>
-                    <p class="card-description">Designing scalable cloud-native solutions on SAP BTP with focus on
-                        integration, security, and performance.</p>
+                    <p class="card-description">Designing scalable cloud-native solutions on SAP BTP with focus on integration, security, and performance.</p>
                 </a>
 
                 <a href="/cv" class="expertise-card" style="text-decoration:none;">
                     <div class="card-icon">
-                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            aria-hidden="true" role="img">
-                            <path
-                                d="M16 4C9.37258 4 4 9.37258 4 16C4 22.6274 9.37258 28 16 28C22.6274 28 28 22.6274 28 16C28 9.37258 22.6274 4 16 4Z M16 8C19.3137 8 22 10.6863 22 14C22 17.3137 19.3137 20 16 20C12.6863 20 10 17.3137 10 14C10 10.6863 12.6863 8 16 8Z M8 24C8 21 12 19 16 19C20 19 24 21 24 24"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+                            <path d="M16 4C9.37258 4 4 9.37258 4 16C4 22.6274 9.37258 28 16 28C22.6274 28 28 22.6274 28 16C28 9.37258 22.6274 4 16 4Z M16 8C19.3137 8 22 10.6863 22 14C22 17.3137 19.3137 20 16 20C12.6863 20 10 17.3137 10 14C10 10.6863 12.6863 8 16 8Z M8 24C8 21 12 19 16 19C20 19 24 21 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </div>
                     <h3 class="card-title">Leadership &amp; Strategy</h3>
-                    <p class="card-description">Driving digital transformation initiatives across global teams in Europe
-                        and APAC with proven delivery excellence.</p>
+                    <p class="card-description">Driving digital transformation initiatives across global teams in Europe and APAC with proven delivery excellence.</p>
                 </a>
 
-                <!-- 4 New expertise landing pages -->
-                <a href="/expertise/knowledge-systems.html" class="expertise-card expertise-card--new"
-                    style="text-decoration:none;">
+                <a href="/expertise/knowledge-systems.html" class="expertise-card expertise-card--new" style="text-decoration:none;">
                     <div class="card-icon">
-                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            aria-hidden="true" role="img">
-                            <circle cx="16" cy="10" r="3" stroke="currentColor" stroke-width="2" />
-                            <circle cx="7" cy="24" r="3" stroke="currentColor" stroke-width="2" />
-                            <circle cx="25" cy="24" r="3" stroke="currentColor" stroke-width="2" />
-                            <line x1="16" y1="13" x2="7" y2="21" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" />
-                            <line x1="16" y1="13" x2="25" y2="21" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" />
-                            <line x1="10" y1="24" x2="22" y2="24" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" />
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+                            <circle cx="16" cy="10" r="3" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="7" cy="24" r="3" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="25" cy="24" r="3" stroke="currentColor" stroke-width="2"/>
+                            <line x1="16" y1="13" x2="7" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <line x1="16" y1="13" x2="25" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <line x1="10" y1="24" x2="22" y2="24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                         </svg>
                     </div>
                     <h3 class="card-title">Knowledge Systems Design</h3>
-                    <p class="card-description">Designing personal and organisational knowledge systems that turn
-                        chaotic inputs into durable, navigable insight.</p>
+                    <p class="card-description">Designing personal and organisational knowledge systems that turn chaotic inputs into durable, navigable insight.</p>
                     <span class="card-cta">Explore &rarr;</span>
                 </a>
 
-                <a href="/expertise/cognitive-workflows.html" class="expertise-card expertise-card--new"
-                    style="text-decoration:none;">
+                <a href="/expertise/cognitive-workflows.html" class="expertise-card expertise-card--new" style="text-decoration:none;">
                     <div class="card-icon">
-                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            aria-hidden="true" role="img">
-                            <rect x="4" y="6" width="8" height="6" rx="1.5" stroke="currentColor" stroke-width="2" />
-                            <rect x="14" y="13" width="8" height="6" rx="1.5" stroke="currentColor" stroke-width="2" />
-                            <rect x="20" y="20" width="8" height="6" rx="1.5" stroke="currentColor" stroke-width="2" />
-                            <path d="M12 9H14M14 9V16M14 16H20" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" />
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+                            <rect x="4" y="6" width="8" height="6" rx="1.5" stroke="currentColor" stroke-width="2"/>
+                            <rect x="14" y="13" width="8" height="6" rx="1.5" stroke="currentColor" stroke-width="2"/>
+                            <rect x="20" y="20" width="8" height="6" rx="1.5" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 9H14M14 9V16M14 16H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                         </svg>
                     </div>
                     <h3 class="card-title">Cognitive Workflow Engineering</h3>
-                    <p class="card-description">Building workflows where humans and AI collaborate effectively across
-                        research, synthesis, decision-making, and delivery.</p>
+                    <p class="card-description">Building workflows where humans and AI collaborate effectively across research, synthesis, decision-making, and delivery.</p>
                     <span class="card-cta">Explore &rarr;</span>
                 </a>
 
-                <a href="/expertise/sensemaking.html" class="expertise-card expertise-card--new"
-                    style="text-decoration:none;">
+                <a href="/expertise/sensemaking.html" class="expertise-card expertise-card--new" style="text-decoration:none;">
                     <div class="card-icon">
-                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            aria-hidden="true" role="img">
-                            <path d="M16 4C9.4 4 4 9.4 4 16s5.4 12 12 12 12-5.4 12-12S22.6 4 16 4z"
-                                stroke="currentColor" stroke-width="2" />
-                            <path d="M16 10v6l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                            <path d="M10 16h2M20 16h2" stroke="currentColor" stroke-width="1.5"
-                                stroke-linecap="round" />
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+                            <path d="M16 4C9.4 4 4 9.4 4 16s5.4 12 12 12 12-5.4 12-12S22.6 4 16 4z" stroke="currentColor" stroke-width="2"/>
+                            <path d="M16 10v6l4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M10 16h2M20 16h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                         </svg>
                     </div>
                     <h3 class="card-title">Organisational Sensemaking</h3>
-                    <p class="card-description">Structuring how teams frame problems, align mental models, and convert
-                        ambiguity into decision-ready narratives.</p>
+                    <p class="card-description">Structuring how teams frame problems, align mental models, and convert ambiguity into decision-ready narratives.</p>
                     <span class="card-cta">Explore &rarr;</span>
                 </a>
 
-                <a href="/expertise/ai-decision-support.html" class="expertise-card expertise-card--new"
-                    style="text-decoration:none;">
+                <a href="/expertise/ai-decision-support.html" class="expertise-card expertise-card--new" style="text-decoration:none;">
                     <div class="card-icon">
-                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            aria-hidden="true" role="img">
-                            <path d="M6 26L13 16l5 6 4-8 4 8" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                            <circle cx="24" cy="8" r="4" stroke="currentColor" stroke-width="2" />
-                            <path d="M24 6v2l1.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img">
+                            <path d="M6 26L13 16l5 6 4-8 4 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="24" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
+                            <path d="M24 6v2l1.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                         </svg>
                     </div>
                     <h3 class="card-title">AI-Augmented Strategy</h3>
-                    <p class="card-description">Designing AI-supported decision loops: framing, evidence, options,
-                        tradeoffs, and recommendations.</p>
+                    <p class="card-description">Designing AI-supported decision loops: framing, evidence, options, tradeoffs, and recommendations.</p>
                     <span class="card-cta">Explore &rarr;</span>
                 </a>
 
             </div>
         </section>
 
+        <!-- Modal overlay (shared with blog) -->
+        <div class="modal-overlay" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title-text">
+            <div class="modal-topbar">
+                <span class="modal-title" id="modal-title-text"></span>
+                <button class="modal-close" id="modal-close" aria-label="Close">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4L4 12M4 4l8 8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <iframe id="modal-iframe" src="" title="Article content"></iframe>
+            </div>
+        </div>
+
         <footer class="footer">
-            <p>Architected & Designed by Jane Petra Scott © 2026</p>
+            <p>Architected &amp; Designed by Jane Petra Scott &copy; 2026</p>
         </footer>
     </main>
     <script type="module">
         import Analytics from './src/analytics.js';
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Analytics
             const cvBtn = document.querySelector('a[href="/cv"]');
-            const archBtn = document.querySelector('a[href="/architecture"]');
-
             const bookingBtn = document.querySelector('a[href="/booking.html"]');
+            if (cvBtn) cvBtn.addEventListener('click', () => Analytics.track('cta_click', { target: 'cv', location: 'hero' }));
+            if (bookingBtn) bookingBtn.addEventListener('click', () => Analytics.track('cta_click', { target: 'booking', location: 'hero' }));
 
-            if (cvBtn) {
-                cvBtn.addEventListener('click', () => {
-                    Analytics.track('cta_click', { target: 'cv', location: 'hero' });
+            // Modal for embed containers
+            const modal = document.getElementById('modal');
+            const modalIframe = document.getElementById('modal-iframe');
+            const modalTitleText = document.getElementById('modal-title-text');
+            const modalClose = document.getElementById('modal-close');
+
+            document.querySelectorAll('.embed-container').forEach(container => {
+                container.addEventListener('click', () => {
+                    const src = container.dataset.src;
+                    const title = container.dataset.title || 'Article';
+                    if (!src) return;
+                    modalIframe.src = src;
+                    modalTitleText.textContent = title;
+                    modal.classList.add('is-open');
+                    document.body.classList.add('modal-open');
+                    modalClose.focus();
                 });
+                container.addEventListener('keydown', e => {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); container.click(); }
+                });
+            });
+
+            function closeModal() {
+                modal.classList.remove('is-open');
+                document.body.classList.remove('modal-open');
+                setTimeout(() => { modalIframe.src = ''; }, 300);
             }
 
-            if (bookingBtn) {
-                bookingBtn.addEventListener('click', () => {
-                    Analytics.track('cta_click', { target: 'booking', location: 'hero' });
-                });
-            }
-
-            if (archBtn) {
-                archBtn.addEventListener('click', () => {
-                    Analytics.track('cta_click', { target: 'architecture', location: 'hero' });
-                });
-            }
+            modalClose.addEventListener('click', closeModal);
+            modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+            document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal(); });
         });
     </script>
 </body>

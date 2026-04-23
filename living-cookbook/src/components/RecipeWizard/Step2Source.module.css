@@ -1,0 +1,36 @@
+.step { display: flex; flex-direction: column; gap: 24px; }
+.hint { font-size: 0.85rem; color: var(--color-on-surface-muted); line-height: 1.6; margin: 0; }
+
+.typeGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+}
+.typeCard {
+    border: 2px solid var(--color-hairline);
+    border-radius: 12px;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    background: transparent;
+    transition: border-color var(--motion-fast), background var(--motion-fast);
+    min-height: 80px;
+    text-align: center;
+}
+.typeCard:hover { border-color: var(--color-primary); background: rgba(176,173,218,0.04); }
+.typeCard.selected {
+    border-color: var(--color-primary);
+    background: rgba(176, 173, 218, 0.08);
+}
+.typeCard[aria-pressed="true"] { border-color: var(--color-primary); }
+.typeIcon { font-size: 1.5rem; line-height: 1; }
+.typeLabel { font-size: 0.8rem; font-weight: 600; color: var(--color-on-surface); }
+.typeSub { font-size: 0.7rem; color: var(--color-on-surface-muted); }
+
+.fields { display: flex; flex-direction: column; gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.label { font-size: 0.78rem; font-weight: 600; color: var(--color-on-surface-muted); }
+.hint2 { font-size: 0.74rem; color: var(--color-on-surface-muted); margin-top: 4px; }

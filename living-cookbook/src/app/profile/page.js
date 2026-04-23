@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect }     from 'next/navigation'
-import { updateDisplayName, updateEmail } from './actions'
+import { updateDisplayName, updateEmail, updateUnitSystem } from './actions'
 import { PageHeader, Alert } from '@/components/ui'
+import { MeasurementFieldset } from '@/components/MeasurementFieldset'
 import { UsageCard }  from '@/components/UsageCard'
 
 export const metadata = {
@@ -15,9 +16,11 @@ export default async function ProfilePage({ searchParams }) {
 
     const { data: profile } = await supabase
         .from('profiles')
-        .select('display_name, avatar_url, tier')
+        .select('display_name, avatar_url, tier, unit_system')
         .eq('id', user.id)
         .maybeSingle()
+
+    const unitSystem = profile?.unit_system ?? 'metric'
 
     // Fetch current month's usage (RLS allows reading own rows)
     const monthKey = (() => {
@@ -135,6 +138,29 @@ export default async function ProfilePage({ searchParams }) {
                         style={{ alignSelf: 'flex-start', padding: '10px 24px', background: 'rgba(255,255,255,0.06)', color: 'var(--color-on-surface)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}
                     >
                         Update Email
+                    </button>
+                </form>
+            </div>
+
+            {/* Unit System Preference */}
+            <div style={cardStyle}>
+                <h2 className="pp-section-heading">
+                    Measurement Preference
+                </h2>
+                <p style={{ color: 'var(--color-on-surface-muted)', fontSize: '0.82rem', marginBottom: '24px' }}>
+                    The AI recipe scanner will output quantities in your preferred system.
+                    You can always convert in the wizard after scanning.
+                </p>
+                <form action={updateUnitSystem} className="pp-flex-col">
+                    {/* MeasurementFieldset is a client component so the label highlight
+                        updates immediately on click (server components can't hold state). */}
+                    <MeasurementFieldset defaultValue={unitSystem} labelStyle={labelStyle} />
+
+                    <button
+                        type="submit"
+                        style={{ alignSelf: 'flex-start', padding: '10px 24px', background: 'var(--color-primary)', color: 'var(--color-bg)', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}
+                    >
+                        Save Preference
                     </button>
                 </form>
             </div>

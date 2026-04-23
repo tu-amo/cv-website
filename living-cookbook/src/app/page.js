@@ -66,7 +66,8 @@ export default function GalleryPage() {
     setLoading(true);
     setError(null);
     try {
-      let q = supabase.from('recipes').select('*, sources(*), recipe_ingredients(ingredients(name))');
+      // sources!source_id — explicit FK hint required: two FK paths exist between recipes+sources (LL-060)
+      let q = supabase.from('recipes').select('*, sources!source_id(*), recipe_ingredients(ingredients(name))');
 
       if (activeView === 'mine') {
         if (!user) return;
@@ -81,7 +82,47 @@ export default function GalleryPage() {
 
       const { data, error: dbErr } = await q.order('created_at', { ascending: false });
       if (dbErr) throw dbErr;
-      setRecipes(data || []);
+
+      const rawRecipes = data || [];
+
+      // ── Batch-sign all storage image paths in a single API call ──────────
+      // Each SecureImage would otherwise call createSignedUrl() individually.
+      // Collapsing N calls into 1 eliminates the visible image loading delay.
+      const storagePaths = rawRecipes.flatMap(r => {
+        const imgs = Array.isArray(r.images) ? r.images : (r.image ? [r.image] : []);
+        return imgs.filter(src => src && !src.startsWith('http') && !src.startsWith('blob:'));
+      });
+
+      let signedUrlMap = {};
+      if (storagePaths.length > 0) {
+        try {
+          const { data: signed } = await supabase.storage
+            .from('recipe-images')
+            .createSignedUrls(storagePaths, 3600);
+          if (signed) {
+            signed.forEach(({ path, signedUrl }) => {
+              if (signedUrl) signedUrlMap[path] = signedUrl;
+            });
+          }
+        } catch {
+          // Non-fatal — SecureImage falls back to placeholder per path
+        }
+      }
+
+      // Merge resolved URLs back into recipes so SecureImage gets https:// directly
+      const resolvedRecipes = rawRecipes.map(r => {
+        const resolveList = (imgs) =>
+          (Array.isArray(imgs) ? imgs : (imgs ? [imgs] : []))
+            .map(src => signedUrlMap[src] ?? src);
+
+        return {
+          ...r,
+          images: resolveList(r.images),
+          image:  signedUrlMap[r.image] ?? r.image,
+        };
+      });
+
+      setRecipes(resolvedRecipes);
     } catch (err) {
       setError(err.message || 'Failed to load recipes');
     } finally {
@@ -95,7 +136,7 @@ export default function GalleryPage() {
         return (
           r.title?.toLowerCase().includes(q) ||
           (r.tags || []).some(t => t.toLowerCase().includes(q)) ||
-          r.sources?.name?.toLowerCase().includes(q) ||
+          r.sources?.book_title?.toLowerCase().includes(q) ||
           r.sources?.author?.toLowerCase().includes(q) ||
           r.recipe_ingredients?.some(ri => ri.ingredients?.name?.toLowerCase().includes(q))
         );
@@ -223,7 +264,7 @@ export default function GalleryPage() {
                     Your cookbook is empty. Add your first recipe in one of these ways:
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', width: '100%', maxWidth: 340, margin: '0 auto' }}>
-                    <Link href="/add" className="btn-add-recipe" id="empty-state-type-btn"
+                    <Link href="/create" className="btn-add-recipe" id="empty-state-type-btn"
                       style={{ justifyContent: 'center', textAlign: 'center' }}>
                       {Icon.pencil}
                       Type a Recipe
@@ -276,7 +317,7 @@ export default function GalleryPage() {
                           : 'Be the first to share a recipe with the world.'}
                   </p>
                   {!query && user && (
-                    <Link href="/add" className="btn-add-recipe" style={{ marginTop: 'var(--space-4)' }}>
+                    <Link href="/create" className="btn-add-recipe" style={{ marginTop: 'var(--space-4)' }}>
                       {Icon.plus}
                       Add Recipe
                     </Link>
@@ -301,7 +342,7 @@ export default function GalleryPage() {
 
       {/* ── FAB: Add Recipe ─────────────────────────────────────── */}
       {user && (
-        <Link href="/add" id="pp-fab-add-recipe" className="pp-fab"
+        <Link href="/create" id="pp-fab-add-recipe" className="pp-fab"
           aria-label="Add new recipe" title="Add Recipe">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

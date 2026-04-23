@@ -45,7 +45,8 @@ export default function SecureImage({ src, alt, className, style, loading = "laz
             // Signed URL generation fails for unauthenticated users on private buckets.
             // Supabase returns "Object not found" rather than "Unauthorized" by design.
             // Fall through to the Unsplash placeholder silently.
-            console.warn('[SecureImage] Could not resolve signed URL — falling back to placeholder:', err.message);
+            console.debug('[SecureImage] Storage path not found, using placeholder:', err.message);
+
             setDisplayUrl(FALLBACK_IMAGE);
         } finally {
             setIsResolving(false);

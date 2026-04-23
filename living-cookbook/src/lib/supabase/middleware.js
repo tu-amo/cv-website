@@ -40,7 +40,12 @@ export async function updateSession(request) {
     url.pathname.startsWith('/_next') ||
     url.pathname.startsWith('/auth/callback') || // Email confirmation handler
     url.pathname.startsWith('/join') ||           // Invite link handler
-    url.pathname.startsWith('/api/nutrition')     // USDA nutrition proxy — called from public recipe page too
+    url.pathname.startsWith('/api/nutrition')  || // USDA nutrition proxy — called from public recipe page too
+    url.pathname.startsWith('/tools')          || // Free SEO tools — publicly accessible, no auth required
+    url.pathname.startsWith('/upgrade')        || // Pricing / waitlist page — must be accessible before sign-up
+    url.pathname.startsWith('/impressum')      || // Legal notice — TMG §5, must be publicly accessible
+    url.pathname.startsWith('/datenschutz')    || // Privacy policy — GDPR, must be publicly accessible
+    url.pathname.startsWith('/agb')               // Terms of service — must be publicly accessible
     // Note: /login/forgot-password and /login/reset-password are covered by /login prefix
     // Note: /signup/* is covered by /signup prefix
 

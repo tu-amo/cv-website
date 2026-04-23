@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export const metadata = {
   title:       'Free Recipe Tools | Pretzel Prep',
-  description: 'Free tools for home cooks and food professionals. Scale recipes instantly in 6 languages — no account needed.',
+  description: 'Free tools for home cooks and food professionals. Scale recipes and convert measurements in 6 languages — no account needed.',
 };
 
 const tools = [
@@ -10,6 +10,13 @@ const tools = [
     slug:        '/tools/recipe-scaler',
     title:       'Recipe Scaler',
     description: 'Scale any recipe up or down in seconds. Paste your ingredient list, enter your servings, get perfectly adjusted quantities.',
+    badge:       'Free',
+    langs:       ['EN', 'DE', 'ES', 'FR', 'IT', 'NL'],
+  },
+  {
+    slug:        '/tools/unit-converter',
+    title:       'Kitchen Unit Converter',
+    description: 'Convert between metric and imperial instantly — grams ↔ ounces, ml ↔ cups, °C ↔ °F. UK and US tablespoon/pint toggle included.',
     badge:       'Free',
     langs:       ['EN', 'DE', 'ES', 'FR', 'IT', 'NL'],
   },

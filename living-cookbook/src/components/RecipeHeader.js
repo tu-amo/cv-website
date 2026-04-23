@@ -10,7 +10,7 @@ export default function RecipeHeader({ recipe, currentServings, onServingsChange
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "20px" }}>
                 <div className="cooking-reference" style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
                     {recipe.sources && (
-                        <span style={{ fontWeight: 600, color: "var(--color-accent-amber)" }}>
+                        <span style={{ fontWeight: 600, color: "var(--color-primary)" }}>
                             {recipe.sources.book_title || "Unknown Source"}{recipe.page_number ? ` (p. ${recipe.page_number})` : ""}
                         </span>
                     )}
@@ -43,10 +43,10 @@ export default function RecipeHeader({ recipe, currentServings, onServingsChange
                 <span><strong>Cook:</strong> {recipe.cook_time_minutes || 0} mins</span>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                     <strong>Serves:</strong>
-                    <div style={{ display: "flex", alignItems: "center", background: "var(--color-surface)", borderRadius: "20px", padding: "2px 8px", border: "1px solid var(--color-divider)" }}>
-                        <button onClick={() => onServingsChange(Math.max(1, currentServings - 1))} style={{ fontSize: "1.2rem", padding: "0 8px", color: "var(--color-accent-amber)" }}>−</button>
+                    <div style={{ display: "flex", alignItems: "center", background: "var(--color-surface)", borderRadius: "20px", padding: "2px 8px", border: "1px solid var(--color-hairline)" }}>
+                        <button onClick={() => onServingsChange(Math.max(1, currentServings - 1))} style={{ fontSize: "1.2rem", padding: "0 8px", color: "var(--color-primary)" }}>−</button>
                         <span style={{ minWidth: "20px", textAlign: "center", fontWeight: "600" }}>{currentServings}</span>
-                        <button onClick={() => onServingsChange(currentServings + 1)} style={{ fontSize: "1.2rem", padding: "0 8px", color: "var(--color-accent-amber)" }}>+</button>
+                        <button onClick={() => onServingsChange(currentServings + 1)} style={{ fontSize: "1.2rem", padding: "0 8px", color: "var(--color-primary)" }}>+</button>
                     </div>
                 </div>
             </div>

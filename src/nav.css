@@ -1,0 +1,130 @@
+/* ================================================================
+   SITE-WIDE NAVIGATION
+   Shared across: index.html, blog.html, cv.html, booking.html
+   ================================================================ */
+
+.site-nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    width: 100%;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    margin-bottom: 3rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(13, 26, 22, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-sizing: border-box;
+}
+
+/* Brand / Logo */
+.site-nav__brand {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.site-nav__brand-name {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #f8fafc;
+    line-height: 1.2;
+    transition: color 300ms ease;
+}
+
+.site-nav__brand:hover .site-nav__brand-name {
+    color: #d4a373;
+}
+
+.site-nav__brand-sub {
+    font-size: 0.68rem;
+    color: #94a3b8;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Links group */
+.site-nav__links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.site-nav__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    padding: 0.3rem 0;
+    border-bottom: 2px solid transparent;
+    transition: color 300ms ease, border-color 300ms ease;
+    white-space: nowrap;
+}
+
+.site-nav__link:hover {
+    color: #f8fafc;
+}
+
+.site-nav__link--active {
+    color: #d4a373;
+    border-bottom-color: #d4a373;
+}
+
+/* Utility button (Save PDF, Book etc.) */
+.site-nav__action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #94a3b8;
+    font-size: 0.8rem;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    padding: 0.4rem 0.85rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 300ms ease, border-color 300ms ease, background 300ms ease;
+    white-space: nowrap;
+}
+
+.site-nav__action:hover {
+    color: #f8fafc;
+    border-color: #d4a373;
+    background: rgba(212, 163, 115, 0.1);
+}
+
+/* Hide nav when printing */
+@media print {
+    .site-nav { display: none !important; }
+}
+
+/* Mobile: collapse links */
+@media (max-width: 640px) {
+    .site-nav {
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        padding: 0.75rem 0;
+        margin-bottom: 2rem;
+    }
+
+    .site-nav__links {
+        gap: 1.25rem;
+        flex-wrap: wrap;
+    }
+
+    .site-nav__brand-sub { display: none; }
+}

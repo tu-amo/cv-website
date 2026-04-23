@@ -1,33 +1,30 @@
-/* FINAL PRINT STYLESHEET */
-:root {
-    --print-black: #000000;
+/* ============================================
+   CV PRINT STYLESHEET — Condensed 2-Page
+   ============================================ */
+
+/* 1. PAGE CONFIG */
+@page {
+    margin: 1.2cm 1.5cm;
+    size: A4;
 }
 
-/* 1. AGGRESSIVE RESET */
+/* 2. GLOBAL RESET — Flatten everything */
 * {
     background: transparent !important;
-    color: #000 !important;
+    color: #111 !important;
     box-shadow: none !important;
     text-shadow: none !important;
     filter: none !important;
     backdrop-filter: none !important;
     opacity: 1 !important;
-    /* Force visibility */
-    visibility: visible !important;
     animation: none !important;
     transition: none !important;
     mask: none !important;
     clip-path: none !important;
+    -webkit-print-color-adjust: exact;
 }
 
-/* 2. PAGE CONFIG */
-@page {
-    margin: 1.25cm;
-    size: auto;
-}
-
-html,
-body {
+html, body {
     width: 100%;
     height: auto !important;
     min-height: 0 !important;
@@ -36,25 +33,30 @@ body {
     overflow: visible !important;
     background: white !important;
     font-family: 'Inter', Helvetica, Arial, sans-serif;
-    font-size: 10pt;
-    line-height: 1.4;
+    font-size: 9.5pt;
+    line-height: 1.35;
     display: block !important;
-    position: relative !important;
 }
 
-/* 3. HIDING ELEMENTS */
+/* 3. HIDE WEB-ONLY ELEMENTS */
 .background-globes,
-.action-buttons,
 .globe,
-/* .portfolio-section: Removed to allow Detailed Portfolio in Print */
-/* Hidden for shorthand */
+.action-buttons,
 .timeline-line,
-.timeline-marker {
+.timeline-marker,
+.cv-nav,
+.skip-link,
+.cv-eyebrow,
+.nav-link,
+.nav-label,
+.portfolio-section,
+.references-section,
+.cv-footer {
     display: none !important;
 }
 
-/* 4. LAYOUT CONTAINERS */
-/* Reset these to be simple block containers */
+/* 4. LAYOUT — Flatten all containers */
+.cv-page-wrap,
 .glass-container,
 .cv-content,
 .header-content {
@@ -64,229 +66,326 @@ body {
     margin: 0 !important;
     padding: 0 !important;
     border: none !important;
+    border-radius: 0 !important;
     position: static !important;
     overflow: visible !important;
     height: auto !important;
     flex: none !important;
 }
 
-/* 5. COMPONENTS */
-
-/* Header */
+/* ============================================
+   5. HEADER — Compact, left-aligned
+   ============================================ */
 .cv-header {
-    border-bottom: 2px solid #333;
-    padding-bottom: 10px;
-    margin-bottom: 20px;
+    border-bottom: 1.5pt solid #222;
+    padding-bottom: 6pt;
+    margin-bottom: 10pt;
     text-align: left;
 }
 
 .name {
-    font-family: 'Playfair Display', serif;
-    font-size: 26pt;
+    font-family: 'Playfair Display', serif !important;
+    font-size: 22pt;
     font-weight: 700;
     color: #000 !important;
-    margin-bottom: 5px;
+    margin-bottom: 2pt;
     display: block;
+    line-height: 1.1;
+    /* Override gradient */
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
+    -webkit-text-fill-color: #000 !important;
 }
 
 .title {
-    color: #0369a1 !important;
-    font-size: 12pt;
+    color: #1a5276 !important;
+    font-size: 10pt;
     font-weight: 600;
     text-transform: uppercase;
-    margin-bottom: 10px;
+    letter-spacing: 0.05em;
+    margin-bottom: 5pt;
     display: block;
 }
 
 .contact-grid {
     display: flex !important;
     flex-wrap: wrap;
-    gap: 15px;
-    font-size: 9pt;
-    color: #444 !important;
+    gap: 4pt 16pt;
+    font-size: 8.5pt;
+    color: #333 !important;
+    margin-top: 4pt;
 }
 
-/* Sections */
+.contact-item {
+    display: flex !important;
+    align-items: center;
+    gap: 4pt;
+}
+
+.contact-item i {
+    font-size: 8pt;
+}
+
+/* ============================================
+   6. SECTIONS — Tight spacing
+   ============================================ */
 .section {
     display: block !important;
-    margin-bottom: 25px;
+    margin-bottom: 10pt;
+    /* Allow content to flow across pages */
     page-break-inside: auto;
     break-inside: auto;
 }
 
 .section h2 {
-    font-size: 14pt;
+    font-size: 11pt;
     font-weight: 700;
-    color: #0369a1 !important;
-    border-bottom: 1px solid #ccc;
-    margin-bottom: 10px;
-    padding-bottom: 3px;
+    color: #1a5276 !important;
+    border-bottom: 1pt solid #bbb;
+    margin-bottom: 5pt;
+    padding-bottom: 2pt;
     page-break-after: avoid;
+    break-after: avoid;
 }
 
-/* Work History */
+/* ============================================
+   7. SUMMARY
+   ============================================ */
+.summary-section p {
+    font-size: 9pt;
+    line-height: 1.4;
+    color: #222 !important;
+    margin-bottom: 3pt;
+}
+
+/* ============================================
+   8. EXPERTISE MATRIX — 3 columns, compact
+   ============================================ */
+.expertise-matrix {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8pt;
+    margin-top: 4pt;
+}
+
+.matrix-column h4 {
+    font-size: 8.5pt;
+    font-weight: 700;
+    color: #000 !important;
+    border-bottom: 0.5pt solid #999;
+    margin-bottom: 3pt;
+    padding-bottom: 2pt;
+}
+
+.matrix-list {
+    list-style: disc;
+    padding-left: 12pt;
+    margin: 0;
+}
+
+.matrix-list li {
+    font-size: 8pt;
+    margin-bottom: 1.5pt;
+    color: #222 !important;
+}
+
+.matrix-list li::before {
+    display: none !important;
+}
+
+/* ============================================
+   9. WORK HISTORY TIMELINE — No break-avoids
+   ============================================ */
 .timeline {
     display: block !important;
     padding: 0 !important;
+    margin: 0 !important;
 }
 
+/* KEY FIX: Let timeline items flow naturally — NO page-break-inside: avoid */
 .timeline-item {
     display: block !important;
-    margin-bottom: 15px;
-    padding-bottom: 15px;
-    border-bottom: 1px dashed #ddd;
+    margin-bottom: 6pt;
+    padding-bottom: 6pt;
+    border-bottom: 0.5pt solid #ddd;
     page-break-inside: auto;
-    /* Allow breaking long jobs */
     break-inside: auto;
+}
+
+/* Last main timeline item before the page break — no bottom padding */
+.main-experience:last-of-type {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+    border-bottom: none !important;
 }
 
 .timeline-item:last-child {
     border-bottom: none;
 }
 
+/* Foundation entry — page 2 start, zero all top spacing */
+#foundation-header {
+    page-break-before: always;
+    break-before: page;
+    margin: 0 !important;
+    padding-top: 0 !important;
+    border-top: none !important;
+    border-bottom: 0.5pt solid #ddd;
+    padding-bottom: 6pt;
+}
+
+#foundation-header .role-header h3 {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #000 !important;
+}
+
+/* Foundation items flow normally */
+.foundation-experience {
+    page-break-inside: auto;
+    break-inside: auto;
+}
+
+/* Compact foundation bullet list */
+.foundation-list {
+    list-style: none;
+    padding: 0;
+    margin: 2pt 0 0 0;
+}
+
+.foundation-list li {
+    font-size: 8.5pt;
+    line-height: 1.4;
+    margin-bottom: 3pt;
+    padding-left: 10pt;
+    position: relative;
+    color: #111 !important;
+}
+
+.foundation-list li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #444 !important;
+}
+
+.foundation-dates {
+    font-style: italic;
+    color: #555 !important;
+}
+
 .role-header {
-    margin-bottom: 5px;
+    display: block !important;
+    margin-bottom: 2pt;
 }
 
 .role-header h3 {
-    font-size: 12pt;
+    font-size: 10.5pt;
     font-weight: 700;
-    display: inline-block;
-    margin-right: 10px;
+    color: #000 !important;
+    display: inline;
+    margin-right: 0;
+    line-height: 1.2;
+}
+
+.date {
+    font-size: 8pt;
+    color: #555 !important;
+    font-style: italic;
+    display: block;
+    margin-top: 1pt;
 }
 
 .company {
     font-weight: 600;
-    color: #0369a1 !important;
-    font-size: 10pt;
-}
-
-.date {
+    color: #1a5276 !important;
     font-size: 9pt;
-    color: #666 !important;
-    font-style: italic;
     display: block;
+    margin-top: 1pt;
 }
 
 .description {
-    margin-top: 5px;
-    color: #333 !important;
+    font-size: 8.5pt;
+    margin-top: 3pt;
+    color: #222 !important;
+    line-height: 1.35;
 }
 
-/* Projects */
-.projects-list {
-    margin-top: 8px;
-    padding: 8px 12px;
-    background: #f8f8f8 !important;
-    border: 1px solid #eee !important;
-    border-radius: 4px;
+/* ============================================
+   10. ACCOMPLISHMENT BULLETS
+   ============================================ */
+.accomplishments-list {
+    list-style: disc;
+    padding-left: 14pt;
+    margin: 3pt 0 0 0;
 }
 
-.project-item {
-    font-size: 9pt;
-    margin-bottom: 4px;
+.accomplishments-list li {
+    font-size: 8.5pt;
+    margin-bottom: 2.5pt;
+    line-height: 1.35;
+    color: #1a1a1a !important;
 }
 
-/* Skills */
-.skills-grid {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 8px;
+.accomplishments-list li::before {
+    display: none !important;
 }
 
-.skill-tag {
-    border: 1px solid #bbb;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-size: 9pt;
-    font-weight: 500;
+.highlight-tech {
+    font-weight: 700;
+    color: #000 !important;
 }
 
-/* Grid Layouts (Education/Refs) */
-.grid-2-col,
-.references-grid {
+/* ============================================
+   11. EDUCATION & CERTS
+   ============================================ */
+.grid-2-col {
     display: grid !important;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    page-break-inside: avoid;
+    gap: 10pt;
 }
 
-.card,
-.ref-card {
-    border: 1px solid #ddd !important;
-    padding: 12px;
-    border-radius: 6px;
+.card {
+    border: 0.5pt solid #ddd !important;
+    padding: 6pt 8pt;
     background: #fff !important;
 }
 
 .card h3 {
-    font-size: 11pt;
-    margin-bottom: 8px;
-    border-bottom: 1px solid #eee;
-}
-
-/* Footer */
-.cv-footer {
-    margin-top: 30px;
-    padding-top: 10px;
-    border-top: 1px solid #ddd;
-    text-align: center;
-    font-size: 8pt;
-    color: #888 !important;
-}
-
-/* 8. PROJECT CARDS (PORTFOLIO) */
-.portfolio-section {
-    display: block !important;
-    page-break-before: always;
-    /* Start detailed portfolio on new page if needed */
-}
-
-.project-card-detailed {
-    border: 1px solid #ccc !important;
-    background: #fff !important;
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 6px;
-    page-break-inside: avoid;
-    /* Prevent card from splitting */
-    box-shadow: none !important;
-}
-
-.project-header-detailed {
-    border-bottom: 2px solid #eee;
-    padding-bottom: 8px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-}
-
-.project-title {
-    font-size: 11pt;
+    font-size: 9.5pt;
     font-weight: 700;
-    color: #000;
+    margin-bottom: 4pt;
+    border-bottom: 0.5pt solid #eee;
+    padding-bottom: 2pt;
 }
 
-.project-company {
-    font-size: 10pt;
+.clean-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.clean-list li {
+    font-size: 8.5pt;
+    margin-bottom: 2pt;
+    padding-left: 8pt;
+    position: relative;
+}
+
+.clean-list li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #555 !important;
+}
+
+.edu-title {
+    font-size: 8.5pt;
     font-weight: 600;
-    color: #0369a1;
 }
 
-.project-tech-stack {
-    margin-top: 10px;
-    padding-top: 8px;
-    border-top: 1px dotted #eee;
-}
-
-.tech-badge {
-    border: 1px solid #999;
-    color: #333;
-    padding: 2px 6px;
+.edu-school {
     font-size: 8pt;
-    border-radius: 4px;
-    margin-right: 5px;
-    display: inline-block;
-    background: #fdfdfd !important;
+    color: #555 !important;
 }

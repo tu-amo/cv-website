@@ -42,7 +42,8 @@ export default async function PublicRecipePage({ params }) {
 
     // ── Fetch all data in parallel ──────────────────────────────────────
     const [recipeRes, ingsRes, stepsRes, notesRes] = await Promise.all([
-        supabase.from("recipes").select("*, sources(*)").eq("id", id).single(),
+        // sources!source_id — explicit FK hint required (LL-060)
+        supabase.from("recipes").select("*, sources!source_id(*)").eq("id", id).single(),
         supabase.from("recipe_ingredients").select("*, ingredients(name)").eq("recipe_id", id).order("sort_order", { ascending: true }),
         supabase.from("instruction_steps").select("*").eq("recipe_id", id).order("step_number", { ascending: true }),
         supabase.from("recipe_notes").select("*").eq("recipe_id", id).order("created_at", { ascending: false }),

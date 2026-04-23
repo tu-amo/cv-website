@@ -1,6 +1,6 @@
 # The Living Cookbook — Requirements Document
-**Version:** 3.1  
-**Last Updated:** 2026-04-14 (Session: Monetisation — usage tracking gate, tier config, UsageCard, migration 20260414210000)
+**Version:** 3.2  
+**Last Updated:** 2026-04-22 (Session: DB hardening — security linter fixes migration 20260422000002, performance advisor migration 20260422000003, index advisor sort indexes migration 20260422000004)
 **Status:** Active — Pre-launch
 
 ---
@@ -142,6 +142,7 @@ The Living Cookbook is a personal and collaborative recipe manager. Users can cr
 | S7 | New user sign-up is open (no invite required) | ✅ |
 | S8 | `supabaseAdmin` (service role) used only in server-only API routes — never in client components | ✅ |
 | S9 | Middleware MUST be at `src/middleware.js` with `export function middleware` — Next.js silently ignores any other filename or export name | ✅ Done (2026-04-04 — fixed from `proxy.js` which was silently skipped for the entire feature branch lifecycle) |
+| S10 | All RLS policies must use `(SELECT auth.uid())` (hoisted, once-per-statement) not bare `auth.uid()` (re-evaluated per row). Pattern enforced by migration `20260422000003`. | ✅ Done (2026-04-22) — 40+ policies refactored; canonical pattern documented in migration file |
 
 ### 3.2 Data Integrity
 
@@ -165,6 +166,8 @@ The Living Cookbook is a personal and collaborative recipe manager. Users can cr
 | P5 | Public recipe page is an SSR Server Component with 5-minute ISR (`revalidate = 300`) | ✅ Done (2026-04-03) |
 | P6 | Nutrition API uses batched request (N ingredients → 1 HTTP call) to avoid N+1 problem | ✅ Done (2026-04-03) |
 | P7 | Nutrition data served from Supabase L2 cache on warm requests — no USDA API call | ✅ Done (2026-04-03) |
+| P8 | All foreign key columns on high-traffic tables must have a B-tree index to prevent full sequential scans | ✅ Done (2026-04-22) — 22 FK indexes added by migration `20260422000003` across 9 tables |
+| P9 | `ORDER BY` columns used in every listing query (`recipes.created_at DESC`, `recipe_ingredients.sort_order ASC`) must have dedicated sort indexes | ✅ Done (2026-04-22) — migration `20260422000004`; planner cost: created_at 62.62→27.75; sort_order 43.92→8.97 |
 
 ### 3.4 Scalability & Maintainability
 
@@ -269,6 +272,12 @@ The Living Cookbook is a personal and collaborative recipe manager. Users can cr
 | 🟡 P2 | **R6** | Apply Supabase sync for `is_public` + `updated_by` fields | half day | Data integrity |
 | 🟡 P2 | **R10** | Author/modifier name on recipe card thumbnail | 1 day | Minor UX |
 | 🟡 P2 | **B1** | Multi-household sharing — needs `recipe_groups` junction table; UI toggles already done | 2 days | Feature backlog |
+| 🟡 P2 | **B2** | Source references on recipe & library pages — add "Source" section below nutrition panel (name + URL) | 0.5 day | ✅ Done (2026-04-19) |
+| 🟡 P2 | **B3** | Nutrition panel width consistency — match 1/3 width to stat/serving section proportions | 0.5 day | ✅ Done (2026-04-19) |
+| 🟡 P2 | **B4** | Carousel autoplay speed — increase interval to 5000ms | 1 hr | ✅ Done (2026-04-19) |
+| 🟡 P2 | **B5** | Recipe edit authorisation guard — block edits to other users' recipes (server-side `user_id` check) | 0.5 day | ✅ Done (2026-04-21) |
+
+> **Full backlog detail:** See [`docs/ROADMAP.md`](docs/ROADMAP.md) — single source of truth for notes, context, and added dates.
 | 🟢 P3 | — | Email template branding (Supabase Dashboard) | 1 hr | Pre-deploy, low impact |
 | 🟢 P3 | — | Adaptive Thumbnail Research (contain bars) | Future sprint | Low priority |
 | 🟢 P3 | **i18n FR/IT/NL** | French, Italian, Dutch **app** i18n — add as tool traffic grows | 2 hrs ea | Language-by-language |
