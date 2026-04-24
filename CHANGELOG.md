@@ -9,6 +9,26 @@ Format follows [Keep a Changelog](https://keepachangelog.com). Versions are date
 
 ---
 
+## [2026-04-24] — Repo Separation & Vercel Isolation
+
+### Fixed
+- Vercel build failure caused by Next.js framework detection hijacking janeblog builds — living-cookbook's `package.json` and `package-lock.json` were visible to Vercel's scanner (LL-001)
+
+### Added
+- `vercel.json` at repo root — explicitly pins framework to Vite, output to `dist/`, preventing Vercel auto-detection from ever selecting Next.js again
+- `.vercelignore` — excludes all non-janeblog directories from Vercel's build scanner
+
+### Changed
+- Removed living-cookbook from `tu-amo/cv-website` git tracking — the project now lives exclusively at `tu-amo/living-cookbook` (locally: `/Users/janescott/Projects/LivingCookbook/`)
+- Both projects now deploy from independent GitHub repos with no shared tracking
+
+### Infrastructure
+- Janeblog framework docs committed to repo for the first time: `project_nexus.md`, `CHANGELOG.md`, `docs/ROADMAP.md`, `.agent/docs/JANEBLOG_LESSONS_LEARNT.md`, `.agent/workflows/janeblog-publish.md`
+- `.agent/workflows/janeblog-update-docs.md` created — janeblog-specific session close workflow (5 steps, replaces the living-cookbook `update-docs.md` which is not applicable to a static site)
+- Vercel `cv-website` project Root Directory cleared — was set to `living-cookbook` which broke once that directory was removed from the repo; now empty so Vite builds from the repo root
+
+---
+
 ## [2026-04-23]
 
 ### Changed

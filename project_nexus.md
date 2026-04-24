@@ -1,6 +1,6 @@
 # Project Nexus: janeblog.com
-**Version:** 1.0 | **Updated:** 2026-04-23 | **Branch:** `main`  
-**Status:** Homepage layout refactor complete. Framework docs being established. Next: Writing page layout standardisation (B2).
+**Version:** 1.1 | **Updated:** 2026-04-24 | **Branch:** `main`
+**Status:** Repo separation complete. Both projects fully independent. Next: Writing page layout standardisation (B2) or nav extraction (B8).
 
 ---
 
@@ -109,7 +109,7 @@ Every page must follow this exact structure. Deviating from it breaks nav and sh
 
 ### Agent Docs (in `.agent/docs/`)
 
-> ⚠️ Note: The `.agent/` directory at this level is currently shared with the living-cookbook project. Living-cookbook-specific docs (ONBOARDING_ARCHITECTURE, PRODUCTION_HEALTH) apply to that project only.
+> ⚠️ Note: The `.agent/` directory at this level still contains some living-cookbook legacy content (skills and workflows pre-dating the separation). Living-cookbook is now at `/Users/janescott/Projects/LivingCookbook/`. The .agent/ split (B10) will clean this up fully. Janeblog-specific docs are clearly named (JANEBLOG_LESSONS_LEARNT.md etc.).
 
 | Document | Use It When... | Project |
 |---|---|---|
@@ -131,8 +131,8 @@ Every page must follow this exact structure. Deviating from it breaks nav and sh
 
 | Workflow | Run It When... |
 |---|---|
-| `/publish` | Before every git push to production |
-| `/update-docs` | After every deployment — update CHANGELOG, ROADMAP, this file |
+| `janeblog-publish` | Before every git push to production — pre-flight checklist |
+| `janeblog-update-docs` | After every session — update CHANGELOG, ROADMAP, lessons, nexus |
 
 ---
 
@@ -152,13 +152,13 @@ Every page must follow this exact structure. Deviating from it breaks nav and sh
 
 **How to push to production:**
 ```bash
-cd /Users/janescott/Projects/Anti  # NOT inside living-cookbook
+cd /Users/janescott/Projects/Anti
 git add -A
 git commit -m "type: description"
 git push
 ```
 
-Cloudflare Pages automatically deploys on push to `main`. No CI pipeline currently — changes go live immediately.
+Vercel auto-deploys on push to `main`. Changes go live in ~30s.
 
 **Verify which repo you're in before pushing:**
 ```bash
@@ -179,5 +179,8 @@ git rev-parse --show-toplevel   # must return /Users/janescott/Projects/Anti, no
 | B1 | Responsive breakpoints audit — mobile nav + layout | Medium |
 | B2 | Writing page (blog.html) layout standardisation | Medium |
 | B3 | `/publish` pre-flight workflow | Low |
-| B4 | ADRs — document CSS tokens, static HTML, Cloudflare deploy decisions | Low |
+| B4 | ADRs — document CSS tokens, static HTML, Vercel deploy decisions | Low |
 | B5 | `CSS_ARCHITECTURE.md` — consolidate cartographic-mind + skill | Low |
+| **B8** | **Extract shared nav to JS component** | **High** |
+| B9 | Extract shared `<head>` to Vite partial | Low |
+| B10 | Split `.agent/` — janeblog vs LivingCookbook | Low |

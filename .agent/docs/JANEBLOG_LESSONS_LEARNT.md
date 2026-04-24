@@ -67,32 +67,44 @@
 **Symptom:** The `.agent/` directory at `/Users/janescott/Projects/Anti/.agent/` contains skills, workflows, and docs that are almost entirely living-cookbook specific (`nextjs-supabase-auth`, `food-photo-display`, `recipe-seed-data`, ONBOARDING_ARCHITECTURE, PRODUCTION_HEALTH etc.). The CATALOGUE.md is titled "The Living Cookbook". When working on janeblog, an agent reading this directory receives mostly irrelevant context.
 **Root Cause:** The `.agent/` was built for living-cookbook but stored at the parent level (Anti root) — either because it predates the living-cookbook subdirectory or for organisational convenience. When janeblog framework docs were added to the same `.agent/`, the two projects' contexts became mixed.
 **Current workaround:** Janeblog-specific docs are clearly named (JANEBLOG_LESSONS_LEARNT.md, etc.) and the project_nexus.md at the Anti root serves as the orientation file.
-**Long-term fix:** Move all living-cookbook `.agent/` content into `living-cookbook/.agent/`. Create a clean `/Users/janescott/Projects/Anti/.agent/` for janeblog only. Update CATALOGUE.md for each project independently.
-**Status:** Deferred — requires coordination to avoid breaking living-cookbook workflow references.
+**Long-term fix (B10):** Move all living-cookbook `.agent/` content into `/Users/janescott/Projects/LivingCookbook/.agent/`. Create a clean `/Users/janescott/Projects/Anti/.agent/` for janeblog only. Now that LivingCookbook is a fully separate directory (2026-04-24), this migration is straightforward.
+**Status:** Partially resolved — living-cookbook now lives at `/Users/janescott/Projects/LivingCookbook/`. The .agent/ content split (B10) is the remaining item, low urgency.
 
 ---
 
-### LL-006 · Vercel Deployment Triggered by Push to Shared Repo Root
+### LL-006 · Vercel `cv-website` Project Had Root Directory Set to `living-cookbook`
 **Date:** 2026-04-24
-**Type:** 💡 Pattern
-**Context:** The `cv-website` Vercel project is connected to the `tu-amo/cv-website` GitHub repo (the Anti root). Every push to `main` — including commits that only change janeblog files — triggers a Vercel build. This is expected behaviour.
-**What to remember:** The living-cookbook has its own separate Vercel project connected to the same repo with Root Directory set to `living-cookbook/`. A janeblog push will trigger BOTH Vercel projects. Before pushing janeblog changes, confirm no living-cookbook migrations are staged that need `npm run db:push:prod` first.
-**Verification command:**
-```bash
-git rev-parse --show-toplevel   # confirm you're in Anti root, not living-cookbook
-git status --short              # confirm only janeblog files are staged
-```
+**Type:** 🐛 Bug (deployment) — ✅ Resolved
+**Symptom:** After removing `living-cookbook/` from the `tu-amo/cv-website` GitHub repo, the `cv-website` Vercel project failed with: `The specified Root Directory 'living-cookbook' does not exist.`
+**Root Cause:** The `cv-website` Vercel project settings had Root Directory = `living-cookbook` — it was being used to deploy the living-cookbook Next.js app from a subdirectory of the janeblog repo. When the directory was removed, the setting became invalid.
+**Fix:** Vercel Dashboard → cv-website project → Settings → General → Root Directory → cleared to empty. Vercel now builds from the repo root using `vercel.json` (framework=vite, outputDirectory=dist).
+**Rule:** Any time you restructure a repo (remove subdirectories, rename paths), audit all Vercel project settings for Root Directory references. A Root Directory setting that points to a deleted path causes an instant build failure with a clear but confusing error message.
 
 ---
 
-## Patterns & Anti-Patterns
+### LL-007 · `cp -r` Into an Existing Directory Creates a Nested Copy
+**Date:** 2026-04-24
+**Type:** 🐛 Bug (operator error) — ✅ Resolved
+**Symptom:** Running `cp -r /path/to/source /path/to/dest` when `dest` already exists created `/path/to/dest/source/` instead of copying the contents of source into dest. A nested `living-cookbook/` directory appeared inside `/Users/janescott/Projects/LivingCookbook/`.
+**Root Cause:** When the destination directory already exists, `cp -r` copies the source directory INTO the destination, not AS the destination. The LivingCookbook directory had already been created by a prior command, so the second `cp` run nested the copy.
+**Fix:** `rm -rf /Users/janescott/Projects/LivingCookbook/living-cookbook` — removed the nested duplicate. The original content at the root of LivingCookbook was already correct.
+**Rule:** Before running `cp -r src dest`, check whether `dest` already exists with `ls dest`. If it does, use `cp -r src/* dest/` (copy contents, not the directory itself) or verify the copy won't nest.
+
+---
+
+### LL-008 · Both Vercel Projects Share the Same GitHub Push Trigger
+**Date:** 2026-04-24
+**Type:** 💡 Pattern — ✅ Documented
+**Context:** The `cv-website` Vercel project (janeblog) is connected to `tu-amo/cv-website`. Every `git push` to main triggers it. This is expected and correct. The living-cookbook Vercel project is separately connected to `tu-amo/living-cookbook` — janeblog pushes do NOT trigger it.
+**Rule:** The two projects are now fully independent. A push from `/Users/janescott/Projects/Anti/` (janeblog) only triggers the janeblog Vercel build. A push from `/Users/janescott/Projects/LivingCookbook/` only triggers the living-cookbook Vercel build. Always run `git rev-parse --show-toplevel` to confirm which repo you're in before pushing.
 
 | Pattern | Anti-Pattern |
 |---|---|
 | Declare `vercel.json` framework + outputDirectory at repo root on day one | Relying on Vercel auto-detection in a repo with multiple projects |
 | Add `.vercelignore` to exclude sibling projects before first deploy | Letting Vercel scan the entire repo including unrelated subdirectories |
+| Audit Vercel Root Directory settings before removing any subdirectory from a repo | Discovering the broken setting only after a failed build |
+| Check `ls dest` before `cp -r src dest` — if dest exists, contents will be nested | Running `cp -r` into an existing directory without checking its state |
 | Extract shared nav to a JS include before page 3 | Copy-pasting nav HTML into every HTML file and editing each separately |
 | All layout constraints come from `tokens.css` and `shells.css` | Per-section inline CSS overrides in page-specific `<style>` blocks |
-| Section content on homepage as named sections (Sources of Inspiration) | `<aside>` inside article flow without careful positional scoping |
 | Run `git rev-parse --show-toplevel` before any `git push` | Assuming the terminal is in the right directory |
 | Log every bug/decision to JANEBLOG_LESSONS_LEARNT.md in the same session | Assuming you'll remember the root cause next session |
