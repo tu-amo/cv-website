@@ -1,0 +1,8 @@
+# Exclude the living-cookbook Next.js app from this Vercel project.
+# This repo contains two independent projects. The living-cookbook has
+# its own separate Vercel deployment — it must not interfere with this one.
+living-cookbook/
+
+# Standard exclusions
+node_modules/
+.DS_Store
