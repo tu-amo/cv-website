@@ -1,303 +1,564 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Concern to Measure | Architecture Practice</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Concern to Measure — Interactive Worksheet · Jane Petra Scott</title>
+  <meta name="description" content="Convert stakeholder language into structured concerns, scenarios, and measurable requirement instances. Free interactive tool following ISO 42010, TOGAF, and BCS guidance." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/tokens.css" />
+  <link rel="stylesheet" href="/src/nav.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --n: #1a2e4a; --b: #2d6a9f; --bl: #e8f0f7; --bm: #c5d8ec;
+      --bd: #a0b8d0; --cap: #555; --bg: #f4f7fb; --sur: #fff;
+      --txt: #1a2e4a; --txs: #4a6080;
+    }
+    body { background: var(--bg); font-family: 'Inter', sans-serif; color: var(--txt); }
+    body.embed #site-nav, body.embed .background-globes { display: none !important; }
+    body.embed .ctm { padding-top: 1rem; }
+
+    /* TOOL WRAPPER */
+    .ctm { max-width: 780px; margin: 0 auto; padding: 2rem 1.25rem 5rem; }
+
+    /* HEADER CARD */
+    .ctm-head {
+      background: var(--sur); border: 1px solid var(--bm); border-radius: 10px;
+      padding: 1.75rem 1.5rem 1.25rem; text-align: center;
+      box-shadow: 0 2px 14px rgba(26,46,74,.08); margin-bottom: 1.25rem;
+    }
+    .ctm-eyebrow {
+      display: inline-block; font-size: .72rem; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--b);
+      background: var(--bl); border-radius: 999px; padding: .3em .9em; margin-bottom: .9rem;
+    }
+    .ctm-head h1 {
+      font-family: 'Playfair Display', serif; font-size: clamp(1.6rem,4vw,2.25rem);
+      color: var(--n); line-height: 1.2; margin-bottom: .5rem;
+    }
+    .ctm-head p { font-size: .88rem; color: var(--txs); line-height: 1.6; max-width: 520px; margin: 0 auto .9rem; }
+    .ctm-refs {
+      font-size: .72rem; color: var(--cap); font-style: italic;
+      border-top: 1px solid var(--bm); padding-top: .65rem; margin-top: .65rem;
+    }
+    .ctm-save-badge {
+      display: inline-flex; align-items: center; gap: .35rem; font-size: .72rem;
+      color: var(--b); background: var(--bl); border-radius: 999px;
+      padding: .2em .7em; opacity: 0; transition: opacity .3s; margin-top: .4rem;
+    }
+    .ctm-save-badge.show { opacity: 1; }
+
+    /* STEPPER */
+    .ctm-stepper {
+      display: flex; border: 1px solid var(--bm); border-radius: 8px;
+      overflow: hidden; margin-bottom: 1.25rem; background: var(--sur);
+    }
+    .ctm-stage {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: .55rem .2rem;
+      background: var(--bl); border-right: 1px solid var(--bm);
+      font-size: .68rem; color: var(--txs); text-align: center; line-height: 1.3;
+      transition: background .2s, color .2s;
+    }
+    .ctm-stage:last-child { border-right: none; }
+    .ctm-stage b { display: block; font-size: .88rem; color: var(--b); margin-bottom: .1rem; }
+    .ctm-stage.active { background: var(--n); color: rgba(255,255,255,.9); }
+    .ctm-stage.active b { color: var(--bm); }
+    .ctm-stage.done { background: var(--b); color: rgba(255,255,255,.9); }
+    .ctm-stage.done b { color: #fff; }
+
+    /* PANELS */
+    .ctm-panel {
+      background: var(--sur); border: 1px solid var(--bm); border-radius: 10px;
+      overflow: hidden; margin-bottom: 1rem;
+      box-shadow: 0 2px 10px rgba(26,46,74,.06);
+      animation: fadeup .22s ease;
+    }
+    @keyframes fadeup { from { opacity:0; transform:translateY(5px) } to { opacity:1; transform:none } }
+    [hidden] { display: none !important; }
+
+    .sec-hd {
+      background: var(--n); color: #fff; font-size: .83rem; font-weight: 700;
+      padding: .55rem 1rem; letter-spacing: .02em;
+    }
+    .sec-note {
+      font-size: .76rem; color: var(--txs); font-style: italic;
+      background: var(--bl); padding: .55rem 1rem; border-bottom: 1px solid var(--bm); line-height: 1.5;
+    }
+    .fields { padding: .9rem 1rem; display: flex; flex-direction: column; gap: .85rem; }
+
+    /* HEADER ROW */
+    .hdr-row {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .6rem;
+      padding: .65rem 1rem; background: var(--bl); border-bottom: 1px solid var(--bm);
+    }
+
+    /* FORM ELEMENTS */
+    .fld { display: flex; flex-direction: column; gap: .3rem; }
+    .fld label { font-size: .75rem; font-weight: 600; color: var(--n); }
+    .fld input, .fld textarea {
+      width: 100%; background: #fff; border: 1px solid var(--bd); border-radius: 5px;
+      padding: .45rem .6rem; font-size: .875rem; font-family: inherit;
+      color: var(--txt); line-height: 1.5; resize: vertical; transition: border-color .15s, box-shadow .15s;
+    }
+    .fld input:focus, .fld textarea:focus {
+      outline: none; border-color: var(--b); box-shadow: 0 0 0 3px rgba(45,106,159,.15);
+    }
+    .fld .hint { font-size: .71rem; color: var(--cap); font-style: italic; }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+    .sc-row { display: grid; grid-template-columns: 3fr 2fr; gap: .65rem; align-items: start; }
+
+    /* CHECKBOXES */
+    .chk-group { padding: .65rem 1rem; display: flex; flex-direction: column; gap: 0; }
+    .chk-title { font-size: .78rem; font-weight: 700; color: var(--n); margin: .5rem 0 .3rem; }
+    .chk-title:first-child { margin-top: 0; }
+    .chk-div { border: none; border-top: 1px solid var(--bm); margin: .6rem 0 .4rem; }
+    .chk { display: flex; align-items: flex-start; gap: .55rem; padding: .25rem 0; cursor: pointer; }
+    .chk input[type=checkbox] {
+      appearance: none; -webkit-appearance: none; width: 15px; height: 15px; min-width: 15px;
+      border: 1.5px solid var(--bd); border-radius: 3px; background: #fff; cursor: pointer;
+      margin-top: 2px; transition: background .15s, border-color .15s; position: relative;
+    }
+    .chk input:checked { background: var(--n); border-color: var(--n); }
+    .chk input:checked::after {
+      content: ''; position: absolute; top: 1px; left: 4px;
+      width: 5px; height: 8px; border: 2px solid #fff;
+      border-top: none; border-left: none; transform: rotate(45deg);
+    }
+    .chk span { font-size: .81rem; color: var(--txt); line-height: 1.4; }
+    .chk sub { display: block; font-size: .72rem; color: var(--cap); font-style: italic; margin-top: .1rem; }
+    .conflict-row {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+      padding: .45rem 1rem .65rem; border-top: 1px solid var(--bm); background: var(--bl);
+    }
+    .conflict-row label { font-size: .81rem; font-weight: 600; color: var(--n); }
+
+    /* EVIDENCE ROW */
+    .ev-row { display: flex; flex-wrap: wrap; gap: .4rem 1.25rem; align-items: center; }
+    .ev-row .chk { padding: .12rem 0; }
+
+    /* NAV BAR */
+    .ctm-nav { display: flex; align-items: center; justify-content: space-between; padding: .5rem 0 1rem; }
+    .ctm-pg { font-size: .78rem; color: var(--txs); text-align: center; }
+    .btn {
+      display: inline-flex; align-items: center; gap: .35rem;
+      padding: .5rem 1.15rem; border-radius: 6px; font-size: .855rem; font-weight: 600;
+      font-family: inherit; cursor: pointer; border: none; transition: background .15s, opacity .15s;
+    }
+    .btn-pri { background: var(--n); color: #fff; }
+    .btn-pri:hover { background: #243d5c; }
+    .btn-sec { background: var(--bl); color: var(--n); border: 1px solid var(--bd); }
+    .btn-sec:hover { background: var(--bm); }
+    .btn-prt { background: var(--b); color: #fff; }
+    .btn-prt:hover { background: #245b8a; }
+    .btn-clr { background: transparent; color: #aaa; border: 1px solid #ddd; font-size: .76rem; padding: .35rem .75rem; }
+    .btn-clr:hover { color: #c00; border-color: #c00; }
+    .btn:disabled { opacity: .35; cursor: not-allowed; }
+
+    /* SUMMARY */
+    .sum-hd {
+      background: var(--n); color: #fff; padding: 1.25rem 1.5rem; text-align: center;
+    }
+    .sum-hd h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #fff; margin-bottom: .2rem; }
+    .sum-hd p { font-size: .8rem; color: rgba(255,255,255,.65); }
+    .sum-body { padding: 1.1rem; }
+    .sum-sec { margin-bottom: 1.35rem; border-left: 3px solid var(--b); padding-left: .9rem; }
+    .sum-sec h3 { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--b); margin-bottom: .65rem; }
+    .sum-field { margin-bottom: .65rem; }
+    .sum-field dt { font-size: .71rem; font-weight: 600; color: var(--n); margin-bottom: .12rem; }
+    .sum-field dd { font-size: .855rem; line-height: 1.6; white-space: pre-wrap; }
+    .sum-field dd.empty { color: var(--cap); font-style: italic; }
+    .sum-checks { font-size: .83rem; line-height: 1.8; }
+    .sum-refs { font-size: .71rem; color: var(--cap); font-style: italic; border-top: 1px solid var(--bm); padding-top: .6rem; margin-top: .6rem; text-align: center; }
+    .sum-actions { display: flex; gap: .75rem; flex-wrap: wrap; justify-content: center; padding: 1rem; border-top: 1px solid var(--bm); }
+
+    @media (max-width: 560px) {
+      .hdr-row, .two, .sc-row { grid-template-columns: 1fr; }
+      .ctm-stage { font-size: .6rem; padding: .45rem .1rem; }
+    }
+    @media print {
+      body.embed #site-nav, .ctm-head, .ctm-stepper, .ctm-nav,
+      .ctm-panel:not(#step-sum), .sum-actions { display: none !important; }
+      #step-sum { display: block !important; box-shadow: none; border: none; }
+      body { background: #fff; }
+      .ctm { padding: 0; max-width: 100%; }
+    }
+  </style>
 </head>
-
 <body>
-    <div class="app-container">
-        <header class="no-print">
-            <div class="toolbar">
-                <h1>Concern to Measure</h1>
-                <div class="actions">
-                    <button id="clearBtn" class="secondary">Clear Form</button>
-                    <button id="printBtn" class="primary">Export to PDF</button>
-                </div>
-            </div>
-            <p class="intro">Convert stakeholder language into structured concerns, scenarios, and measurable
-                requirement instances.</p>
-        </header>
-
-        <form id="worksheetForm" class="sheet">
-            <section class="doc-header">
-                <div class="title-block">
-                    <h2>Concern to Measure</h2>
-                    <hr class="accent-rule">
-                    <p class="subtitle">Convert stakeholder language into structured concerns, scenarios, and measurable
-                        requirement instances. Follows ISO/IEC/IEEE 42010:2011 and TOGAF / BCS guidance. Allow 10–20
-                        minutes per statement.</p>
-                </div>
-
-                <div class="process-flow">
-                    <div class="step start"><strong>A</strong><span>Raw statement (verbatim)</span></div>
-                    <div class="step"><strong>B</strong><span>Classify concern type</span></div>
-                    <div class="step"><strong>C</strong><span>Reframe as a concern</span></div>
-                    <div class="step"><strong>D</strong><span>Measure (metric + evidence)</span></div>
-                    <div class="step end"><strong>E</strong><span>Requirement instance (SMART)</span></div>
-                </div>
-                <p class="caption">Figure: Raw statement → Classify → Reframe → Measure → Requirement
-                    instance</p>
-            </section>
-
-            <!-- 1. Raw Statement -->
-            <section class="content-section">
-                <header class="section-banner">
-                    <div class="header-with-info">
-                        <h3>1 · Raw Statement</h3>
-                        <div class="info-popout no-print">
-                            <span class="info-icon">i</span>
-                            <div class="popout-content">
-                                <p><strong>Instructions:</strong> Capture the statement verbatim, classify it without
-                                    debating solutions, reframe it neutrally as a concern, then make
-                                    it measurable (a requirement instance + evidence).</p>
-                                <p class="citation">Source: <a
-                                        href="https://cdn.standards.iteh.ai/samples/50508/ec3d9367f48e4b28a7ac8dddaeca5a3f/ISO-IEC-IEEE-42010-2011.pdf"
-                                        target="_blank">ISO-IEC-IEEE-42010-2011</a></p>
-                            </div>
-                        </div>
-                    </div>
-                </header>
-                <div class="grid-3-col meta-header">
-                    <div class="field">
-                        <label>Who / role:</label>
-                        <input type="text" name="who_role" placeholder="___________________________">
-                    </div>
-                    <div class="field">
-                        <label>Date:</label>
-                        <input type="date" name="date">
-                    </div>
-                    <div class="field">
-                        <label>System / service:</label>
-                        <input type="text" name="system_service" placeholder="___________________________">
-                    </div>
-                </div>
-
-                <div class="field full-width">
-                    <label>Raw statement (verbatim):</label>
-                    <textarea name="raw_statement" rows="3"></textarea>
-                </div>
-
-                <div class="field full-width">
-                    <label>Context – when / where / which user journey or business scenario:</label>
-                    <textarea name="context" rows="3"></textarea>
-                    <p class="field-note">Include environment assumptions: peak / normal / degraded · locations · user
-                        groups.</p>
-                </div>
-
-                <div class="field full-width">
-                    <label>Impact – what is at risk (harm / cost / delay / compliance / operations):</label>
-                    <textarea name="impact" rows="3"></textarea>
-                </div>
-            </section>
-
-            <!-- 2. Classify -->
-            <section class="content-section">
-                <header class="section-banner">
-                    <div class="header-with-info">
-                        <h3>2 · Classify Concern Type</h3>
-                        <div class="info-popout no-print">
-                            <span class="info-icon">i</span>
-                            <div class="popout-content">
-                                <p><strong>Instructions:</strong> Use the ISO/IEC 25010 product quality characteristics
-                                    as primary labels, and map to BCS NFR terms for concrete discussion. (If you use
-                                    ISO/IEC 25010:2023, characteristics may be revised; verify against your licensed
-                                    copy—this mapping assumes the widely used 2011 model names.)</p>
-                            </div>
-                        </div>
-                    </div>
-                </header>
-
-                <div class="classification-grid">
-                    <div class="class-group">
-                        <h4>Functional attributes – what the system must do</h4>
-                        <div class="check-list">
-                            <label><input type="checkbox" name="attr_functional" value="workflow"> Workflow / process
-                                step (create, approve, fulfil, reconcile)</label>
-                            <label><input type="checkbox" name="attr_functional" value="data"> Data capture / validation
-                                / calculations</label>
-                            <label><input type="checkbox" name="attr_functional" value="reporting"> Reporting /
-                                analytics output</label>
-                            <label><input type="checkbox" name="attr_functional" value="integration"> Integration / API
-                                / interface behaviour</label>
-                            <label><input type="checkbox" name="attr_functional" value="roles"> Roles / permissions /
-                                approvals (as a functional need)</label>
-                            <label><input type="checkbox" name="attr_functional" value="notifications"> Notifications /
-                                messaging</label>
-                            <label><input type="checkbox" name="attr_functional" value="search"> Search /
-                                retrieval</label>
-                            <label><input type="checkbox" name="attr_functional" value="audit"> Audit trail as a feature
-                                (who did what, when)</label>
-                            <label><input type="checkbox" name="attr_functional" value="other"> Other: <input
-                                    type="text" name="attr_functional_other" class="inline-input"></label>
-                        </div>
-                    </div>
-
-                    <div class="class-group">
-                        <h4>Quality attributes / NFR types – how well it must do it</h4>
-                        <p class="field-note">(ISO/IEC 25010 primary labels → BCS NFR terms)</p>
-                        <div class="check-list">
-                            <label><input type="checkbox" name="attr_quality" value="performance"> Performance
-                                efficiency → Performance (throughput/response)</label>
-                            <label><input type="checkbox" name="attr_quality" value="reliability"> Reliability →
-                                Availability / reliability / recoverability</label>
-                            <label><input type="checkbox" name="attr_quality" value="security"> Security → Security /
-                                privacy / information assurance</label>
-                            <label><input type="checkbox" name="attr_quality" value="usability"> Usability → Usability /
-                                customer experience (accessibility)</label>
-                            <label><input type="checkbox" name="attr_quality" value="compatibility"> Compatibility →
-                                Interoperability / integratability</label>
-                            <label><input type="checkbox" name="attr_quality" value="maintainability"> Maintainability →
-                                Maintainability / modifiability / evolvability</label>
-                            <label><input type="checkbox" name="attr_quality" value="portability"> Portability →
-                                Portability</label>
-                            <p class="tip">Tip: keep type vs instance clear – e.g. "throughput" as type vs "100 tps" as
-                                instance (Avancier).</p>
-                        </div>
-                    </div>
-
-                    <div class="class-group">
-                        <h4>Planning & governance attributes – constraints, risks, controls</h4>
-                        <div class="check-list">
-                            <label><input type="checkbox" name="attr_gov" value="cost"> Cost / affordability</label>
-                            <label><input type="checkbox" name="attr_gov" value="schedule"> Schedule / deadline /
-                                time-to-market</label>
-                            <label><input type="checkbox" name="attr_gov" value="feasibility"> Feasibility / known
-                                limitations</label>
-                            <label><input type="checkbox" name="attr_gov" value="regulatory"> Regulatory / compliance
-                                constraint</label>
-                            <label><input type="checkbox" name="attr_gov" value="raid"> Risk / assumptions / issues /
-                                dependencies (RAID)</label>
-                            <label><input type="checkbox" name="attr_gov" value="standards"> Standards / policy /
-                                principles constraint</label>
-                            <label><input type="checkbox" name="attr_gov" value="authority"> Decision authority required
-                                (who must sign off)</label>
-                            <label><input type="checkbox" name="attr_gov" value="supplier"> Supplier / contract /
-                                governance control</label>
-                            <label><input type="checkbox" name="attr_gov" value="other"> Other: <input type="text"
-                                    name="attr_gov_other" class="inline-input"></label>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="conflict-check">
-                    <label>Possible conflict (forces)?
-                        <input type="radio" name="conflict" value="yes"> Yes
-                        <input type="radio" name="conflict" value="no"> No
-                    </label>
-                    <div class="field full-width">
-                        <textarea name="conflict_details" rows="1"
-                            placeholder="If yes, name competing concerns (treat as forces rather than personal disagreement)."></textarea>
-                    </div>
-                </div>
-            </section>
-
-            <!-- 3. Reframe -->
-            <section class="content-section">
-                <header class="section-banner">
-                    <div class="header-with-info">
-                        <h3>3 · Reframe as a Concern [neutral, actionable]</h3>
-                        <div class="info-popout no-print">
-                            <span class="info-icon">i</span>
-                            <div class="popout-content">
-                                <p><strong>Template:</strong> “Our concern is [topic] so that [stakeholder outcome],
-                                    under [context].”</p>
-                                <p>(ISO 42010 defines concern as a stakeholder interest; TOGAF framing emphasises
-                                    concerns as roots of requirements decomposition.)</p>
-                            </div>
-                        </div>
-                    </div>
-                </header>
-                <p class="field-note">Template: “Our concern is [topic] so that [stakeholder outcome], under [context].”
-                </p>
-                <div class="field full-width">
-                    <textarea name="reframed_concern" rows="3"></textarea>
-                </div>
-            </section>
-
-
-
-            <!-- 4. Measure -->
-            <section class="content-section">
-                <header class="section-banner">
-                    <div class="header-with-info">
-                        <h3>4 · Measure [requirement instance + evidence]</h3>
-                        <div class="info-popout no-print">
-                            <span class="info-icon">i</span>
-                            <div class="popout-content">
-                                <p><strong>Instructions:</strong> BCS defines non-functional requirements as usually
-                                    quantitatively measurable, and links SMART requirements to acceptance tests.</p>
-                                <hr class="thin-rule">
-                                <p><strong>SMART Goals:</strong></p>
-                                <p>• <strong>Specific:</strong> Clearly defined and unambiguous, answering what, why,
-                                    and who.</p>
-                                <p>• <strong>Measurable:</strong> Include concrete criteria for measuring progress to
-                                    know when the goal is achieved.</p>
-                                <p>• <strong>Achievable:</strong> Goals should be realistic and attainable, stretching
-                                    capabilities without causing overwhelm.</p>
-                                <p>• <strong>Relevant:</strong> The goal should align with broader objectives and be
-                                    worthwhile.</p>
-                                <p>• <strong>Time-bound:</strong> Establish a clear deadline or timeframe to create
-                                    urgency.</p>
-                            </div>
-                        </div>
-                    </div>
-                </header>
-
-                <div class="field full-width">
-                    <label>Requirement instance (SMART “shall” statement):</label>
-                    <textarea name="shall_statement" rows="2" placeholder="The system shall..."></textarea>
-                </div>
-
-                <div class="grid-2-col">
-                    <div class="field">
-                        <label>Metric(s) & target(s):</label>
-                        <textarea name="metric_targets" rows="2"></textarea>
-                    </div>
-                    <div class="field">
-                        <label>Measurement point:</label>
-                        <textarea name="measure_point" rows="2"></textarea>
-                    </div>
-                </div>
-
-                <div class="grid-2-col">
-                    <div class="field">
-                        <label>Time window / conditions:</label>
-                        <textarea name="time_window" rows="2"></textarea>
-                    </div>
-                    <div class="field">
-                        <label>Ownership & Timing:</label>
-                        <div class="sub-grid">
-                            <input type="text" name="owner" placeholder="Owner">
-                            <input type="text" name="due_gate" placeholder="Due / Gate">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="evidence-block">
-                    <label>Evidence method:</label>
-                    <div class="check-row">
-                        <label><input type="checkbox" name="evidence" value="test"> Test</label>
-                        <label><input type="checkbox" name="evidence" value="monitoring"> Monitoring</label>
-                        <label><input type="checkbox" name="evidence" value="audit"> Audit</label>
-                        <label><input type="checkbox" name="evidence" value="drill"> Drill</label>
-                        <label><input type="checkbox" name="evidence" value="other"> Other: <input type="text"
-                                name="evidence_other" class="inline-input"></label>
-                    </div>
-                </div>
-            </section>
-
-            <footer class="doc-footer">
-                <hr class="thin-rule">
-                <p>References: ISO/IEC/IEEE 42010:2011 · ISO/IEC 25010:2011 · TOGAF® · BCS NFR guide · SEI QAW/ATAM ·
-                    Avancier Ltd.</p>
-            </footer>
-        </form>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <div class="background-globes" aria-hidden="true">
+    <div class="globe globe-1"></div>
+    <div class="globe globe-2"></div>
+    <div class="globe globe-3"></div>
+  </div>
+  <nav class="site-nav" id="site-nav" aria-label="Site navigation">
+    <a href="/" class="site-nav__brand" aria-label="Jane Petra Scott — Home">
+      <span class="site-nav__brand-name">Jane Petra Scott</span>
+      <span class="site-nav__brand-sub">SAP Architect &amp; Digital Transformation</span>
+    </a>
+    <div class="site-nav__links">
+      <a href="/" class="site-nav__link">Home</a>
+      <a href="/blog.html" class="site-nav__link">Writing</a>
+      <a href="/booking.html" class="site-nav__link">Booking</a>
+      <a href="/cv" class="site-nav__link">CV</a>
+      <a href="/concern-to-measure/" class="site-nav__link site-nav__link--active">Tools</a>
     </div>
-    <script src="app.js"></script>
-</body>
+  </nav>
 
+  <main class="ctm" id="main-content">
+
+    <div class="ctm-head">
+      <span class="ctm-eyebrow">Architecture Practice Tool</span>
+      <h1>Concern to Measure</h1>
+      <p>Convert stakeholder language into structured concerns, scenarios, and measurable requirement instances. Follows ISO/IEC/IEEE 42010 · TOGAF · BCS. Allow 10–20 minutes per statement.</p>
+      <span class="ctm-save-badge" id="save-badge">✓ Progress saved</span>
+      <div class="ctm-refs">References: ISO/IEC/IEEE 42010:2011 · ISO/IEC 25010:2011 · TOGAF® · BCS NFR Guide · SEI QAW/ATAM · Avancier</div>
+    </div>
+
+    <!-- STEPPER -->
+    <div class="ctm-stepper" aria-label="Progress">
+      <div class="ctm-stage active" id="st-1"><b>A</b>Raw Statement</div>
+      <div class="ctm-stage" id="st-2"><b>B</b>Classify</div>
+      <div class="ctm-stage" id="st-3"><b>C</b>Reframe</div>
+      <div class="ctm-stage" id="st-4"><b>D</b>Scenario</div>
+      <div class="ctm-stage" id="st-5"><b>E</b>Measure</div>
+      <div class="ctm-stage" id="st-6"><b>F</b>Result</div>
+    </div>
+
+    <form id="ctm-form" novalidate>
+    <!-- ===== STEP 1: RAW STATEMENT ===== -->
+    <section class="ctm-panel" id="step-1">
+      <div class="sec-hd">1 · Raw Statement</div>
+      <div class="hdr-row">
+        <div class="fld"><label for="who">Who / role</label><input type="text" id="who" name="who" placeholder="e.g. Procurement Lead"></div>
+        <div class="fld"><label for="date">Date</label><input type="date" id="date" name="date"></div>
+        <div class="fld"><label for="system">System / service</label><input type="text" id="system" name="system" placeholder="e.g. SAP S/4HANA MM"></div>
+      </div>
+      <div class="fields">
+        <div class="fld">
+          <label for="raw">Raw statement (verbatim)</label>
+          <textarea id="raw" name="raw" rows="3" placeholder="Copy the stakeholder's exact words…"></textarea>
+        </div>
+        <div class="fld">
+          <label for="context">Context — when / where / which user journey or business scenario</label>
+          <textarea id="context" name="context" rows="3" placeholder="Include environment assumptions: peak / normal / degraded · locations · user groups…"></textarea>
+          <span class="hint">Include environment assumptions: peak / normal / degraded · locations · user groups.</span>
+        </div>
+        <div class="fld">
+          <label for="impact">Impact — what is at risk (harm / cost / delay / compliance / operations)</label>
+          <textarea id="impact" name="impact" rows="3" placeholder="What is at stake if this concern is not addressed?"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== STEP 2: CLASSIFY ===== -->
+    <section class="ctm-panel" id="step-2" hidden>
+      <div class="sec-hd">2 · Classify Concern Type — tick all that apply</div>
+      <div class="chk-group">
+        <p class="chk-title">Functional attributes — what the system must do</p>
+        <label class="chk"><input type="checkbox" name="func" value="workflow"><span>Workflow / process step (create, approve, fulfil, reconcile)</span></label>
+        <label class="chk"><input type="checkbox" name="func" value="data"><span>Data capture / validation / calculations</span></label>
+        <label class="chk"><input type="checkbox" name="func" value="reporting"><span>Reporting / analytics output</span></label>
+        <label class="chk"><input type="checkbox" name="func" value="integration"><span>Integration / API / interface behaviour</span></label>
+        <label class="chk"><input type="checkbox" name="func" value="roles"><span>Roles / permissions / approvals (as a functional need)</span></label>
+        <label class="chk"><input type="checkbox" name="func" value="notifications"><span>Notifications / messaging</span></label>
+        <label class="chk"><input type="checkbox" name="func" value="search"><span>Search / retrieval</span></label>
+        <label class="chk"><input type="checkbox" name="func" value="audit"><span>Audit trail as a feature (who did what, when)</span></label>
+        <label class="chk"><input type="checkbox" name="func" value="other-func"><span>Other: <input type="text" id="func-other" style="border:none;border-bottom:1px solid var(--bd);width:160px;font-size:.81rem;padding:0 .2rem;background:transparent;" placeholder="_______________"></span></label>
+
+        <hr class="chk-div">
+        <p class="chk-title">Quality attributes / NFRs — how well it must do it <em style="font-weight:400;color:var(--cap)">(ISO/IEC 25010 → BCS)</em></p>
+        <label class="chk"><input type="checkbox" name="qual" value="performance"><span>Performance efficiency → Performance (throughput / response time)</span></label>
+        <label class="chk"><input type="checkbox" name="qual" value="reliability"><span>Reliability → Availability / reliability / recoverability</span></label>
+        <label class="chk"><input type="checkbox" name="qual" value="security"><span>Security → Security / privacy / information assurance</span></label>
+        <label class="chk"><input type="checkbox" name="qual" value="usability"><span>Usability → Usability / customer experience (accessibility)</span></label>
+        <label class="chk"><input type="checkbox" name="qual" value="compatibility"><span>Compatibility → Interoperability / integratability</span></label>
+        <label class="chk"><input type="checkbox" name="qual" value="maintainability"><span>Maintainability → Maintainability / modifiability / evolvability</span></label>
+        <label class="chk"><input type="checkbox" name="qual" value="portability">
+          <span>Portability → Portability
+            <sub>Tip: keep type vs instance clear — e.g. "throughput" as type vs "100 tps" as instance (Avancier).</sub>
+          </span>
+        </label>
+
+        <hr class="chk-div">
+        <p class="chk-title">Planning &amp; governance — constraints, risks, controls <em style="font-weight:400;color:var(--cap)">(ISO 42010 §4.2)</em></p>
+        <label class="chk"><input type="checkbox" name="gov" value="cost"><span>Cost / affordability</span></label>
+        <label class="chk"><input type="checkbox" name="gov" value="schedule"><span>Schedule / deadline / time-to-market</span></label>
+        <label class="chk"><input type="checkbox" name="gov" value="feasibility"><span>Feasibility / known limitations</span></label>
+        <label class="chk"><input type="checkbox" name="gov" value="regulatory"><span>Regulatory / compliance constraint</span></label>
+        <label class="chk"><input type="checkbox" name="gov" value="risk"><span>Risk / assumptions / issues / dependencies (RAID prompts)</span></label>
+        <label class="chk"><input type="checkbox" name="gov" value="standards"><span>Standards / policy / principles constraint</span></label>
+        <label class="chk"><input type="checkbox" name="gov" value="authority"><span>Decision authority required (who must approve / sign off)</span></label>
+        <label class="chk"><input type="checkbox" name="gov" value="supplier"><span>Supplier / contract / governance control requirement</span></label>
+        <label class="chk"><input type="checkbox" name="gov" value="other-gov"><span>Other: <input type="text" id="gov-other" style="border:none;border-bottom:1px solid var(--bd);width:160px;font-size:.81rem;padding:0 .2rem;background:transparent;" placeholder="_______________"></span></label>
+      </div>
+      <div class="conflict-row">
+        <label>Possible conflict (forces)?</label>
+        <label class="chk" style="padding:0"><input type="radio" name="conflict" value="yes"> <span>Yes</span></label>
+        <label class="chk" style="padding:0"><input type="radio" name="conflict" value="no"> <span>No</span></label>
+        <span style="font-size:.73rem;color:var(--cap);font-style:italic">If yes — name competing concerns and treat them as forces, not personal disagreement.</span>
+      </div>
+    </section>
+
+    <!-- ===== STEP 3: REFRAME ===== -->
+    <section class="ctm-panel" id="step-3" hidden>
+      <div class="sec-hd">3 · Reframe as a Concern — neutral, actionable</div>
+      <div class="sec-note">Template: <em>"Our concern is [topic] so that [stakeholder outcome], under [context]."</em> — ISO 42010 defines concern as a stakeholder interest; TOGAF emphasises concerns as roots of requirements decomposition.</div>
+      <div class="fields">
+        <div class="fld">
+          <label for="reframe">Reframed concern</label>
+          <textarea id="reframe" name="reframe" rows="4" placeholder="Our concern is … so that …, under …"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== STEP 4: SCENARIO ===== -->
+    <section class="ctm-panel" id="step-4" hidden>
+      <div class="sec-hd">4 · Scenario — make it refutable (SEI QAW / ATAM structure)</div>
+      <div class="fields">
+        <div class="sc-row">
+          <div class="fld"><label for="s-env">Environment (assumptions)</label><textarea id="s-env" name="s-env" rows="2" placeholder="Load / degraded mode / location / user group"></textarea></div>
+          <div class="fld"><label style="color:var(--cap)">Hint</label><p style="font-size:.73rem;color:var(--cap);font-style:italic;margin-top:.3rem">Load / degraded mode / location / user group</p></div>
+        </div>
+        <div class="sc-row">
+          <div class="fld"><label for="s-stim">Stimulus (event / load / failure / threat / change)</label><textarea id="s-stim" name="s-stim" rows="2" placeholder="What triggers the scenario?"></textarea></div>
+          <div class="fld"><label style="color:var(--cap)">Hint</label><p style="font-size:.73rem;color:var(--cap);font-style:italic;margin-top:.3rem">What triggers the scenario?</p></div>
+        </div>
+        <div class="sc-row">
+          <div class="fld"><label for="s-scope">Scope (service / transaction / user group / component)</label><textarea id="s-scope" name="s-scope" rows="2" placeholder="Boundary of concern"></textarea></div>
+          <div class="fld"><label style="color:var(--cap)">Hint</label><p style="font-size:.73rem;color:var(--cap);font-style:italic;margin-top:.3rem">Boundary of concern</p></div>
+        </div>
+        <div class="sc-row">
+          <div class="fld"><label for="s-resp">Response (observable behaviour)</label><textarea id="s-resp" name="s-resp" rows="2" placeholder="What the system does in response"></textarea></div>
+          <div class="fld"><label style="color:var(--cap)">Hint</label><p style="font-size:.73rem;color:var(--cap);font-style:italic;margin-top:.3rem">What the system does in response</p></div>
+        </div>
+        <div class="sc-row">
+          <div class="fld"><label for="s-meas">Response measure (how success is measured)</label><textarea id="s-meas" name="s-meas" rows="2" placeholder="Quantitative target — feeds into the Requirement instance"></textarea></div>
+          <div class="fld"><label style="color:var(--cap)">Hint</label><p style="font-size:.73rem;color:var(--cap);font-style:italic;margin-top:.3rem">Quantitative target — feeds directly into the Requirement instance</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== STEP 5: MEASURE ===== -->
+    <section class="ctm-panel" id="step-5" hidden>
+      <div class="sec-hd">5 · Measure — requirement instance + evidence</div>
+      <div class="sec-note">BCS: NFRs are usually quantitatively measurable; link each SMART "shall" statement to an acceptance test, monitoring threshold, or audit criterion.</div>
+      <div class="fields">
+        <div class="fld">
+          <label for="smart">Requirement instance (SMART "shall" statement)</label>
+          <textarea id="smart" name="smart" rows="4" placeholder="The system shall … within … under … as measured by …"></textarea>
+        </div>
+        <div class="two">
+          <div class="fld"><label for="metrics">Metric(s) &amp; target(s)</label><textarea id="metrics" name="metrics" rows="3" placeholder="e.g. p95 response time ≤ 2s"></textarea></div>
+          <div class="fld"><label for="mpoint">Measurement point (where measured)</label><textarea id="mpoint" name="mpoint" rows="3" placeholder="e.g. API gateway logs"></textarea></div>
+        </div>
+        <div class="two">
+          <div class="fld"><label for="twindow">Time window / conditions</label><textarea id="twindow" name="twindow" rows="2" placeholder="e.g. peak hours, Mon–Fri 08:00–18:00"></textarea></div>
+          <div class="fld">
+            <div class="two" style="gap:.5rem">
+              <div class="fld"><label for="owner">Owner</label><input type="text" id="owner" name="owner" placeholder="Name / role"></div>
+              <div class="fld"><label for="due">Due / gate</label><input type="text" id="due" name="due" placeholder="Sprint / date"></div>
+            </div>
+          </div>
+        </div>
+        <div class="fld">
+          <label>Evidence method</label>
+          <div class="ev-row">
+            <label class="chk"><input type="checkbox" name="ev" value="test"><span>Test</span></label>
+            <label class="chk"><input type="checkbox" name="ev" value="monitoring"><span>Monitoring</span></label>
+            <label class="chk"><input type="checkbox" name="ev" value="audit"><span>Audit</span></label>
+            <label class="chk"><input type="checkbox" name="ev" value="drill"><span>Drill</span></label>
+            <label class="chk"><input type="checkbox" name="ev" value="other-ev"><span>Other: <input type="text" id="ev-other" style="border:none;border-bottom:1px solid var(--bd);width:120px;font-size:.81rem;padding:0 .2rem;background:transparent;" placeholder="_________"></span></label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SUMMARY ===== -->
+    <section class="ctm-panel" id="step-sum" hidden>
+      <div class="sum-hd">
+        <h2>Concern to Measure — Worksheet</h2>
+        <p>Review your completed worksheet below. Print or save as PDF using your browser.</p>
+      </div>
+      <div class="sum-body" id="sum-body"></div>
+      <div class="sum-actions">
+        <button type="button" class="btn btn-prt" onclick="window.print()">🖨 Print / Save PDF</button>
+        <button type="button" class="btn btn-sec" id="btn-edit">← Edit Answers</button>
+        <button type="button" class="btn btn-clr" id="btn-clr">Clear &amp; Start Again</button>
+      </div>
+    </section>
+
+    <!-- NAV BAR -->
+    <div class="ctm-nav" id="ctm-nav">
+      <button type="button" class="btn btn-sec" id="btn-back" disabled>← Back</button>
+      <span class="ctm-pg" id="ctm-pg">Step 1 of 5</span>
+      <button type="button" class="btn btn-pri" id="btn-next">Next →</button>
+    </div>
+    </form>
+  </main>
+
+  <script>
+    // ── IFRAME DETECTION ──────────────────────────────────────────────────────
+    if (window.self !== window.top) document.body.classList.add('embed');
+
+    // ── STATE ─────────────────────────────────────────────────────────────────
+    const STEPS = 5;
+    let cur = 1;
+
+    const ids = {
+      who:'who', date:'date', system:'system', raw:'raw', context:'context', impact:'impact',
+      reframe:'reframe',
+      'func-other':'func-other', 'gov-other':'gov-other', 'ev-other':'ev-other',
+      's-env':'s-env','s-stim':'s-stim','s-scope':'s-scope','s-resp':'s-resp','s-meas':'s-meas',
+      smart:'smart', metrics:'metrics', mpoint:'mpoint', twindow:'twindow', owner:'owner', due:'due'
+    };
+
+    // ── LOCALSTORAGE ──────────────────────────────────────────────────────────
+    const STORE = 'ctm_v1';
+    function save() {
+      const d = {};
+      Object.keys(ids).forEach(k => { const el = document.getElementById(k); if(el) d[k] = el.value; });
+      document.querySelectorAll('input[type=checkbox], input[type=radio]').forEach(cb => {
+        d[cb.name + '_' + cb.value] = cb.checked;
+      });
+      localStorage.setItem(STORE, JSON.stringify(d));
+      const badge = document.getElementById('save-badge');
+      badge.classList.add('show');
+      setTimeout(() => badge.classList.remove('show'), 1800);
+    }
+
+    function load() {
+      const raw = localStorage.getItem(STORE);
+      if (!raw) return;
+      const d = JSON.parse(raw);
+      Object.keys(ids).forEach(k => { const el = document.getElementById(k); if(el && d[k] !== undefined) el.value = d[k]; });
+      document.querySelectorAll('input[type=checkbox], input[type=radio]').forEach(cb => {
+        const key = cb.name + '_' + cb.value;
+        if (d[key] !== undefined) cb.checked = d[key];
+      });
+    }
+
+    document.getElementById('ctm-form').addEventListener('change', save);
+    document.getElementById('ctm-form').addEventListener('input', save);
+
+    // ── STEP NAVIGATION ───────────────────────────────────────────────────────
+    function showStep(n) {
+      for (let i = 1; i <= STEPS; i++) {
+        const p = document.getElementById('step-' + i);
+        if (p) p.hidden = (i !== n);
+      }
+      document.getElementById('step-sum').hidden = true;
+      document.getElementById('ctm-nav').hidden = false;
+
+      // stepper
+      for (let i = 1; i <= 6; i++) {
+        const s = document.getElementById('st-' + i);
+        if (!s) continue;
+        s.classList.remove('active','done');
+        if (i === n) s.classList.add('active');
+        else if (i < n) s.classList.add('done');
+      }
+
+      document.getElementById('btn-back').disabled = (n === 1);
+      document.getElementById('btn-next').textContent = (n === STEPS) ? 'View Summary →' : 'Next →';
+      document.getElementById('ctm-pg').textContent = 'Step ' + n + ' of ' + STEPS;
+      cur = n;
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    function showSummary() {
+      for (let i = 1; i <= STEPS; i++) { const p = document.getElementById('step-' + i); if(p) p.hidden = true; }
+      document.getElementById('step-sum').hidden = false;
+      document.getElementById('ctm-nav').hidden = true;
+      for (let i = 1; i <= 6; i++) {
+        const s = document.getElementById('st-' + i);
+        if(s) { s.classList.remove('active','done'); s.classList.add('done'); }
+      }
+      buildSummary();
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    document.getElementById('btn-next').addEventListener('click', () => {
+      if (cur < STEPS) showStep(cur + 1); else showSummary();
+    });
+    document.getElementById('btn-back').addEventListener('click', () => {
+      if (cur > 1) showStep(cur - 1);
+    });
+    document.getElementById('btn-edit').addEventListener('click', () => showStep(STEPS));
+    document.getElementById('btn-clr').addEventListener('click', () => {
+      if (!confirm('Clear all saved data and start again?')) return;
+      localStorage.removeItem(STORE);
+      document.getElementById('ctm-form').reset();
+      showStep(1);
+    });
+
+    // ── SUMMARY BUILDER ───────────────────────────────────────────────────────
+    function val(id) { const el = document.getElementById(id); return el ? (el.value.trim() || '—') : '—'; }
+    function checks(name) {
+      return [...document.querySelectorAll('input[name="' + name + '"]:checked')]
+        .map(cb => cb.parentElement.querySelector('span')?.textContent.trim() || cb.value)
+        .join(', ') || '—';
+    }
+    function radio(name) {
+      const el = document.querySelector('input[name="' + name + '"]:checked');
+      return el ? el.value : '—';
+    }
+
+    function row(label, value) {
+      return '<div class="sum-field"><dt>' + label + '</dt><dd' + (value==='—'?' class="empty"':'') + '>' + value + '</dd></div>';
+    }
+
+    function buildSummary() {
+      document.getElementById('sum-body').innerHTML = `
+        <div class="sum-sec">
+          <h3>A · Raw Statement</h3>
+          ${row('Who / role', val('who'))}
+          ${row('Date', val('date'))}
+          ${row('System / service', val('system'))}
+          ${row('Raw statement (verbatim)', val('raw'))}
+          ${row('Context', val('context'))}
+          ${row('Impact', val('impact'))}
+        </div>
+        <div class="sum-sec">
+          <h3>B · Classify</h3>
+          ${row('Functional attributes', checks('func'))}
+          ${row('Quality attributes (NFRs)', checks('qual'))}
+          ${row('Planning & governance', checks('gov'))}
+          ${row('Possible conflict', radio('conflict'))}
+        </div>
+        <div class="sum-sec">
+          <h3>C · Reframe</h3>
+          ${row('Reframed concern', val('reframe'))}
+        </div>
+        <div class="sum-sec">
+          <h3>D · Scenario</h3>
+          ${row('Environment', val('s-env'))}
+          ${row('Stimulus', val('s-stim'))}
+          ${row('Scope', val('s-scope'))}
+          ${row('Response', val('s-resp'))}
+          ${row('Response measure', val('s-meas'))}
+        </div>
+        <div class="sum-sec">
+          <h3>E · Measure</h3>
+          ${row('SMART requirement instance', val('smart'))}
+          ${row('Metric(s) & target(s)', val('metrics'))}
+          ${row('Measurement point', val('mpoint'))}
+          ${row('Time window / conditions', val('twindow'))}
+          ${row('Owner', val('owner'))}
+          ${row('Due / gate', val('due'))}
+          ${row('Evidence method', checks('ev'))}
+        </div>
+        <p class="sum-refs">References: ISO/IEC/IEEE 42010:2011 · ISO/IEC 25010:2011 · TOGAF® (The Open Group) · BCS Non-Functional Requirements Guide · SEI Quality Attribute Workshop (QAW) / ATAM · Avancier Limited NFR Guidance</p>
+      `;
+    }
+
+    // ── INIT ──────────────────────────────────────────────────────────────────
+    load();
+    showStep(1);
+  </script>
+</body>
 </html>
