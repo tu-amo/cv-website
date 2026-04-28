@@ -18,19 +18,11 @@
     <meta property="og:description"
         content="Thoughts on SAP architecture, knowledge management, and digital transformation." />
 
-    <!-- Performance: Preconnect -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://gamma.app">
+    <script type="module" src="/src/head.js"></script>
+    <script type="module" src="/src/nav.js"></script>
 
-    <!-- Fonts -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap"
-        rel="stylesheet">
-
-    <!-- Shared framework: tokens → nav → shells → page CSS -->
+    <!-- Shared framework: tokens → shells → page CSS -->
     <link rel="stylesheet" href="/src/tokens.css" />
-    <link rel="stylesheet" href="/src/nav.css" />
     <link rel="stylesheet" href="/src/shells.css" />
 
     <style>
@@ -388,7 +380,6 @@
             overflow: hidden;
         }
     </style>
-    <script type="module" src="/src/nav.js"></script>
 </head>
 
 <body>

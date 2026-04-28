@@ -8,6 +8,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com). Versions are date
 ## [Unreleased]
 
 ### Added
+- **Head Boilerplate Extraction (B9)**: Created `src/head.js` to manage site-wide font loading, navigation styling, and shared metadata.
+    - Refactored all 7+ pages to use the modular "Head Agent" pattern.
+    - Reduced boilerplate duplication by ~40 lines per page.
+    - Standardized injection sequence for global components.
 - **Shared Navigation Component (B8)**: Extracted redundant navigation and background globes into `src/nav.js`.
     - Automated active state detection based on URL.
     - Page-specific actions (e.g., "Save PDF" on CV page).

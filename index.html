@@ -29,14 +29,8 @@
         content="Senior SAP Retail Architect specializing in S/4HANA transformations and enterprise architecture." />
     <meta property="twitter:image" content="https://janeblog.com/assets/og-image.png" />
 
-    <!-- Performance: Preconnect to external domains -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <!-- Fonts with font-display: swap for better performance -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap"
-        rel="stylesheet">
+    <script type="module" src="/src/head.js"></script>
+    <script type="module" src="/src/nav.js"></script>
 
     <!-- Schema.org Person Markup -->
     <script type="application/ld+json">
@@ -54,9 +48,8 @@
     }
     </script>
 
-    <!-- Shared framework: tokens → nav → shells → page CSS -->
+    <!-- Shared framework: tokens → shells → page CSS -->
     <link rel="stylesheet" href="/src/tokens.css" />
-    <link rel="stylesheet" href="/src/nav.css" />
     <link rel="stylesheet" href="/src/shells.css" />
 
     <style>
@@ -830,7 +823,6 @@
 </head>
 
 <body>
-    <script type="module" src="/src/nav.js"></script>
 
     <main class="page-shell" id="main-content">
 
