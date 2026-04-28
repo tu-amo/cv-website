@@ -16,6 +16,13 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap"
         rel="stylesheet">
 
+    <!-- Shared framework: tokens → nav → shells → page CSS -->
+    <link rel="stylesheet" href="/src/tokens.css" />
+    <link rel="stylesheet" href="/src/nav.css" />
+    <link rel="stylesheet" href="/src/shells.css" />
+    <script type="module" src="/src/nav.js"></script>
+
+
     <style>
         :root {
             --color-primary: #d4a373; /* Wheat */
@@ -407,14 +414,8 @@
 
     <main class="main-layout">
         <div class="article-content">
-            <nav class="nav">
-                <a href="/blog.html" class="nav-back">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 12L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    Back to Blog
-                </a>
-            </nav>
+
+
 
             <header class="article-header">
                 <span class="article-eyebrow">Digital Culture</span>

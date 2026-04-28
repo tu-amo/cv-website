@@ -7,6 +7,13 @@ Format follows [Keep a Changelog](https://keepachangelog.com). Versions are date
 
 ## [Unreleased]
 
+### Added
+- **Shared Navigation Component (B8)**: Extracted redundant navigation and background globes into `src/nav.js`.
+    - Automated active state detection based on URL.
+    - Page-specific actions (e.g., "Save PDF" on CV page).
+    - Reduced architectural technical debt to O(1) for site-wide navigation updates.
+- Standardized blog articles (`unified-knowledge-software.html`, `knowledge-sharing-digital-workplace.html`) to use the shared framework CSS and Nav.
+
 ---
 
 ## [2026-04-24] — Repo Separation & Vercel Isolation

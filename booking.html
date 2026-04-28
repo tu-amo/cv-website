@@ -32,6 +32,8 @@
     <link rel="stylesheet" href="/src/tokens.css" />
     <link rel="stylesheet" href="/src/nav.css" />
     <link rel="stylesheet" href="/src/shells.css" />
+    <script type="module" src="/src/nav.js"></script>
+
 
     <style>
 
@@ -46,34 +48,9 @@
             min-height: 100vh;
         }
 
-        /* ===== NAV BAR ===== */
-        .nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: var(--space-xl);
-        }
 
-        .nav-back {
-            display: inline-flex;
-            align-items: center;
-            gap: var(--space-xs);
-            color: var(--color-text-secondary);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: color var(--transition-base);
-        }
 
-        .nav-back:hover {
-            color: var(--color-text-primary);
-        }
 
-        .nav-label {
-            font-size: 0.875rem;
-            color: var(--color-text-muted);
-            font-weight: 400;
-        }
 
         /* ===== PAGE HEADER ===== */
         .page-header {
@@ -161,25 +138,7 @@
 </head>
 
 <body>
-    <a href="#main-content" class="skip-link">Skip to main content</a>
-    <div class="background-globes" aria-hidden="true">
-        <div class="globe globe-1"></div>
-        <div class="globe globe-2"></div>
-        <div class="globe globe-3"></div>
-    </div>
 
-    <nav class="site-nav" aria-label="Site navigation">
-        <a href="/" class="site-nav__brand" aria-label="Jane Petra Scott — Home">
-            <span class="site-nav__brand-name">Jane Petra Scott</span>
-            <span class="site-nav__brand-sub">SAP Architect &amp; Digital Transformation</span>
-        </a>
-        <div class="site-nav__links">
-            <a href="/" class="site-nav__link">Home</a>
-            <a href="/blog.html" class="site-nav__link">Writing</a>
-            <a href="/booking.html" class="site-nav__link site-nav__link--active">Booking</a>
-            <a href="/cv" class="site-nav__link">CV</a>
-        </div>
-    </nav>
 
     <main class="page-shell" id="main-content">
 
