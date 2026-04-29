@@ -4,11 +4,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Unified Knowledge Systems — Jane Petra Scott</title>
+    <title>Unified Knowledge Systems: From Theory to Prototype — Jane Petra Scott</title>
 
     <!-- SEO Meta Tags -->
     <meta name="description"
-        content="Exploring the Software Architecture of Permeability: How to bridge personal thought and collective intelligence using Unified Knowledge Systems." />
+        content="The Software Architecture of Permeability: A complete guide from theoretical framework to technical prototype. Bridging personal thought and collective intelligence." />
     <meta name="author" content="Jane Petra Scott" />
 
     <script type="module" src="/src/head.js"></script>
@@ -18,6 +18,9 @@
     <link rel="stylesheet" href="/src/tokens.css" />
     <link rel="stylesheet" href="/src/shells.css" />
 
+    <!-- Mermaid Support for diagrams -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({ startOnLoad: true, theme: 'dark', securityLevel: 'loose' });</script>
 
     <style>
         :root {
@@ -102,27 +105,10 @@
 
         /* ===== ARTICLE LAYOUT ===== */
         .article-container {
-            max-width: 800px;
+            max-width: 850px;
             margin: 0 auto;
             padding: var(--space-3xl) var(--space-md);
         }
-
-        .nav {
-            margin-bottom: var(--space-2xl);
-        }
-
-        .nav-back {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--color-text-secondary);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: color var(--transition-base);
-        }
-
-        .nav-back:hover { color: var(--color-text-primary); }
 
         /* ===== TYPOGRAPHY ===== */
         .article-header {
@@ -156,7 +142,7 @@
         .article-subtitle {
             font-size: 1.25rem;
             color: var(--color-text-secondary);
-            max-width: 600px;
+            max-width: 650px;
             margin: 0 auto;
             font-weight: 400;
         }
@@ -164,7 +150,7 @@
         .content h2 {
             font-family: var(--font-display);
             font-size: 2rem;
-            margin: var(--space-2xl) 0 var(--space-md);
+            margin: var(--space-3xl) 0 var(--space-md);
             color: var(--color-text-primary);
             border-bottom: 1px solid var(--color-border);
             padding-bottom: 0.5rem;
@@ -246,11 +232,24 @@
             color: var(--color-primary);
         }
 
-        /* ===== TABLE ===== */
+        /* ===== DIAGRAM CONTAINER ===== */
+        .diagram-container {
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin: var(--space-xl) 0;
+            border: 1px solid var(--color-border);
+        }
+
+        /* ===== DATA TABLES ===== */
+        .data-table-wrapper {
+            overflow-x: auto;
+            margin: var(--space-xl) 0;
+        }
+
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            margin: var(--space-xl) 0;
             background: rgba(15, 23, 42, 0.4);
             border-radius: var(--radius-md);
             overflow: hidden;
@@ -278,7 +277,6 @@
             font-size: 0.9rem;
         }
 
-        /* Highlight classes */
         .highlight { color: #fff; font-weight: 600; }
         .accent { color: var(--color-accent); }
 
@@ -296,7 +294,7 @@
         <header class="article-header">
             <span class="article-eyebrow">Strategic Architecture</span>
             <h1 class="article-title">Unified Knowledge Systems</h1>
-            <p class="article-subtitle">The Software Architecture of Permeability: Rethinking the individual as the ultimate autonomous node.</p>
+            <p class="article-subtitle">The Software Architecture of Permeability: From theoretical framework to a technical prototype blueprint.</p>
         </header>
 
         <section class="content">
@@ -304,218 +302,99 @@
             <div class="callout">
                 <h4>Preface: When Organisations Ignore Individual Intelligence</h4>
                 <p>We are living through the collapse of old knowledge architectures.</p>
-                <p>In a world where AI assistants, personal knowledge systems, and global networks empower individuals like never before, organisations that cling to rigid, centralised models are choosing obsolescence — often without realising it.</p>
-                <p>When companies fail to empower individual intelligence, three predictable outcomes follow:</p>
-                <ul>
-                    <li><strong>They lose their talent:</strong> The best engineers, strategists, and designers increasingly carry their capabilities in their personal systems. When a company ignores their autonomy, they leave — taking not just skills, but <em>unrealised futures</em> with them. (Ask any firm that lost its technical core to a startup built by its former employees.)</li>
-                    <li><strong>They fail to adapt:</strong> In fast-moving industries, sense-making happens at the edges — where people notice weak signals and act on them before bureaucracy can respond. Organisations that force all innovation upward for permission will always react too late. (Blockbuster didn't lose to Netflix because it lacked resources — it lacked <em>distributed adaptability.</em>)</li>
-                    <li><strong>They miss the future:</strong> Opportunities today emerge from adjacent spaces — from hybrid fields and cross-pollinated ideas no central planner can predict. If individuals can't freely explore and share these sparks, companies will remain trapped in yesterday's categories. (The next breakthrough often begins as someone's "weird side project" — if it survives.)</li>
-                </ul>
+                <p>In a world where AI assistants and personal knowledge systems empower individuals like never before, organisations that cling to rigid, centralised models are choosing obsolescence.</p>
                 <blockquote>"In a complex world, resilience comes not from control, but from empowering intelligence at the edge."</blockquote>
-                <p>Empowering the individual is not a culture initiative. It is a <span class="highlight">survival architecture</span> for organisations facing a world of accelerating change.</p>
-                <p>This whitepaper is a blueprint for that architecture: a way to design systems that respect personal autonomy while building collective intelligence strong enough to face the future.</p>
-                <p>The choice ahead is not between control and chaos. It is between <span class="highlight">building bridges for knowledge to flow</span> — or watching value slip quietly away into systems that are smarter, faster, and more human.</p>
+                <p>This paper is a dual-track guide: part <strong>philosophical blueprint</strong> for permeability, and part <strong>technical specification</strong> for a prototype built on LangChain and Sovereign AI.</p>
             </div>
 
-            <h2>1. Introduction: Dreaming the Future Into Reality</h2>
-            <p>After a long day of brainstorming, Mia left the office drained but buzzing with half-formed ideas. The team had been wrestling with a big challenge: how to redesign the client's employee training program — a dry, mandatory slog that left new hires disengaged and confused.</p>
-            <p>That night, Mia's subconscious took over. In her dreams, the problem twisted into a story: new employees embarking on a <span class="highlight">choose-your-own-adventure</span> journey, where each decision unlocked a personalised path through skills and knowledge, making learning feel like exploration instead of obligation.</p>
-            <p>Jolted awake before sunrise, Mia grabbed her notebook and sketched the images still floating in her mind: branching paths, checkpoints, and playful prompts. Later that morning, she assembled the scribbles into a simple three-slide concept and shared it with her team.</p>
-            <p>The idea caught fire. Over the next few hours, her colleagues helped refine the concept — adding progress tracking, integrating micro-credentials, and designing pathways for different roles. By the end of the week, the team lead pitched the new "Adventure Learning Platform" to the client.</p>
-            <p>The client loved it. Not only did they greenlight the idea — they showcased it publicly on their website as a bold new direction for employee development.</p>
-            <p>At every stage, Mia's original insight — personal, intuitive, and captured outside official systems — powered collective success. Yet the source of that insight remained invisible in the corporate knowledge structure.</p>
-            <p>Today's organisations assume hard boundaries between personal and corporate knowledge — between dreaming and delivering. But human cognition doesn't operate in silos. Creativity flows across contexts; innovation thrives on unexpected connections.</p>
-            <p>This whitepaper proposes a new architecture: <span class="highlight">Unified Knowledge Systems</span> — systems that respect personal autonomy while enabling secure, purposeful collaboration across the personal-corporate divide.</p>
+            <h2>1. The Vision: Mia's Story</h2>
+            <p>Mia dreams of a "choose-your-own-adventure" training program. She sketches it in her private notebook, refines it in her personal vault, and eventually, it becomes a flagship product for her team. Yet, the source of that insight—personal, intuitive, and captured outside official systems—remains invisible in the corporate structure.</p>
+            <p>Human cognition doesn't operate in silos. Creativity flows across contexts. Unified Knowledge Systems (UKS) respect this by designing for <span class="highlight">permeability</span>—allowing knowledge to flow intentionally between personal and collective domains.</p>
+
+            <h2>2. The Theory: The Agentic Triage Layer</h2>
+            <p>The boundary between private thought and public record shouldn't be a wall; it should be a **doorway**. I propose the **Agentic Triage Layer**: a dynamic interface that sits between private knowledge spaces and shared organizational repositories.</p>
+
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead><tr><th>Direction</th><th>Function</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Personal → Corporate</strong></td><td>Filters personal notes; abstracts insights; flags sensitive content for redaction.</td></tr>
+                        <tr><td><strong>Corporate → Personal</strong></td><td>Redacts proprietary data; contextualizes information for individual learning.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h2>3. The Technical Blueprint: Project Permeability</h2>
+            <p>How do we actually build this? The prototype demonstrates the "Agentic Triage" using a modular stack of open-source tools.</p>
+
+            <div class="diagram-container">
+                <div class="mermaid">
+                    graph TD
+                        subgraph PersonalVault ["Individual Node (Local PKM)"]
+                            Vault[(Markdown / Obsidian)]
+                            LocalSearch[Local Vector Store]
+                        end
+
+                        subgraph AgenticLayer ["Agentic Triage Layer (LangGraph)"]
+                            TriageAgent[Claude/Local LLM]
+                            PrivacyFilter[Redaction Engine]
+                            SyncEngine[Git-Style Commit]
+                        end
+
+                        subgraph CorporateBrain ["Organizational Node (Cloud CKM)"]
+                            OrgDB[(Corporate Vector DB)]
+                            KnowledgeGraph[Shared Graph]
+                        end
+
+                        Vault --> TriageAgent
+                        TriageAgent -->|Abstract & Redact| SyncEngine
+                        SyncEngine -->|Selectively Commit| OrgDB
+                        OrgDB -.->|Contextualize| TriageAgent
+                        TriageAgent -.->|Enrich| Vault
+                </div>
+            </div>
+
+            <h2>4. Solving for the Sovereignty Gap</h2>
+            <p>A common enterprise hurdle is the **Sovereignty Gap**—the lack of trust in external LLMs. For a UKS to be truly permeable, it must be secure. The architecture supports two modes of intelligence:</p>
 
             <div class="callout callout-accent">
-                <h4>Sidebar 1: The Hidden Costs of Siloed Knowledge</h4>
-                <ul>
-                    <li><strong>Innovation Delay:</strong> 20–35% slower time-to-insight when personal learning and ideation aren't systematically captured and shared. <em>(Source: Gartner Future of Work Report, 2023)</em></li>
-                    <li><strong>Talent Drain:</strong> Employees who feel their contributions are invisible or undervalued are 2.5× more likely to leave within 12 months. <em>(Source: LinkedIn Talent Trends, 2022)</em></li>
-                    <li><strong>Knowledge Erosion:</strong> Up to 70% of tacit knowledge — intuitive expertise, contextual awareness — is lost when an employee exits without systems for knowledge transfer. <em>(Source: Davenport &amp; Prusak, Working Knowledge, 1998)</em></li>
-                    <li><strong>Compliance Gaps:</strong> Fragmented systems increase the risk of inconsistent information handling and regulatory breaches, especially in industries like finance and healthcare.</li>
-                </ul>
-                <p>Unifying knowledge flows isn't just about creativity — it's about <span class="highlight">survival, resilience, and competitive advantage</span>.</p>
+                <h4>Mode A: Cloud Intelligence</h4>
+                <p>Uses models like <strong>Claude 3.5 Sonnet</strong> or <strong>GPT-4o</strong> for maximum reasoning capability. Ideal for open innovation and non-sensitive knowledge domains.</p>
             </div>
-
-            <h2>2. Problem: Knowledge Friction Points</h2>
-            <blockquote>"Most knowledge isn't lost through forgetting — it's lost through failing to expose it." — Paul Merino, <em>The Merino's Eye</em></blockquote>
-            <p>In my experience, knowledge work today feels like navigating a maze blindfolded. Each day, individuals generate insights, capture ideas, and refine understanding — but their personal workflows often operate in silos, completely disconnected from the corporate systems they're expected to use. The result is a constant, invisible friction between <strong>how people naturally create knowledge</strong> and <strong>how organisations expect knowledge to be stored and shared</strong>.</p>
-            <p>The symptoms are everywhere:</p>
-            <ul>
-                <li><strong>Duplication of Effort:</strong> Teams recreate documents, research, and frameworks that already exist — hidden away in someone's personal notes or a forgotten project folder.</li>
-                <li><strong>Knowledge Loss Through Churn:</strong> When employees leave, they take far more than project artifacts with them. They take context, intuition, and unfinished insights — most of which are never captured by formal systems. <em>"We don't just lose people when they leave — we lose whole worlds of thought."</em></li>
-                <li><strong>Recontextualization Overhead:</strong> Knowledge workers spend a disproportionate amount of time translating what they know into the rigid formats demanded by official repositories, stripping out nuance and creative thinking in the process.</li>
-                <li><strong>Underutilization of Personal Expertise:</strong> Even highly skilled employees often contribute only a fraction of their true capability because systems are designed to capture outputs, not ongoing thought processes.</li>
-            </ul>
-            <blockquote>"We spend 50–80% of our time recreating existing doorways due to poor exposure." — Paul Merino, <em>The Merino's Eye</em></blockquote>
-            <p>These aren't minor inefficiencies. They represent <strong>massive hidden costs</strong> in innovation, morale, and competitive advantage — costs that most organisations barely recognise until it's too late.</p>
-            <p><strong>Knowledge doesn't stay in silos — only systems do.</strong></p>
-
-            <h2>3. Theory: Systems Thinking Foundation</h2>
-            <blockquote>"In a complex system, control is an illusion. Only adaptation is real." — David Snowden, <em>Cynefin Framework</em></blockquote>
-            <p>When I first began studying how knowledge actually moves inside organisations, it became clear that most traditional models were missing the point. Knowledge isn't a static object — it's a <span class="highlight">living system</span>.</p>
-            <p>Drawing from systems thinking, cybernetics, and cognitive science, I see personal and corporate knowledge not as separate domains, but as parts of an interconnected whole: dynamic, adaptive, and constantly reshaping itself through feedback.</p>
-
-            <h3>Whole-Part Systems Thinking</h3>
-            <p>In systems theory, no part exists independently of the whole, and no whole can maintain integrity without the health of its parts. The same applies to organisations and the individuals who power them.</p>
-            <ul>
-                <li>An employee's private reflections influence their team's direction.</li>
-                <li>A team's informal practices shape the company's formal processes.</li>
-                <li>Organisational knowledge is not created at the top and pushed downward; it <strong>emerges</strong> at every node of interaction.</li>
-            </ul>
-            <p>Ignoring this reality creates brittleness. Supporting it creates resilience.</p>
-
-            <h3>Feedback Loops and Sensemaking</h3>
-            <p>Drawing inspiration from the <strong>OODA Loop</strong> (Observe, Orient, Decide, Act), developed by military strategist John Boyd, I believe knowledge work operates best when it functions through tight, iterative feedback cycles.</p>
-            <ul>
-                <li><strong>Observation:</strong> capturing insights (personal vaults, notes, experiences)</li>
-                <li><strong>Orientation:</strong> framing and refining insights within contexts</li>
-                <li><strong>Decision:</strong> identifying what to share, evolve, or implement</li>
-                <li><strong>Action:</strong> integrating into projects, policies, client solutions</li>
-            </ul>
-            <p>Without mechanisms to bring private sensemaking into collective feedback loops, organisations fall into analysis paralysis or idea stagnation.</p>
-
-            <h3>Personal and Corporate Knowledge Management (PKM + CKM)</h3>
-            <p>Traditionally, <strong>Corporate Knowledge Management (CKM)</strong> focuses on capturing outputs: reports, deliverables, codebases. <strong>Personal Knowledge Management (PKM)</strong>, by contrast, thrives on capturing thought-in-progress: connections, half-ideas, evolving models.</p>
-            <p>The future lies in <strong>integration</strong> — not in forcing one to mimic the other, but in designing architectures that allow each to <span class="highlight">contribute authentically to a larger whole</span>.</p>
-            <p>A Unified Knowledge System treats individuals as <strong>dynamic, autonomous nodes</strong> within a living network — each one constantly sensing, learning, creating, and sharing in ways that formal structures alone can't predict or control. To build such a system requires more than better tools. It demands a better understanding of how knowledge actually behaves.</p>
-
-            <h2>4. Designing for Flow and Permeability</h2>
-            <blockquote>"The boundary is not where knowledge stops — it's where knowledge is exchanged." — Inspired by Systems Thinking Principles</blockquote>
-            <p>If we accept that knowledge behaves like a living system, not a static asset, then our architectures must shift from <strong>containment</strong> to <strong>cultivation</strong>. The goal isn't to force personal insights into rigid corporate structures — it's to create <strong>interfaces</strong> that allow knowledge to flow intentionally, ethically, and securely between personal and collective domains.</p>
-            <p>At the core of this shift is what I call the <span class="highlight">Agentic Triage Layer</span>: a dynamic, intelligent system that sits between private knowledge spaces and shared organisational repositories.</p>
-
-            <h3>The Two-Way Door Problem</h3>
-            <p>One of the most persistent barriers to unified knowledge systems is fear. Fear of intellectual property leakage. Fear of security breaches. Fear of losing control over proprietary insights. Organisations often solve this by building higher walls: stricter IT controls, rigid content management systems, locked-down workflows. But walls don't foster innovation — they <strong>stifle it</strong>.</p>
-            <p>At the same time, individuals face the opposite fear: fear of losing ownership over their ideas, fear of being misinterpreted or having rough insights prematurely judged, fear of surveillance or appropriation without credit. Without trust-centered architectures, knowledge workers withhold their best thinking — and organisations never even know what they've lost.</p>
-            <p>The solution isn't abandoning boundaries. It's making them <span class="highlight">permeable, purposeful, and agentic</span>.</p>
-            <blockquote>"Walls protect assets. Bridges multiply them."</blockquote>
-
-            <h3>The Agentic Triage Layer: Concept and Function</h3>
-            <p>The Agentic Triage Layer acts as an intelligent, two-way interface that governs knowledge flow:</p>
-            <table class="data-table">
-                <thead><tr><th>Direction</th><th>Function</th></tr></thead>
-                <tbody>
-                    <tr><td><strong>Personal → Corporate</strong></td><td>Filters personal notes for potential relevance; abstracts and prepares insights for organisational review; flags sensitive or extraneous content.</td></tr>
-                    <tr><td><strong>Corporate → Personal</strong></td><td>Redacts proprietary or sensitive content before integration; contextualizes information for personal learning; applies visibility tags to guide reuse.</td></tr>
-                </tbody>
-            </table>
-            <p>Crucially, this layer is not simply a technical firewall — it is a <strong>cognitive collaborator</strong>. It helps individuals make intentional choices about what they share. It helps organisations build collective intelligence without strip-mining individuality.</p>
-            <p><strong>Design Principles for the Agentic Layer:</strong> Autonomy (individuals control what moves outward) · Security (organisations control sensitive access inward) · Attribution (contribution histories are tracked and respected) · Transparency (flows are visible and interpretable at both ends).</p>
-
-            <h3>Incentivising Participation through Ownership and Portability</h3>
-            <p>A critical adoption driver for Unified Knowledge Systems is individual ownership. When contributors know their personal knowledge space is fully theirs — portable across devices, persistent across jobs, and usable beyond "work" contexts — they are far more likely to invest in it deeply. This changes the incentive structure: instead of contributing because they're required to, people contribute because their vault is already the natural place where their thinking lives.</p>
-            <p>The more useful the system becomes to the individual, the more value it delivers to the organisation. In this way, Unified Knowledge Systems grow not through compliance — but through <span class="highlight">alignment</span>.</p>
-
-            <h2>5. A Living System of Knowledge</h2>
-            <blockquote>"The future of knowledge is not possession — it's participation."</blockquote>
-            <p>If knowledge is a living system, then it doesn't just move — it <strong>metamorphoses</strong>. An idea rarely stays in its original form. It shifts shape as it travels: from a private intuition to a team discussion, from a project draft to a client-facing artifact. Each stage adds value, complexity, and context — but also raises questions of ownership, attribution, and integrity.</p>
-
-            <h3>The Journey of an Idea</h3>
-            <p>Consider Mia's story:</p>
-            <ul>
-                <li><strong>Spark:</strong> A dream, a diagram, a flash of insight — captured privately before it fades.</li>
-                <li><strong>Sketch:</strong> Quick translation into rough notes or simple visuals.</li>
-                <li><strong>Teamwork:</strong> Early collaboration surfaces blind spots, builds structure, adds operational context.</li>
-                <li><strong>Presentation:</strong> The refined idea takes shape as a client-facing product or strategic proposal.</li>
-                <li><strong>Public Artifact:</strong> The idea is published, adopted, and integrated into larger ecosystems.</li>
-            </ul>
-            <p>At each stage, the idea is not simply <strong>transferred</strong> — it is <strong>transformed</strong>. Systems that pretend otherwise — that fixate on the first or final form — miss the truth of how knowledge evolves.</p>
-
-            <h3>IP Anxiety and the Fear of Sharing</h3>
-            <p>This fluid transformation generates real, human anxieties: When does an idea stop being "mine" and become "ours"? What credit, if any, does the original spark deserve? How do we protect contributors without trapping ideas in legal limbo?</p>
-            <p>Without clear systems of attribution and trust, individuals often hold back — fearing loss of recognition, loss of control, or even exploitation. The result is a tragic, invisible drain: <strong>Insights that could change outcomes stay locked inside private vaults.</strong></p>
-
-            <h3>Flow-Respectful Knowledge Architectures</h3>
-            <p>To honor the living nature of knowledge, I propose architectures built around three core practices:</p>
-            <table class="data-table">
-                <thead><tr><th>Practice</th><th>Purpose</th></tr></thead>
-                <tbody>
-                    <tr><td><strong>Provenance Tracking</strong></td><td>Map how ideas evolve across stages and contributors, maintaining transparent lineage.</td></tr>
-                    <tr><td><strong>Attribution Tokens</strong></td><td>Offer symbolic credit and recognition at each significant stage — without freezing ownership.</td></tr>
-                    <tr><td><strong>Trustworthy AI Intermediaries</strong></td><td>Use intelligent agents to flag sensitivities, suggest attribution opportunities, and guide safe knowledge sharing.</td></tr>
-                </tbody>
-            </table>
-            <p>Rather than asking, "Who owns this?" — we ask, "Who contributed to this journey, and how can we honor that?" Respecting flow doesn't mean abandoning protection. It means <span class="highlight">designing systems that celebrate the full lifecycle of knowing</span> — from spark to artifact, from private intuition to public impact.</p>
-
-            <h2>6. Design Principles → Prototype Concepts</h2>
-            <p>Turning theory into practice demands more than new tools — it requires <strong>new defaults</strong> about how knowledge is captured, shared, and recognized. If we want to build systems that honor both personal creativity and collective intelligence, we must design them from the ground up with permeability, trust, and agency in mind.</p>
-
-            <h3>A. Individual-Centric Knowledge Capture</h3>
-            <p>Each contributor should own and govern their personal knowledge space. <strong>Personal Vaults:</strong> Every knowledge worker maintains a private, structured vault for notes, reflections, learnings, and projects — independent of corporate oversight unless explicitly shared. <strong>Autonomous Metadata:</strong> Tagging, linking, and organising is left to individual style within personal spaces, allowing natural cognition to guide structure. This is the <em>soil</em> where insights germinate.</p>
-
-            <h3>B. Secure, Selective Contribution Pathways</h3>
-            <p>Instead of forcing individuals to adapt to rigid repositories, we create <strong>publishing pathways</strong> — intentional processes for moving insights from private vaults into shared domains. Opt-In Publishing, AI-Assisted Triage, and Traceable Contributions ensure knowledge flows <span class="highlight">outward by invitation, not extraction</span>.</p>
-
-            <h3>C. Organisational Interface Layer</h3>
-            <p>At the team or enterprise level, a curated interface surfaces shared knowledge fragments through Identity-Aware Search, Federated Indexes, and Reflexive Feedback. The organisation doesn't just capture knowledge — it <strong>learns how to learn from its people</strong>.</p>
-
-            <h3>Prototype Concepts</h3>
-            <table class="data-table">
-                <thead><tr><th>Prototype</th><th>Concept</th></tr></thead>
-                <tbody>
-                    <tr><td><strong>Git-Style Vault Sync</strong></td><td>Personal vaults use branching models; individuals can publish "commits" of knowledge fragments to shared spaces selectively.</td></tr>
-                    <tr><td><strong>Dual-Layered Obsidian Workspaces</strong></td><td>Personal vaults privately linked to corporate spaces via "publish" folders, with review checkpoints.</td></tr>
-                    <tr><td><strong>GPT-Augmented Triage Workflows</strong></td><td>LLMs assist in surfacing, redacting, and summarising personal notes for organisational review.</td></tr>
-                    <tr><td><strong>Role-Based Contribution Logs</strong></td><td>Each published idea carries time-stamped, role-tagged attribution data, creating transparent histories of collaboration.</td></tr>
-                </tbody>
-            </table>
-            <p>These are starting points — not prescriptions. The key is <span class="highlight">agency at the edge</span>: enabling individuals to grow their own intelligence first, then offering pathways to contribute that intelligence to the commons without coercion. Unified Knowledge Systems don't force convergence. They <strong>invite collaboration</strong> — at the speed of trust.</p>
-
-            <h2>8. Risks and Mitigations</h2>
-            <p>No architecture is without trade-offs. As much as I believe in the power of Unified Knowledge Systems, I also recognise the real risks they introduce. Acknowledging them — and designing for them — is not a concession. It's the foundation of lasting trust.</p>
-
-            <h3>Risk 1: IP Leakage and Data Privacy</h3>
-            <p><strong>The Fear:</strong> Sensitive corporate information could inadvertently flow into personal spaces or external systems, risking regulatory breaches, client trust, or competitive exposure.</p>
-            <p><strong>Mitigation:</strong> Every movement of knowledge across boundaries requires explicit opt-in, with embedded consent workflows. Corporate content is classified at creation (private / team-level / public-facing) and treated accordingly by triage layers. AI agents scan shared content for proprietary markers before publishing outside protected environments. Privacy isn't an afterthought — it's baked into the system.</p>
-
-            <h3>Risk 2: Cognitive Overload for Contributors</h3>
-            <p><strong>The Fear:</strong> If employees must constantly triage and tag their knowledge, participation could feel burdensome, leading to disengagement.</p>
-            <p><strong>Mitigation:</strong> Personal vaults operate freely by default; triage is only required at the publishing point, not at every note creation. GPT-style agents propose triage recommendations, reducing manual effort. Publicly recognising contributors creates positive reinforcement loops for engagement. The goal is to <span class="highlight">reduce friction</span>, not add bureaucracy.</p>
-
-            <h3>Risk 3: Inconsistency Across Contributions</h3>
-            <p><strong>The Fear:</strong> Without rigid top-down control, contributed knowledge fragments could vary widely in quality, structure, and terminology — making aggregation and reuse messy.</p>
-            <p><strong>Mitigation:</strong> Teams agree on minimal metadata standards for shared knowledge. Federated search tools learn from usage patterns and contributor histories to dynamically improve discoverability, even across inconsistencies. Usage analytics help teams refine conventions organically over time rather than forcing rigid templates from the start. The system doesn't demand uniformity — it <span class="highlight">evolves coherence</span>.</p>
 
             <div class="callout callout-accent">
-                <h4>Sidebar 2: First 3 Actions to Begin Integration</h4>
-                <ul>
-                    <li><strong>Map the Informal Knowledge Layer:</strong> Conduct a survey or interviews to understand how employees currently manage ideas, notes, drafts, and reflections outside formal systems. Identify popular tools and practices.</li>
-                    <li><strong>Prototype a Permeable Publishing Process:</strong> Pilot a dual-layered knowledge system where individuals can selectively publish notes or insights into a team space. Use simple protocols — tagging for shareability, lightweight review by managers or peer agents.</li>
-                    <li><strong>Establish Contribution Recognition:</strong> Implement early policies that track and acknowledge idea provenance. Reward not just final outputs but also early-stage contributions and intellectual seeds.</li>
-                </ul>
-                <p><strong>Start small, but start deliberately.</strong> Every bridge between personal insight and corporate knowledge strengthens the organisation's adaptive capacity.</p>
+                <h4>Mode B: Sovereign Intelligence</h4>
+                <p>Uses local LLMs like <strong>Llama 3 or Mistral</strong> running via <strong>Ollama</strong> inside the corporate firewall. The "Triage Agent" remains air-gapped, ensuring raw personal data never touches an external API.</p>
             </div>
 
-            <h2>Conclusion: Reclaiming the Flow of Knowing</h2>
-            <p>Unifying personal and corporate knowledge isn't just a tooling challenge — it's a challenge of trust, systems thinking, and leadership.</p>
-            <p>Knowledge doesn't move neatly through official channels. It sparks in private moments — in sketches, side notes, informal conversations — and only later shapes real outcomes. When organisations ignore this flow, they don't just lose insights — they erode the conditions that create innovation in the first place.</p>
-            <p>The architectures I propose — permeable layers, agentic triage, federated learning surfaces — are not about loosening control. They are about <span class="highlight">amplifying intelligence</span> across every node in the system.</p>
-            <p>But ultimately, no system — however well designed — can substitute for leadership behaviour. <strong>Cultural adoption depends on visible modelling:</strong> Leaders must share their own insights, participate in triage, and recognise contributions at every stage. Only then will Unified Knowledge Systems become living ecosystems, not abandoned structures.</p>
-            <p>The future belongs to organisations that treat knowledge as a living flow — not a static possession to be guarded, but an evolving process to be trusted and nurtured.</p>
+            <h2>5. The Prototype Tech Stack</h2>
+            <table class="data-table">
+                <thead><tr><th>Component</th><th>Technology</th><th>Role</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Orchestration</strong></td><td>LangChain / LangGraph</td><td>Manages the complex flow of knowledge state and triage logic.</td></tr>
+                    <tr><td><strong>Local Memory</strong></td><td>ChromaDB</td><td>Indexes the personal vault for local semantic search.</td></tr>
+                    <tr><td><strong>Shared Memory</strong></td><td>Pinecone / Neo4j</td><td>The organizational "source of truth" for committed insights.</td></tr>
+                    <tr><td><strong>Redaction Engine</strong></td><td>Local NER + LLM</td><td>Scans for PII and proprietary markers before any knowledge "commit."</td></tr>
+                </tbody>
+            </table>
+
+            <h2>6. Workflow: The Three Commands</h2>
+            <p>The prototype implements a "Git-for-Knowledge" workflow, centering on three primary actions:</p>
+            <ul>
+                <li><strong><code>uks scan</code></strong>: The agent identifies "Sparks" in your local notes that could benefit active corporate projects.</li>
+                <li><strong><code>uks triage</code></strong>: The agent presents a <strong>Knowledge Diff</strong>—suggesting a redacted, abstracted summary of your thought.</li>
+                <li><strong><code>uks commit</code></strong>: The insight is pushed to the Corporate Brain with <strong>Attribution Metadata</strong>, ensuring the individual is recognized as the source.</li>
+            </ul>
+
+            <h2>Conclusion: The Speed of Trust</h2>
+            <p>Unified Knowledge Systems don't force convergence; they <strong>invite collaboration</strong>. By building bridges between our personal thought-spaces and our shared organizational goals, we reclaim the flow of knowing. We move from possession to participation.</p>
             <blockquote>The choice is simple: <strong>Empower knowledge flow — or become irrelevant to it.</strong></blockquote>
 
-            <div class="callout">
-                <h4>Appendix: Selected References and Foundations</h4>
-                <ul>
-                    <li><strong>Nonaka, I., &amp; Takeuchi, H.</strong> (1995). <em>The Knowledge-Creating Company.</em> Seminal work on tacit and explicit knowledge flows (SECI model).</li>
-                    <li><strong>Eraut, M.</strong> (2004). <em>Informal Learning in the Workplace.</em> Explores how individuals acquire knowledge outside formal structures.</li>
-                    <li><strong>Davenport, T. H., &amp; Prusak, L.</strong> (1998). <em>Working Knowledge.</em> Foundation text on corporate knowledge systems and knowledge loss.</li>
-                    <li><strong>John Boyd.</strong> (1987). <em>A Discourse on Winning and Losing (OODA Loops).</em> Iterative decision-making and feedback cycles critical to dynamic systems.</li>
-                    <li><strong>Paul Merino.</strong> <em>The Merino's Eye: Theory of Doorways (TOD).</em> The concept of "doorways" as the smallest operational unit between knowledge and action.</li>
-                    <li><strong>Bransford, J. D., Brown, A. L., &amp; Cocking, R. R.</strong> (2000). <em>How People Learn.</em> Research on feedback-rich learning environments and cognitive development.</li>
-                    <li><strong>Gartner Research.</strong> (2023). <em>Future of Work Reports.</em> Data on digital dexterity, knowledge flow efficiency, and innovation loss in siloed environments.</li>
-                    <li><strong>LinkedIn Talent Solutions.</strong> (2022). <em>Global Talent Trends Report.</em> Data on employee engagement, knowledge retention, and turnover risks.</li>
-                </ul>
-            </div>
+            <footer class="footer">
+                <p>Architected & Designed by Jane Petra Scott © 2026</p>
+            </footer>
 
         </section>
-
-
-        <footer class="footer">
-            <p>Architected & Designed by Jane Petra Scott © 2026</p>
-        </footer>
     </main>
 </body>
 

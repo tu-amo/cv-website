@@ -4,13 +4,21 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Jane_Petra_Scott_Senior_SAP_Architect_CV</title>
+    <meta name="color-scheme" content="dark" />
+    <title>Jane Petra Scott | Senior SAP Architect & Fiori Expert CV</title>
+
+    <!-- Critical Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Performance: Static Font Loading (Prevents FOUC) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
 
     <!-- SEO Meta Tags -->
     <meta name="description"
-        content="SAP Retail Architect & Digital Supply Chain Specialist specializing in S/4HANA, SAP CAR & AI supply chains. Proven track record in global rollouts across Europe & APAC. View my full CV ✓" />
+        content="SAP Retail Architect & Fiori/UI5 Specialist specializing in S/4HANA, SAP CAR & AI supply chains. Proven track record in global rollouts across Europe & APAC. View my full CV ✓" />
     <meta name="keywords"
-        content="SAP Retail, S/4HANA, SAP CAR, SAP Architect, Digital Supply Chain, AI Supply Chain, Jane Petra Scott" />
+        content="SAP Retail, S/4HANA, SAP CAR, SAP Architect, Fiori, UI5, Digital Supply Chain, AI Supply Chain, Jane Petra Scott" />
     <meta name="author" content="Jane Petra Scott" />
 
     <!-- Open Graph / LinkedIn -->
@@ -21,21 +29,18 @@
         content="Modernizing global supply chains with S/4HANA, SAP CAR, and AI. View my interactive portfolio and architecture demos." />
     <meta property="og:image" content="https://cv.janeblog.com/assets/sap_modern.png" />
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://cv.janeblog.com/" />
-    <meta property="twitter:title" content="Jane Petra Scott - SAP Retail Architect & Digital Supply Chain Specialist" />
-    <meta property="twitter:description" content="Modernizing global supply chains with S/4HANA, SAP CAR, and AI." />
-    <meta property="twitter:image" content="https://cv.janeblog.com/assets/sap_modern.png" />
-    <script type="module" src="/src/head.js"></script>
-    <script type="module" src="/src/nav.js"></script>
+    <!-- Shared Tokens & Shells -->
     <link rel="stylesheet" href="./src/tokens.css" />
     <link rel="stylesheet" href="./src/shells.css" />
-    <link rel="stylesheet" href="./src/cv.css?v=15" media="screen" />
-    <link rel="stylesheet" href="./src/print.css?v=14" media="print" />
-    <!-- FontAwesome for Icons (deferred for performance) -->
+    <link rel="stylesheet" href="./src/cv.css?v=17" media="screen" />
+    <link rel="stylesheet" href="./src/print.css?v=16" media="print" />
+
+    <!-- Icons: Deferred with Print trick -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         media="print" onload="this.media='all'">
+
+    <script type="module" src="/src/head.js"></script>
+    <script type="module" src="/src/nav.js"></script>
 
     <!-- Schema.org Person Markup -->
     <script type="application/ld+json">
@@ -43,7 +48,7 @@
       "@context": "https://schema.org",
       "@type": "Person",
       "name": "Jane Petra Scott",
-      "jobTitle": "SAP Retail Architect & Digital Supply Chain Specialist",
+      "jobTitle": "SAP Retail Architect & Fiori/UI5 Specialist",
       "url": "https://janeblog.com/cv",
       "sameAs": [
         "https://www.linkedin.com/in/0000japs/"
@@ -57,7 +62,9 @@
     }
     </script>
     <style>
-        /* ===== HEADER ENHANCEMENTS ===== */
+        /* ===== TYPOGRAPHY & F-PATTERN ===== */
+        h1, h2, h3 { font-family: 'Playfair Display', serif; text-wrap: balance; }
+        
         .cv-eyebrow {
             display: inline-block;
             font-size: 0.8rem;
@@ -70,19 +77,165 @@
             border-radius: var(--radius-full);
             margin-bottom: var(--space-md);
         }
+
+        /* ===== TAB SWITCHER (Sticky) ===== */
+        .cv-switcher {
+            display: flex;
+            background: rgba(13, 26, 22, 0.8);
+            padding: 4px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 20px;
+            z-index: 100;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+        }
+
+        /* ===== TIMELINE & LISTS ===== */
+        .timeline-item {
+            padding-bottom: 2rem;
+            border-left: 2px solid var(--accent);
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .cv-list {
+            margin: 0.75rem 0 0 1.25rem;
+            padding: 0;
+            list-style-type: disc;
+        }
+
+        .cv-list li {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+            color: var(--text-dim);
+        }
+
+        .cv-list li strong {
+            color: var(--text);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 16px;
+            border: none;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn:focus-visible {
+            outline: 2px solid var(--color-primary);
+            outline-offset: -4px;
+        }
+
+        .tab-btn.active {
+            background: var(--color-primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ===== SECTION MANAGEMENT ===== */
+        .cv-section {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .cv-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== TABLE STRUCTURES (Expertise & Projects) ===== */
+        .cv-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .cv-table th, .cv-table td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .cv-table th {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--color-primary);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+        }
+
+        .cv-table tr:last-child td { border-bottom: none; }
+        
+        .cv-table td strong { color: var(--color-primary); }
+        
+        .tabular-numbers { font-variant-numeric: tabular-nums; }
+
+        /* Project Reference Specifics */
+        .ref-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(37, 99, 235, 0.1);
+            color: #60a5fa;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .ref-tag:hover { background: rgba(37, 99, 235, 0.2); }
+
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .section h2 {
+            border-bottom: 2px solid var(--color-primary-soft);
+            padding-bottom: 0.6rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: var(--color-primary);
+        }
+
+        @page {
+            margin: 20mm 25mm;
+        }
+
     </style>
 </head>
 
 <body>
-
-
     <div class="cv-page-wrap">
         <div class="glass-container">
             <header class="cv-header">
                 <div class="header-content">
                     <span class="cv-eyebrow">Professional Experience</span>
                     <h1 class="name">Jane Petra Scott</h1>
-                    <p class="title">SAP Retail Architect & Digital Supply Chain Specialist</p>
+                    <p class="title">SAP Retail Architect & Fiori/UI5 Specialist</p>
 
                     <div class="contact-grid">
                         <div class="contact-item">
@@ -91,15 +244,17 @@
                         </div>
                         <div class="contact-item">
                             <i class="fa-solid fa-phone" aria-hidden="true"></i>
-                            <a href="tel:+4916095015013" style="color: inherit; text-decoration: none;">+49 160 9501 5013</a>
+                            <span class="tabular-numbers">
+                                <a href="tel:+4916095015013" style="color: inherit; text-decoration: none;">+49 160 9501 5013</a>
+                            </span>
                         </div>
                         <div class="contact-item">
                             <i class="fa-brands fa-linkedin" aria-hidden="true"></i>
                             <a href="https://www.linkedin.com/in/0000japs/" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">linkedin.com/in/0000japs</a>
                         </div>
                         <div class="contact-item">
-                            <i class="fa-solid fa-globe" aria-hidden="true"></i>
-                            <a href="https://www.janeblog.com" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none;">janeblog.com</a>
+                            <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+                            <a href="mailto:0000japs@gmail.com" style="color: inherit; text-decoration: none;">0000japs@gmail.com</a>
                         </div>
                         <div class="contact-item">
                             <i class="fa-solid fa-passport" aria-hidden="true"></i>
@@ -107,261 +262,419 @@
                         </div>
                         <div class="contact-item">
                             <i class="fa-solid fa-calendar" aria-hidden="true"></i>
-                            <span>3 Months Notice</span>
-                        </div>
-                        <div class="contact-item full-width">
-                            <i class="fa-solid fa-language" aria-hidden="true"></i>
-                            <span>English (Fluent), Afrikaans (Fluent), German (B1/B2)</span>
+                            <span>1 Month Notice</span>
                         </div>
                     </div>
 
+                    <!-- CV Switcher -->
+                    <nav class="cv-switcher" role="tablist">
+                        <button class="tab-btn active" data-target="cv-short" role="tab" aria-selected="true">Executive Summary</button>
+                        <button class="tab-btn" data-target="cv-long" role="tab" aria-selected="false">Full Master CV</button>
+                        <button class="tab-btn" data-target="cv-projects" role="tab" aria-selected="false">Project & Reference List</button>
+                    </nav>
+
                     <div class="action-buttons">
-                        <!-- User: Replace '#' with your actual Google Doc Share URL -->
-                        <a href="https://eu.docworkspace.com/d/cIIuWuZ-_AsmS_csG?utm_source=wps_office_mac&utm_medium=comp_border_bar&utm_content=link"
-                            target="_blank" class="btn btn-primary"
-                            aria-label="Download Jane Petra Scott's CV in Word format (approximately 250 KB)">
-                            <i class="fa-solid fa-file-word" aria-hidden="true"></i> Download Word Doc <span
-                                style="font-size: 0.8em; opacity: 0.8; margin-left: 5px;">(250KB)</span>
+                        <a href="./assets/downloads/Jane_Scott_CV_Short.pdf" id="download-pdf" class="btn btn-secondary">
+                            <i class="fa-solid fa-file-pdf" aria-hidden="true"></i> Download PDF
                         </a>
-                        <a href="/booking.html" class="btn btn-secondary"
-                            aria-label="Book a session with Jane Petra Scott (Calendly)">
-                            <i class="fa-solid fa-calendar-check" aria-hidden="true"></i>
-                            Book a Session
-                        </a>
-                        <button onclick="window.print()" class="btn btn-secondary"
-                            aria-label="Save Jane Petra Scott's CV as PDF (Generates custom branded PDF)">
-                            <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
-                            Save as PDF <span style="font-size: 0.8em; opacity: 0.8; margin-left: 5px;">(Print)</span>
+                        <button onclick="window.print()" class="btn btn-secondary">
+                            <i class="fa-solid fa-print" aria-hidden="true"></i> Print View
                         </button>
                     </div>
                 </div>
             </header>
 
             <main class="cv-content" id="main-content">
-                <section class="section summary-section">
-                    <h2>Strategic Overview</h2>
-                    <p>
-                        <strong>SAP Retail Architect & Digital Supply Chain Specialist</strong>
-                        bridging technical execution and business strategy to modernize global supply chains. 
-                        Specialist in <span class="highlight-tech">SAP CAR</span>, <span class="highlight-tech">S/4 Retail</span>, 
-                        and building for scalability in complex enterprise environments.
-                    </p>
-                    <p style="margin-top: 10px;">
-                        Committed to building scalable, <span class="highlight-tech">API-first architectures</span> that turn data into realized value. 
-                        Expert in steering global template designs across <strong>Africa, Europe, USA, and APAC</strong> regions with a focus 
-                        on performance, compliance, and future-proof architectural governance.
-                    </p>
-                </section>
+                <!-- 1. SHORT CV (EXECUTIVE SUMMARY) -->
+                <div id="cv-short" class="cv-section active">
+                    <section class="section">
+                        <h2>Strategic Overview</h2>
+                        <p>
+                            <strong>Senior SAP Functional Analyst & Architect</strong> with <strong>16+ years</strong> of experience in retail and public sectors. Specialist in <strong>SAP CAR (POSDTA)</strong>, <strong>S/4HANA Retail</strong>, <strong>Fiori/UI5 Frontend</strong>, and <strong>Systems Integration</strong>. Proven track record architecting and supporting global retail networks (<strong>3000+ stores</strong>) operating <strong>24/7</strong> across Europe, US, and APAC.
+                        </p>
+                    </section>
 
-                <section class="section expertise-section">
-                    <h2>Expertise Matrix</h2>
-                    <div class="expertise-matrix">
-                        <div class="matrix-column">
-                            <h4>SAP Core</h4>
-                            <ul class="matrix-list">
-                                <li>CARAB 5.0 / S/4 Retail</li>
-                                <li>POSDTA & Real-Time Data</li>
-                                <li>UDF & Demand Planning</li>
-                                <li>SAP Fiori & UX Modernization</li>
-                                <li>APIM & BTP Services</li>
-                            </ul>
-                        </div>
-                        <div class="matrix-column">
-                            <h4>Architecture</h4>
-                            <ul class="matrix-list">
-                                <li>API Management (APIM) / REST</li>
-                                <li>SAP Signavio Process Analysis</li>
-                                <li>Cloud Native Integrations</li>
-                                <li>Building for Scalability</li>
-                                <li>Enterprise Data Fabric</li>
-                            </ul>
-                        </div>
-                        <div class="matrix-column">
-                            <h4>Leadership</h4>
-                            <ul class="matrix-list">
-                                <li>ITIL 4 Strategic Leader</li>
-                                <li>Agile/Scrum (PSPO I)</li>
-                                <li>Strategic Solution Design</li>
-                                <li>Software Architecture</li>
-                                <li>Building for Scalability</li>
-                            </ul>
-                        </div>
-                    </div>
-                </section>
+                    <section class="section">
+                        <h2>Expertise Matrix</h2>
+                        <table class="cv-table">
+                            <thead>
+                                <tr>
+                                    <th>Domain</th>
+                                    <th>Key Technologies & Competencies</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>SAP Core</strong></td>
+                                    <td>CARAB 5.0, POSDTA, S/4HANA Retail, Fiori/UI5, IS-Retail, UDF (Unified Demand Forecast)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Integration</strong></td>
+                                    <td>SAP BODS, SAP APIM, REST API Architecture, IDoc, ALE, OData</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Data & Analytics</strong></td>
+                                    <td>HANA Calculation Views, AMDP, CDS Views, SQL, Inventory Visibility</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Operations</strong></td>
+                                    <td>Global Template Design, 24/7 High-Availability Systems, Scale Architecture</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
 
+                    <section class="section">
+                        <h2>Recent Career Highlights</h2>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <h3>ALDI DX | Senior Functional Consultant (SAP CAR)</h3>
+                                <span class="date tabular-numbers">2023 – Present | Düsseldorf, Germany</span>
+                                <p>Lead design for the <strong>S/4HANA Global Template</strong>. Architecting POS data flows for US, GB/IE, AU, and European markets in a high-concurrency retail landscape.</p>
+                            </div>
+                            <div class="timeline-item">
+                                <h3>Shoprite Group | Senior Functional Analyst (SAP CAR & POSDTA)</h3>
+                                <span class="date tabular-numbers">2016 – 2023 | Cape Town, South Africa</span>
+                                <p>Architected POSDTA and Real-time Inventory Visibility for <strong>3000+ stores</strong>. Key lead on <strong>Sixty60</strong> (on-demand grocery) backend and UDF implementation.</p>
+                            </div>
+                        </div>
+                    </section>
 
-                <section class="section experience-section">
-                    <h2>Work History</h2>
-                    <div class="timeline">                        <!-- ALDI DX -->
-                        <div class="timeline-item main-experience">
-                            <div class="timeline-line"></div>
-                            <div class="timeline-marker"></div>
-                            <div class="timeline-content">
-                                <div class="role-header">
-                                    <h3>Senior Functional Consultant</h3>
-                                    <span class="date">Jul 2023 - Present</span>
-                                    <span class="company">ALDI DX (International)</span>
-                                </div>
-                                <ul class="accomplishments-list">
-                                    <li><strong>Led Solution Design and Implementation</strong>: Harmonized business processes and built country-specific legal requirements for the <span class="highlight-tech">S/4 HANA Global Template</span> across the <strong>US, GB/IE, Australia, Switzerland, Italy, Hungary, and Slovenia</strong>. Managed the full lifecycle from design to hypercare.</li>
-                                    <li><strong>Remodelled Process Workflows</strong>: Utilized <span class="highlight-tech">SAP Signavio</span> to analyze L3/L4 cycles, identifying critical areas for improvement and automation within the Order-to-Cash ecosystem.</li>
-                                    <li><strong>Spearheaded "FIT" Modernization</strong>: Migrated several legacy <span class="highlight-tech">SAP PI (SOAP)</span> interfaces to a modern <span class="highlight-tech">APIM REST</span> architecture, enabling scalable cloud-native integrations.</li>
+                    <!-- Education & Accreditations (Short View) -->
+                    <section class="section">
+                        <h2>Education & Accreditations</h2>
+                        <div class="grid-2-col">
+                            <div class="card">
+                                <h3>Academic Education</h3>
+                                <ul class="cv-list">
+                                    <li><strong>Certificate in Cyber Security</strong> | F’SATI & CPUT (2015 - 2018)</li>
+                                    <li><strong>Matric: Full Exemption with Merit</strong> | Hoërskool Linden (2007)</li>
+                                </ul>
+                            </div>
+                            <div class="card">
+                                <h3>Top Professional Accreditations</h3>
+                                <ul class="clean-list tabular-numbers">
+                                    <li><strong>BCS Foundation</strong> in Architecture Concepts (2026)</li>
+                                    <li><strong>ITIL® 4 Strategic Leader</strong> (2025)</li>
+                                    <li><strong>PSPO I</strong>: Professional Scrum Product Owner (2025)</li>
                                 </ul>
                             </div>
                         </div>
+                    </section>
+                </div>
 
-                        <!-- Shoprite -->
-                        <div class="timeline-item main-experience">
-                            <div class="timeline-line"></div>
-                            <div class="timeline-marker"></div>
-                            <div class="timeline-content">
-                                <div class="role-header">
-                                    <h3>Senior Functional Analyst</h3>
-                                    <span class="date">Nov 2016 - Jul 2023</span>
-                                    <span class="company">The Shoprite Group (South Africa & International)</span>
-                                </div>
-                                <ul class="accomplishments-list">
-                                    <li><strong>Pioneered AI-Driven Forecasting</strong>: Implemented <span class="highlight-tech">Unified Demand Forecast (UDF)</span> on SAP CAR and architected the strategic interface to <strong>Blue Yonder</strong> for predictive inventory planning across <strong>3000+ stores</strong>.</li>
-                                    <li><strong>Enabled "Sixty60" Unified Commerce</strong>: Delivered real-time <strong>omnichannel inventory visibility</strong> via <span class="highlight-tech">HANA analytics</span>, powering the award-winning grocery app.</li>
-                                    <li><strong>Architected Subscription & Loyalty Pipelines</strong>: Built real-time data flows to SAP Hybris and integrated a <strong>Chargebee subscription API</strong>, enabling hyper-personalized marketing.</li>
-                                    <li><strong>Optimized Real-Time Analytics</strong>: Leveraged <span class="highlight-tech">POSDTA</span> and HANA to provide total inventory transparency across African operations.</li>
+                <!-- 2. LONG CV (FULL HISTORY) -->
+                <div id="cv-long" class="cv-section">
+                    <section class="section">
+                        <h2>Executive Profile</h2>
+                        <p>Seasoned SAP Professional with over <strong>16 years</strong> of consulting and functional expertise across Retail, Public Sector, and Telecommunications. Recognized for leveraging SAP capabilities to streamline business operations and adapt technical landscapes at a global scale. Specialist in <strong>SAP CAR (POSDTA)</strong>, <strong>SAP IS-Retail</strong>, <strong>SAP SD</strong>, <strong>Fiori/UI5 Frontend</strong>, and <strong>Digital Supply Chain Modernization</strong>. Proven track record in leading global template designs across Africa, Europe, USA, and APAC. Committed to building scalable, API-first architectures and leveraging HANA analytics to turn complex data into realized value.</p>
+                    </section>
+
+                    <section class="section">
+                        <h2>Technical Expertise Matrix</h2>
+                        <table class="cv-table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Competencies & Tools</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>SAP Core & Retail</strong></td>
+                                    <td>CARAB 5.0, S/4HANA Retail, POSDTA, SD, Fiori/UI5 Frontend, PSRM, IS-U, IS-LUM, CRM Interaction Centre, UDF, Unified Commerce (Sixty60)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Integration & Data</strong></td>
+                                    <td>SAP BODS, SAP APIM, HANA Calculation Views, SAP PI/PO (Legacy), AMDP, CDS, IDoc, REST, OData, Legacy Data Migration</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Methodologies</strong></td>
+                                    <td>Agile/Scrum (PSPO I), Prince2 Practitioner, ITIL 4 Strategic Leader, SAP Signavio, JIRA, Solution Manager</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+                    <section class="section">
+                        <h2>Professional History</h2>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <h3>Senior Functional Consultant | ALDI DX (International)</h3>
+                                <span class="date tabular-numbers">July 2023 – Present | Düsseldorf, Germany</span>
+                                <ul class="cv-list">
+                                    <li><strong>Global Template Implementation</strong>: Harmonizing business processes and building country-specific legal requirements for the S/4HANA Global Template across a 24/7 retail landscape (USA, GB/IE, Australia, Europe).</li>
+                                    <li><strong>Process Engineering</strong>: Utilized SAP Signavio to analyze L3/L4 cycles, identifying automation opportunities within the Order-to-Cash ecosystem.</li>
+                                    <li><strong>FIT Modernization</strong>: Spearheaded the migration of legacy SAP PI (SOAP) interfaces to a modern APIM REST architecture, enabling scalable cloud-native integrations.</li>
+                                    <li><strong>Architectural Governance</strong>: Ensuring performance, compliance, and future-proof design across global rollouts.</li>
+                                </ul>
+                            </div>
+
+                            <div class="timeline-item">
+                                <h3>Senior Functional Analyst | The Shoprite Group</h3>
+                                <span class="date tabular-numbers">Nov 2016 – July 2023 | Cape Town, South Africa</span>
+                                <ul class="cv-list">
+                                    <li><strong>CAR & Retail Transformation</strong>: Implemented and supported SAP CAR (POSDTA), Sales (SAP SD), and Inventory Visibility Analytics for 3000+ stores. Led global store roll-outs and established testing protocols.</li>
+                                    <li><strong>AI-Driven Forecasting</strong>: Implemented Unified Demand Forecast (UDF) on SAP CAR and architected the strategic interface to Blue Yonder for predictive inventory planning.</li>
+                                    <li><strong>Unified Commerce (Sixty60)</strong>: Delivered real-time omnichannel inventory visibility via HANA analytics, powering the award-winning Sixty60 app.</li>
+                                    <li><strong>Data Engineering</strong>: Developed ETL processes with SAP BODS, managing data flows across Retailx, GKPOS, Hybris, and ECC6.</li>
+                                    <li><strong>Loyalty & Subscriptions</strong>: Built real-time data flows to SAP Hybris and integrated a Chargebee subscription API.</li>
+                                </ul>
+                            </div>
+
+                            <div class="timeline-item">
+                                <h3>SAP Test Analyst | The Shoprite Group</h3>
+                                <span class="date tabular-numbers">2016 – 2017 | Cape Town, South Africa</span>
+                                <ul class="cv-list">
+                                    <li><strong>SIT Management</strong>: Led system integration testing for SAP CAR and SAP ECC implementations.</li>
+                                    <li><strong>Store Procedures</strong>: End-to-end testing of sales processing, goods movement, store label printing, and stock-take solutions.</li>
+                                </ul>
+                            </div>
+
+                            <div class="timeline-item">
+                                <h3>Training Facilitator | EDRO</h3>
+                                <span class="date tabular-numbers">June 2016 – Oct 2016 | Cape Town, South Africa</span>
+                                <ul class="cv-list">
+                                    <li><strong>Robotics Training</strong>: Facilitated classroom sessions for primary and secondary students, teaching coding logic through interactive robotics. Developed technical training materials.</li>
+                                </ul>
+                            </div>
+
+                            <div class="timeline-item">
+                                <h3>Managing Partner / Director | C’Alliance Consulting (Holdings)</h3>
+                                <span class="date tabular-numbers">May 2014 – June 2016 | Cape Town, South Africa</span>
+                                <ul class="cv-list">
+                                    <li><strong>Product Innovation</strong>: Spearheaded development of a custom Case/Records Management System for the SA market, adding "Google-like" search and enhanced classification to standard SAP.</li>
+                                    <li><strong>Business Operations</strong>: Full lifecycle management: business planning, financial governance (CIPC), banking setup, and shareholder agreements.</li>
+                                    <li><strong>Client Relations</strong>: Pre-sales documentation, partner presentations, and strategic resourcing.</li>
+                                </ul>
+                            </div>
+
+                            <div class="timeline-item">
+                                <h3>SAP ECM Consultant | Datacentrix / NokusaEI</h3>
+                                <span class="date tabular-numbers">Dec 2012 – May 2014 | Perth, Australia / SA</span>
+                                <ul class="cv-list">
+                                    <li><strong>Project eDreams (Lotterywest)</strong>: Corporate initiative to replace HP TRIM with SAP PSRM for 200+ users.</li>
+                                    <li><strong>Data Migration</strong>: Legacy data analysis and migration mapping.</li>
+                                    <li><strong>Content Management</strong>: Customized SAP Netweaver Folder Management system focusing on usability.</li>
+                                    <li><strong>Training</strong>: Developed manuals and facilitated end-user training and awareness workshops.</li>
+                                </ul>
+                            </div>
+
+                            <div class="timeline-item">
+                                <h3>SAP Functional Analyst & Project Coordinator | EOH</h3>
+                                <span class="date tabular-numbers">May 2010 – Nov 2012 | Johannesburg / Cape Town, SA</span>
+                                <ul class="cv-list">
+                                    <li><strong>Single Window of Social Assistance</strong>: Project Manager/Coordinator for a SAP CRM Case Management solution (SAPHILA 2011 Award for Innovation).</li>
+                                    <li><strong>Transport Information Centre</strong>: BA for a centralized call center dashboard integrating GABS, Metrorail, MyCiti, and Dial-a-Ride providers via SAP CRM Interaction Centre.</li>
+                                    <li><strong>eClearance</strong>: BA for automated rates clearance processing on PSRM Case Management, IS-U, and Land Use Management.</li>
+                                    <li><strong>eHR Training Project</strong>: Facilitator for SAP HR (Position Management) and Employee Interaction Centre training.</li>
+                                </ul>
+                            </div>
+
+                            <div class="timeline-item">
+                                <h3>Turnkey Consultant / Project Coordinator | ZNIX Consulting</h3>
+                                <span class="date tabular-numbers">July 2009 – May 2010 | Pan-African Operations</span>
+                                <ul class="cv-list">
+                                    <li><strong>Telecoms Infrastructure</strong>: Logistical planning and administration for 2G/3G deployments across Africa (Ericsson/MTN).</li>
+                                    <li><strong>Administration</strong>: Consultant resourcing, payroll management, and logistical coordination for deployed engineers.</li>
+                                </ul>
+                            </div>
+
+                            <div class="timeline-item">
+                                <h3>Customer Relationship Consultant | Lu by Lolita</h3>
+                                <span class="date tabular-numbers">July 2008 – July 2009 | Cape Town, South Africa</span>
+                                <ul class="cv-list">
+                                    <li><strong>Client Relations</strong>: Establishing and maintaining high-quality customer relationships.</li>
                                 </ul>
                             </div>
                         </div>
+                    </section>
 
-
-                        <!-- Early Career — Single Consolidated Entry -->
-                        <div class="timeline-item foundation-experience" id="foundation-header">
-                            <div class="timeline-line"></div>
-                            <div class="timeline-marker"></div>
-                            <div class="timeline-content">
-                                <div class="role-header">
-                                    <h3>Early Career</h3>
-                                    <span class="date">2008 – 2016</span>
-                                    <span class="company">Condensed overview of career foundations</span>
-                                </div>
-                                <ul class="accomplishments-list">
-                                    <li><strong>Managing Partner | C'Alliance Consulting</strong> (2014–2016) — SAP rapid deployment models for public sector; full P&amp;L and implementation delivery management.</li>
-                                    <li><strong>IT Consultant | Datacentrix (Lotterywest)</strong> (2012–2014) — Delivered customised <span class="highlight-tech">SAP Folder Management</span> for Lotterywest, ensuring strict regulatory compliance.</li>
-                                    <li><strong>PM &amp; IT Consultant | EOH</strong> (2009–2012) — Case Management PM for the <strong>City of Cape Town</strong>; recognised at <strong>SAPHILA</strong> for SAP Public Sector excellence.</li>
-                                    <li><strong>Intern | ZNIX Consulting</strong> (2008) — Turnkey telecoms project delivery for <strong>Ericsson</strong> and <strong>Huawei</strong>.</li>
+                    <!-- Education & Accreditations (Full Master View) -->
+                    <section class="section">
+                        <h2>Education & Accreditations</h2>
+                        <div class="grid-2-col">
+                            <div class="card">
+                                <h3>Academic Education</h3>
+                                <ul class="cv-list">
+                                    <li><strong>Certificate in Cyber Security</strong> | F’SATI & CPUT (2015 - 2018)
+                                        <br><small>Focus: Analysis, Technical Writing, Cryptography, Security Governance.</small>
+                                    </li>
+                                    <li><strong>African Music Performance</strong> (Incomplete) | University of Cape Town</li>
+                                    <li><strong>Matric: Full Exemption with Merit</strong> | Hoërskool Linden (2007)</li>
+                                </ul>
+                            </div>
+                            <div class="card">
+                                <h3>Professional Accreditations</h3>
+                                <ul class="clean-list tabular-numbers">
+                                    <li><strong>BCS Foundation</strong> in Architecture Concepts (2026)</li>
+                                    <li><strong>ITIL® 4 Strategic Leader</strong> (2025)</li>
+                                    <li><strong>ITIL® 4 Strategist</strong>: Direct, Plan & Improve (2025)</li>
+                                    <li><strong>PSPO I</strong>: Professional Scrum Product Owner (2025)</li>
+                                    <li><strong>ITIL® 4 Foundation</strong> (2024)</li>
+                                    <li><strong>SAP Fiori Overview</strong> (2020)</li>
+                                    <li><strong>ECM Specialist</strong> | AIIM (2015)</li>
+                                    <li><strong>PRINCE2 Practitioner</strong> | PMAcadamy (2009)</li>
+                                    <li><strong>JIRA Essentials</strong> | Atlassian</li>
                                 </ul>
                             </div>
                         </div>
+                    </section>
 
-                    </div>
-
-                </section> <!-- End Experience Section -->
-
-
-                <section class="section">
-                    <h2>Education & Accreditations</h2>
-                    <div class="grid-2-col">
-                        <div class="card">
-                            <h3>Certifications</h3>
-                            <ul class="clean-list">
-                                <li><strong>BCS</strong> Foundation Cert. in Architecture Concepts (2026)</li>
-                                <li><strong>ITIL® 4 Leader</strong>: Digital (2025-2028)</li>
-                                <li><strong>ITIL® 4 Strategist</strong>: Direct, Plan & Improve (2025-2028)</li>
-                                <li><strong>PSPO I</strong>: Professional Scrum Product Owner (Feb 2025)</li>
-                                <li><strong>ITIL® 4 Foundation</strong> (2024-2028)</li>
-                                <li><strong>SAP Fiori Overview</strong> (2020)</li>
+                    <section class="section">
+                        <h2>Notable Achievements</h2>
+                        <div class="card achievement-card">
+                            <ul class="cv-list">
+                                <li><strong>SAPHILA 2011</strong>: Presented for innovation in Public Sector (Single Window of Social Assistance).</li>
+                                <li><strong>Architecture & Security</strong>: Developed custom security-first records management extensions for SAP, enhancing classification and search logic.</li>
                             </ul>
                         </div>
-                        <div class="card">
-                            <h3>Education</h3>
-                            <p class="edu-title">Cyber Security Certificate</p>
-                            <p class="edu-school">F’SATI & CPUT (2018)</p>
-                        </div>
-                    </div>
-                </section>
+                    </section>
+                </div>
 
-                <section class="section references-section">
-                    <h2>References</h2>
-                    <div class="references-grid">
-                        <!-- Ravi Mugi -->
-                        <div class="ref-card">
-                            <span class="ref-name">Ravi Mugi</span>
-                            <span class="ref-role">
-                                SAP CAR Functional Consultant | SAP IS-Retail | POS Integration Consultant at Infosys
-                                <br><span
-                                    style="font-size: 0.85em; opacity: 0.8; margin-top: 5px; display: inline-block;">January
-                                    31, 2023</span>
-                            </span>
-                            <a href="https://www.linkedin.com/in/0000japs/details/recommendations/?detailScreenTabIndex=0"
-                                target="_blank" class="ref-link">View Recommendation</a>
-                        </div>
+                <!-- 3. PROJECT LIST -->
+                <div id="cv-projects" class="cv-section">
+                    <section class="section">
+                        <h2>Key Project Portfolio & References</h2>
+                        <table class="cv-table">
+                            <thead>
+                                <tr>
+                                    <th>Project</th>
+                                    <th>Impact & Role</th>
+                                    <th>Reference</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>S/4HANA Global Template</strong></td>
+                                    <td>Functional Lead for global CAR/POSDTA rollouts across USA, GB/IE, AU, and EU. Migrated SOAP to REST APIM architecture.</td>
+                                    <td>
+                                        <a href="https://www.linkedin.com/in/vinod-bhagat-4b553a9b/" class="ref-tag" target="_blank"><i class="fa-brands fa-linkedin"></i> Vinod Bhagat</a>
+                                        <a href="https://www.linkedin.com/in/daniel-hederington-626123144/" class="ref-tag" target="_blank"><i class="fa-brands fa-linkedin"></i> Daniel Hederington</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Unified Demand Forecast (UDF)</strong></td>
+                                    <td>Architected the interface between SAP CAR and <strong>Blue Yonder</strong> for predictive inventory planning across Africa.</td>
+                                    <td>
+                                        <a href="https://www.linkedin.com/in/henk-brand-program-manager/" class="ref-tag" target="_blank"><i class="fa-brands fa-linkedin"></i> Henk Brand</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Sixty60 Unified Commerce</strong></td>
+                                    <td>Delivered real-time inventory visibility via HANA analytics to power the award-winning Sixty60 app.</td>
+                                    <td>
+                                        <a href="https://www.linkedin.com/in/andy-millar-a99a976/" class="ref-tag" target="_blank"><i class="fa-brands fa-linkedin"></i> Andy Millar</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Global SAP CAR & SD Implementation</strong></td>
+                                    <td>Implementation and support for <strong>3000+ stores</strong>. Managed store roll-outs and established Test CoE protocols.</td>
+                                    <td>
+                                        <a href="https://www.linkedin.com/in/ravimugi/" class="ref-tag" target="_blank"><i class="fa-brands fa-linkedin"></i> Ravi Mugi</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Case/Records Management Product</strong></td>
+                                    <td>Product Owner for a custom SAP extension adding "Google-like" search and classification to standard SAP ECM.</td>
+                                    <td>
+                                        <a href="https://www.linkedin.com/in/andreas-foertsch-8b3a418/" class="ref-tag" target="_blank"><i class="fa-brands fa-linkedin"></i> Andreas Foertsch</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>eClearance Rates Processing</strong></td>
+                                    <td>Automated rates clearance processing on SAP Case Management, integrating PSRM, LUM, and IS-U.</td>
+                                    <td>
+                                        <a href="https://www.linkedin.com/in/andreas-foertsch-8b3a418/" class="ref-tag" target="_blank"><i class="fa-brands fa-linkedin"></i> Andreas Foertsch</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Transport Information Centre (TIC)</strong></td>
+                                    <td>Centralized call center dashboard for public transport providers (GABS, Metrorail, MyCiti) via SAP CRM.</td>
+                                    <td>
+                                        <a href="https://www.linkedin.com/in/brettcateley/" class="ref-tag" target="_blank"><i class="fa-brands fa-linkedin"></i> Brett Cateley</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Single Window of Social Assistance</strong></td>
+                                    <td>Project Manager for a citizen-centric CRM solution. Winner of <strong>SAPHILA 2011 Innovation Award</strong>.</td>
+                                    <td>
+                                        <a href="https://www.linkedin.com/in/sunil-sooful/" class="ref-tag" target="_blank"><i class="fa-brands fa-linkedin"></i> Sunil Sooful</a><br>
+                                        <a href="https://www.linkedin.com/in/jakoseff/" class="ref-tag" target="_blank"><i class="fa-brands fa-linkedin"></i> Jak Koseff</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>eHR Training & Facilitation</strong></td>
+                                    <td>Facilitated SAP end-user training and developed technical manuals for HR, Position Management, and EIC.</td>
+                                    <td>
+                                        <a href="https://www.linkedin.com/in/rutendodumbutshena/" class="ref-tag" target="_blank"><i class="fa-brands fa-linkedin"></i> Rutendo Dumbutshena</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Turnkey African Deployments</strong></td>
+                                    <td>Logistical planning and coordination for 2G/3G network deployments (Ericsson/MTN) across the continent.</td>
+                                    <td>
+                                        <a href="https://www.linkedin.com/in/raymondzhou/" class="ref-tag" target="_blank"><i class="fa-brands fa-linkedin"></i> Raymond Zhou</a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </section>
+                </div>
 
-                        <!-- Haydn Rust -->
-                        <div class="ref-card">
-                            <span class="ref-name">Haydn Rust</span>
-                            <span class="ref-role">
-                                Senior IT Professional (SAP) at ALDI DX
-                                <br><span
-                                    style="font-size: 0.85em; opacity: 0.8; margin-top: 5px; display: inline-block;">January
-                                    17, 2023</span>
-                            </span>
-                            <a href="https://www.linkedin.com/in/0000japs/details/recommendations/?detailScreenTabIndex=0"
-                                target="_blank" class="ref-link">View Recommendation</a>
-                        </div>
-
-                        <!-- Arnold Okkenburg -->
-                        <div class="ref-card">
-                            <span class="ref-name">Arnold Okkenburg (PMP)</span>
-                            <span class="ref-role">
-                                Senior Project Manager & PMO Consultant
-                                <br><span
-                                    style="font-size: 0.85em; opacity: 0.8; margin-top: 5px; display: inline-block;">January
-                                    5, 2023</span>
-                            </span>
-                            <a href="https://www.linkedin.com/in/0000japs/details/recommendations/?detailScreenTabIndex=0"
-                                target="_blank" class="ref-link">View Recommendation</a>
-                        </div>
-
-                        <!-- Henk Brand -->
-                        <div class="ref-card">
-                            <span class="ref-name">Henk Brand</span>
-                            <span class="ref-role">
-                                Program Manager / Delivery Manager at The Shoprite Group
-                                <br><span
-                                    style="font-size: 0.85em; opacity: 0.8; margin-top: 5px; display: inline-block;">October
-                                    7, 2022</span>
-                            </span>
-                            <a href="https://www.linkedin.com/in/0000japs/details/recommendations/?detailScreenTabIndex=0"
-                                target="_blank" class="ref-link">View Recommendation</a>
-                        </div>
-                    </div>
-                </section>
             </main>
 
             <footer class="cv-footer">
-                <p>Curriculum Vitae &copy; 2026 Jane Petra Scott</p>
+                <p>Curriculum Vitae &copy; 2026 Jane Petra Scott | Düsseldorf, Germany</p>
             </footer>
         </div>
     </div>
 
-    <script type="module" src="./src/cv.js"></script>
     <script type="module">
-        import Analytics from './src/analytics.js';
-
         document.addEventListener('DOMContentLoaded', () => {
-            // Track Word Download
-            const wordBtn = document.querySelector('a[href*="docworkspace"]');
-            if (wordBtn) {
-                wordBtn.addEventListener('click', () => {
-                    Analytics.trackDownload('Word');
-                });
-            }
+            const tabs = document.querySelectorAll('.tab-btn');
+            const sections = document.querySelectorAll('.cv-section');
+            const pdfBtn = document.getElementById('download-pdf');
 
-            // Track PDF Save (Print)
-            const pdfBtn = document.querySelector('button[onclick="window.print()"]');
-            if (pdfBtn) {
-                pdfBtn.addEventListener('click', () => {
-                    Analytics.trackDownload('PDF');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const target = tab.getAttribute('data-target');
+                    
+                    // Update active tab
+                    tabs.forEach(t => {
+                        t.classList.remove('active');
+                        t.setAttribute('aria-selected', 'false');
+                    });
+                    tab.classList.add('active');
+                    tab.setAttribute('aria-selected', 'true');
+
+                    // Update active section
+                    sections.forEach(s => s.classList.remove('active'));
+                    document.getElementById(target).classList.add('active');
+
+                    // Update download links and text
+                    const version = target.split('-')[1]; // short, long, projects
+                    const versionKey = version.charAt(0).toUpperCase() + version.slice(1);
+                    const displayName = tab.textContent;
+                    
+                    pdfBtn.href = `./assets/downloads/Jane_Scott_CV_${versionKey}.pdf`;
+                    
+                    // Update button labels for clarity
+                    pdfBtn.innerHTML = `<i class="fa-solid fa-file-pdf"></i> ${displayName} (PDF)`;
+                    
+                    // Visual feedback: briefly pulse buttons
+                    [pdfBtn].forEach(btn => {
+                        btn.style.transform = 'scale(1.05)';
+                        setTimeout(() => btn.style.transform = 'scale(1)', 200);
+                    });
                 });
-            }
+            });
         });
     </script>
 </body>
+
+</html>
+
+
+
 
 </html>

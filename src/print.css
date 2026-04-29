@@ -4,7 +4,7 @@
 
 /* 1. PAGE CONFIG */
 @page {
-    margin: 1.2cm 1.5cm;
+    margin: 2.0cm 2.5cm;
     size: A4;
 }
 
@@ -28,9 +28,6 @@ html, body {
     width: 100%;
     height: auto !important;
     min-height: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow: visible !important;
     background: white !important;
     font-family: 'Inter', Helvetica, Arial, sans-serif;
     font-size: 9.5pt;
@@ -55,6 +52,14 @@ html, body {
     display: none !important;
 }
 
+.cv-section {
+    display: none !important;
+}
+
+.cv-section.active {
+    display: block !important;
+}
+
 /* 4. LAYOUT — Flatten all containers */
 .cv-page-wrap,
 .glass-container,
@@ -63,8 +68,8 @@ html, body {
     display: block !important;
     width: 100% !important;
     max-width: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
+    margin: auto !important;
+    padding: 0.5cm 1.0cm !important;
     border: none !important;
     border-radius: 0 !important;
     position: static !important;

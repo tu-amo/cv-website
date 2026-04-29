@@ -666,7 +666,11 @@ body {
     transition: all 0.3s ease;
     cursor: pointer;
     border: none;
-    outline: none;
+}
+
+.btn:focus-visible {
+    outline: 3px solid var(--accent-color);
+    outline-offset: 2px;
 }
 
 .btn-primary {

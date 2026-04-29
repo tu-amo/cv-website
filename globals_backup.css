@@ -1,0 +1,4139 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   LIVING COOKBOOK — globals.css
+   ═══════════════════════════════════════════════════════════════════════
+   § 0  Reset & Box Model
+   § 1  :root Token System  (M3 + brand aliases)
+   § 2  Base Elements       (body, p, h1-h4, a, button, input)
+   § 3  Layout Shells       (.pp-page-card, .view-gallery, .recipe-detail-wrapper)
+   § 4  Global Utilities    (.hidden, .empty-state, .btn-add, .form-control)
+   § 5  Navigation
+   § 6  Recipe Components   (.recipe-card, .recipe-panels, .ingredient-item …)
+   § 7  Nutrition Components
+   § 8  Auth Components     (.pp-auth-left, form panels)
+   § 9  Tools               (recipe-scaler, nutrition-calculator)
+   §10  Responsive Breakpoints  (all @media queries — consolidated target)
+   §11  Print & A11y           (@media print, @media prefers-reduced-motion)
+
+   !important policy: 12 uses — print×7, prefers-motion×3, .hidden×1, pan×1
+   Target: ≤ 2 000 lines (current: in progress — Phase 5)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── SCOPE POLICY ────────────────────────────────────────────────────────
+   This file contains:  tokens · animations · layout · site-wide utilities
+   New COMPONENTS go in: src/components/ui/MyComponent.module.css (CSS Modules)
+
+   BELONGS HERE (globals.css)            GOES IN A .module.css FILE
+   ─────────────────────────────────     ────────────────────────────────────
+   ✓ :root token definitions             ✓ Component-internal layout/spacing
+   ✓ @keyframes animations               ✓ Component-specific colours/states
+   ✓ body / * base resets                ✓ Hover/active/focus states
+   ✓ .pp-page-card, .pp-overline etc.   ✓ Anything only one component needs
+   ✓ @media print / reduced-motion
+   ✓ .btn-add, .form-control (shared)
+
+   See: docs/CSS_ARCHITECTURE.md §8 — CSS Modules Strategy
+        .agent/skills/css-architecture/SKILL.md — CSS Modules section
+   ──────────────────────────────────────────────────────────────────────── */
+
+
+/* § 1 — Fonts: Playfair Display (editorial) + DM Sans (legacy compat)
+   Poppins & Nunito are self-hosted via next/font in layout.js — do NOT add
+   them here or they will be fetched twice from two different origins.         */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
+/* ── § 1  Design Tokens — Living Cookbook M3 System ───────────────────── */
+:root {
+    /* Fonts — resolve through next/font CSS variables set on <body> by layout.js */
+    --font-brand:     var(--pp-font-brand, 'Poppins', sans-serif);    /* headings, titles, CTAs */
+    --font-body:      var(--pp-font-body, 'Nunito', sans-serif);       /* body, labels, meta */
+    --font-editorial: 'Playfair Display', serif;                        /* recipe hero title only */
+
+    /* Backgrounds & Surfaces */
+    --color-bg:                        #121010;
+    --color-surface:                   #1E1B1B;
+    --color-surface-container:         #2A2727;
+    --color-surface-container-high:    #323030;
+    --color-surface-container-highest: #3A3737;
+
+    /* Text */
+    --color-on-surface:          #EDD09A;
+    --color-on-surface-bright:   #F2E8D0;
+    --color-on-surface-muted:    #C7A96A;
+    --color-on-surface-disabled: rgba(237, 208, 154, 0.45);
+    --color-hairline:            rgba(237, 208, 154, 0.10);
+
+    /* Primary — Indigo/Lavender */
+    --color-primary:              #B0ADDA;
+    --color-primary-container:    #2A2749;
+    --color-on-primary-container: #D4D2ED;
+    --color-primary-40:           #3D366A;
+    --color-primary-glow:         rgba(176, 173, 218, 0.25);
+
+    /* Secondary — Burgundy */
+    --color-secondary-container:    #481E20;
+    --color-on-secondary-container: #E5B8BA;
+
+    /* Shape */
+    --radius-xs:   4px;
+    --radius-sm:   8px;
+    --radius-md:   12px;
+    --radius-lg:   16px;
+    --radius-xl:   24px;
+    --radius-pill: 9999px;
+
+    /* Spacing (4dp grid) */
+    --space-1:  4px;   --space-2:  8px;   --space-3:  12px;
+    --space-4:  16px;  --space-5:  20px;  --space-6:  24px;
+    --space-8:  32px;  --space-10: 40px;  --space-12: 48px;
+    --space-16: 64px;
+
+    /* Typography scale */
+    --type-display:     clamp(2rem, 5vw, 2.6rem);
+    --type-headline-lg: clamp(1.5rem, 3vw, 2.2rem);
+    --type-headline-sm: 1.5rem;
+    --type-title-lg:    1.375rem;
+    --type-title-md:    1.1rem;
+    --type-body-lg:     1rem;
+    --type-body-md:     0.875rem;
+    --type-body-sm:     0.82rem;
+    --type-label-lg:    0.875rem;
+    --type-label-md:    0.75rem;
+    --type-label-sm:    0.6875rem;
+
+    /* Motion */
+    --motion-fast:       200ms cubic-bezier(0.2, 0, 0, 1);
+    --motion-standard:   350ms cubic-bezier(0.2, 0, 0, 1);
+    --motion-expressive: 500ms cubic-bezier(0.23, 1, 0.32, 1);
+    --motion-bounce:     600ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* Elevation / Shadow */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.30);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.35);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.40);
+    --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.45);
+
+    /* Containers */
+    --container-sm:      560px;
+    --container-md:      900px;
+    --container-lg:      1200px;
+    --container-padding: 32px;
+
+    /* Z-index layers */
+    --z-base:     1;    --z-raised:  2;
+    --z-dropdown: 100;  --z-sticky:  500;
+    --z-nav:   1000;    --z-modal:  2000;
+    --z-toast: 3000;
+
+    /* Layout */
+    --nav-height: 64px;
+
+    /* Status colours — used by Alert, Badge, and any component needing
+       semantic feedback colour. Never hardcode these hex values elsewhere. */
+    --color-error:          #ff6b6b;
+    --color-error-bg:       rgba(255, 107, 107, 0.10);
+    --color-error-border:   rgba(255, 107, 107, 0.20);
+
+    --color-success:        #2ecc71;
+    --color-success-bg:     rgba(46,  204, 113, 0.10);
+    --color-success-border: rgba(46,  204, 113, 0.20);
+
+    --color-warn:           var(--color-primary);        /* = primary token */
+    --color-warn-bg:        rgba(212, 175, 55,  0.10);
+    --color-warn-border:    rgba(212, 175, 55,  0.25);
+
+    /* Pro Kitchen brand colour */
+    --color-pro:            #00c896;
+    --color-pro-bg:         rgba(0,   200, 150, 0.12);
+    --color-pro-border:     rgba(0,   200, 150, 0.30);
+
+    /* Role & group-type badge colours */
+    --color-owner-bg:         rgba(212, 175, 55,  0.15);
+    --color-owner-border:     rgba(212, 175, 55,  0.40);
+    --color-household-bg:     rgba(176, 173, 218, 0.12);
+    --color-household-border: rgba(176, 173, 218, 0.30);
+}
+
+/* ── § 1b  Deprecated Backward Aliases ─────────────────────────────────────
+   Maps OLD token names → new canonical tokens.
+   Do not use in new code. Delete once all old-token refs are migrated.    */
+:root {
+    /* Surfaces */
+    --color-bg-deep-olive:  var(--color-bg);
+    --color-surface-hover:  var(--color-surface-container-high);
+    /* Text */
+    --color-text-papyrus:   var(--color-on-surface);
+    --color-text-muted:     var(--color-on-surface-muted);
+    /* Accent (amber → indigo primary) */
+    --color-accent-amber:     var(--color-primary);
+    --color-accent-amber-glow:var(--color-primary-glow);
+    --color-divider:          var(--color-hairline);
+    /* Glass (repointed to new warm-dark surfaces) */
+    --glass-bg:   rgba(42, 39, 39, 0.4);
+    --glass-border:var(--color-hairline);
+    --glass-blur: 16px;
+    /* Shadow */
+    --shadow-premium: var(--shadow-xl);
+    /* Motion */
+    --transition-fast:    var(--motion-fast);
+    --transition-smooth:  var(--motion-standard);
+    --transition-premium: var(--motion-expressive);
+    --transition-bounce:  var(--motion-bounce);
+    /* Fonts */
+    --font-heading: var(--font-brand);
+}
+
+/* ── § 1c  PP-System Fallback Aliases ──────────────────────────────────────
+   NOTE ON LOAD ORDER:
+   globals.css loads FIRST, pretzelprep.css loads SECOND (see layout.js).
+   pretzelprep.css defines the authoritative --pp-* values and overrides
+   these :root rules. These aliases serve as fallback only (e.g. if
+   pretzelprep.css is unavailable) and as documentation of the mapping
+   between --color-* and --pp-* systems. Do not rely on these in new code.  */
+:root {
+    /* Colour — overridden by pretzelprep.css (authoritative values there) */
+    --pp-salt:             var(--color-on-surface);
+    --pp-salt-bright:      var(--color-on-surface-bright);
+    --pp-salt-dim:         var(--color-on-surface-muted);
+    --pp-text-meta:        var(--color-on-surface-muted);
+    --pp-text-disabled:    var(--color-on-surface-disabled);
+    --pp-salt-hairline:    var(--color-hairline);
+    --pp-primary:          var(--color-primary);
+    --pp-primary-40:       var(--color-primary-40);
+    --pp-primary-90:       var(--color-on-primary-container);
+    --pp-surface-card:     var(--color-surface-container);
+    --pp-shadow-sm:        var(--shadow-sm);
+    --pp-shadow-md:        var(--shadow-md);
+    /* Shape */
+    --pp-radius-pill: var(--radius-pill);
+    --pp-radius-lg:   var(--radius-lg);
+    --pp-radius-md:   var(--radius-md);
+    --pp-radius-sm:   var(--radius-sm);
+    --pp-radius-xs:   var(--radius-xs);
+    /* Motion */
+    --pp-motion-fast: var(--motion-fast);
+    /* Layout */
+    --pp-content-max:     var(--container-lg);
+    --pp-content-padding: var(--container-padding);
+    --pp-grid-gap:        var(--space-6);
+    --pp-card-min-w:      280px;
+    /* Fonts — NOT aliased here: next/font injects --pp-font-brand /
+       --pp-font-body on <body> directly; --font-brand/--font-body
+       in § 1 already resolve through those via var() chain.             */
+    /* Type scale */
+    --pp-type-display-large-size:  var(--type-display);
+    --pp-type-headline-large-size: var(--type-headline-lg);
+    --pp-type-headline-small-size: var(--type-headline-sm);
+    --pp-type-title-large-size:    var(--type-title-lg);
+    --pp-type-title-medium-size:   var(--type-title-md);
+    --pp-type-body-large-size:     var(--type-body-lg);
+    --pp-type-body-medium-size:    var(--type-body-md);
+    --pp-type-body-small-size:     var(--type-body-sm);
+    --pp-type-label-large-size:    var(--type-label-lg);
+    --pp-type-label-medium-size:   var(--type-label-md);
+    --pp-type-label-small-size:    var(--type-label-sm);
+    /* MD-sys colour aliases — overridden by pretzelprep.css */
+    --md-sys-color-surface-container:         var(--color-surface-container);
+    --md-sys-color-surface-container-high:    var(--color-surface-container-high);
+    --md-sys-color-surface-container-highest: var(--color-surface-container-highest);
+    --md-sys-color-primary-container:         var(--color-primary-container);
+    --md-sys-color-on-primary-container:      var(--color-on-primary-container);
+    --md-sys-color-secondary-container:       var(--color-secondary-container);
+    --md-sys-color-on-secondary-container:    var(--color-on-secondary-container);
+    --md-sys-motion-easing-standard:          cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ── § 2  Reset & Base ────────────────────────────────────────────────── */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-on-surface);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+.font-heading {
+    font-family: var(--font-brand);
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+/* ── Page-level utility classes ──────────────────────────────────────────── */
+/* Extracted from repeated inline patterns across shopping, kitchen, add pages */
+
+/* Overline / eyebrow label — tiny uppercase muted text */
+.pp-overline {
+    font-size:      0.7rem;
+    color:          var(--color-on-surface-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+/* Hint / caption — small helper text below a label */
+.pp-hint {
+    display:   block;
+    font-size: 0.75rem;
+    color:     var(--color-on-surface-muted);
+}
+
+/* Flex column — vertical stack with standard gap */
+.pp-flex-col {
+    display:        flex;
+    flex-direction: column;
+    gap:            16px;
+}
+
+/* Section heading — h2 within page content areas
+   Same colour as h1 (--color-on-surface = #EDD09A salt).
+   Hierarchy is created by size (1.4rem vs 2.2rem), not colour.
+   Usage: <h2 className="pp-section-heading">Section Name</h2>
+*/
+.pp-section-heading {
+    font-family:    var(--font-brand);
+    font-size:      1.4rem;
+    font-weight:    700;
+    color:          var(--color-on-surface);
+    letter-spacing: -0.01em;
+    line-height:    1.2;
+    margin:         40px 0 20px;
+}
+
+/* Legal document section heading — smaller h2 variant for impressum, agb, datenschutz.
+   Intentionally smaller than pp-section-heading (1.4rem) due to dense legal subsections.
+   Usage: <h2 className="legal-section-heading">§1 Scope</h2>
+*/
+.legal-section-heading {
+    font-family:   var(--font-brand);
+    font-size:     1.05rem;
+    font-weight:   600;
+    color:         var(--color-on-surface);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--color-hairline);
+}
+
+
+button {
+    cursor: pointer;
+    font-family: var(--font-body);
+    border: none;
+    background: none;
+    color: inherit;
+    outline: none;
+}
+
+/* Keyboard-visible focus ring — indigo glow, never hidden */
+button:focus-visible,
+a:focus-visible,
+[role="checkbox"]:focus-visible,
+[role="button"]:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 4px var(--color-primary-glow);
+    border-radius: 4px;
+}
+
+input {
+    font-family: var(--font-body);
+    /* outline intentionally not set globally — :focus-visible handles focus ring */
+    border: none;
+}
+
+input:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+
+/* ── § 5  Navigation ─────────────────────────────────────────────── */
+#app {
+    width: 100vw;
+    min-height: 100vh;
+    position: relative;
+    padding-top: var(--nav-height);
+}
+
+/* ── § 5 Header ──────────────────────────── */
+.nav-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: var(--z-nav);
+    height: var(--nav-height);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4%;
+    background: rgba(18, 16, 16, 0.85);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--color-hairline);
+    transition: background var(--motion-fast);
+}
+
+.nav-left, .nav-right {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+/* Dropdown Containers */
+.nav-dropdown-trigger {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    height: 36px;
+    padding: 0 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--motion-fast);
+    user-select: none;
+}
+
+.nav-dropdown-trigger:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.nav-dropdown-trigger.active {
+    background: rgba(176, 173, 218, 0.08);
+}
+
+/* The actual menu */
+.nav-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    min-width: 200px;
+    background: var(--color-surface-container);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-md);
+    padding: var(--space-2);
+    box-shadow: var(--shadow-lg);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: all var(--motion-fast);
+    z-index: calc(var(--z-nav) + 1);
+}
+
+.nav-dropdown-menu.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Right Menu specific */
+.nav-dropdown-menu.right {
+    right: 0;
+}
+
+.nav-dropdown-menu.left {
+    left: 0;
+}
+
+.nav-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: var(--radius-xs);
+    text-decoration: none;
+    font-size: var(--type-label-lg);
+    font-weight: 500;
+    color: var(--color-on-surface-muted);
+    transition: all var(--motion-fast);
+    white-space: nowrap;
+}
+
+.nav-menu-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--color-on-surface);
+}
+
+.nav-menu-item.active {
+    color: var(--color-primary);
+    background: var(--color-primary-glow);
+}
+
+.nav-menu-item.danger:hover {
+    background: rgba(229, 62, 62, 0.1);
+    color: #fc8181;
+}
+
+.nav-menu-divider {
+    height: 1px;
+    background: var(--color-hairline);
+    margin: var(--space-1) 0;
+}
+
+/* Section labels inside menus */
+.nav-menu-label {
+    padding: 6px 14px 4px;
+    font-size: var(--type-label-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-on-surface-disabled);
+}
+
+@media (max-width: 600px) {
+    .nav-header {
+        padding: 0 16px;
+    }
+}
+
+/* ── § 6  Gallery & Recipe Grid (legacy base — overridden by M3 section ~§2720) ── */
+
+.gallery-search:focus-within {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 20px rgba(176, 173, 218, 0.1);
+    background-color: rgba(42, 39, 39, 0.6);
+}
+
+.gallery-search input {
+    background: transparent;
+    color: var(--color-on-surface);
+    width: 100%;
+    font-size: 1rem;
+}
+
+.gallery-search input::placeholder {
+    color: var(--color-on-surface-muted);
+}
+
+
+.recipe-card:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-xl);
+    border-color: rgba(176, 173, 218, 0.3);
+}
+
+.recipe-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--motion-standard);
+}
+
+.recipe-card:hover .recipe-card-img {
+    transform: scale(1.05);
+}
+
+.recipe-card-tags {
+    display: flex;
+    gap: 8px;
+}
+
+/* ----------------------------------
+   Recipe Detail — Layout v3 (hero image header)
+   Header: full-width cinematic hero (image + gradient scrim + overlaid text)
+   Panels: left = cooking content (full-width when no description)
+           right = description only (conditional)
+----------------------------------- */
+.recipe-detail-wrapper {
+    max-width:     1200px;
+    margin:        40px auto;
+    background:    var(--color-surface);
+    border:        1px solid var(--color-hairline);
+    border-radius: 20px;
+    box-shadow:    0 20px 40px rgba(0,0,0,0.3);
+    overflow:      hidden;  /* hero image clips to rounded top corners */
+    padding:       0;
+}
+
+/* ── Hero header — full-width image (base / mobile) ── */
+.recipe-hero {
+    position:   relative;
+    width:      100%;
+    height:     45vh;              /* Mobile: taller for immersion */
+    height:     45dvh;
+    flex-shrink: 0;
+    overflow:   hidden;
+    background: var(--color-bg);
+}
+
+/* Recipe hero image fills the hero-block container on desktop */
+@media (min-width: 901px) {
+    .recipe-hero {
+        height: 100%;          /* Desktop: fill the hero-block which is viewport-height */
+    }
+}
+
+
+
+/* Subtle scroll hint at bottom centre of hero */
+.recipe-hero-scroll-hint {
+    position: absolute;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    opacity: 0.5;
+    color: rgba(237, 208, 154, 0.8);
+    font-size: 0.65rem;
+    font-family: var(--font-body, sans-serif);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    animation: scroll-hint-bounce 2.2s ease-in-out infinite;
+    pointer-events: none;
+    user-select: none;
+}
+
+@keyframes scroll-hint-bounce {
+    0%, 100% { transform: translateX(-50%) translateY(0);   opacity: 0.5; }
+    50%       { transform: translateX(-50%) translateY(6px); opacity: 0.8; }
+}
+
+/* Carousel fills the full hero behind everything */
+.recipe-hero-media {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Force carousel children to fill hero and use cover cropping */
+.recipe-hero-media .carousel-container,
+.recipe-hero-media .carousel-slide {
+    position: absolute;  /* descendant selector wins over .carousel-container alone */
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.recipe-hero-media .ken-burns {
+    object-fit: cover;   /* descendant selector wins */
+    object-position: center 0%;
+    width: 100%;
+    height: 100%;
+}
+
+.recipe-hero-media .carousel-container.hero .carousel-slide.active .ken-burns {
+    animation: recipeHeroPan 20s ease-in-out infinite;
+    object-fit: cover !important; /* Force cover to prevent bars during pan */
+}
+
+@keyframes recipeHeroPan {
+    0%   { object-position: center 0%; }
+    50%  { object-position: center 100%; }
+    100% { object-position: center 0%; }
+}
+
+/* Gradient scrim: transparent top → dark bottom */
+.recipe-hero-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    background: linear-gradient(
+        180deg,
+        rgba(8, 18, 12, 0.08) 0%,
+        transparent 15%,
+        transparent 65%,
+        rgba(8, 18, 12, 0.55) 85%,
+        rgba(8, 18, 12, 0.88) 94%,
+        rgba(8, 18, 12, 0.98) 100%
+    );
+}
+
+/* Action buttons — centered on mobile, right-aligned on desktop */
+.recipe-hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    justify-content: center;   /* Mobile: centered */
+}
+
+/* Title + source + modified — underneath image on mobile, overlaid on desktop */
+.recipe-hero-text {
+    position:       relative;
+    padding:        32px 5% 24px;
+    z-index:        2;
+    display:        flex;
+    flex-direction: row;       /* pill + meta + actions share a row */
+    flex-wrap:      wrap;
+    align-items:    center;
+    text-align:     left;
+    gap:            8px 16px;
+    background:     var(--color-bg);
+}
+
+.recipe-hero-text h1 {
+    font-size: clamp(1.5rem, 6vw, 2.8rem);
+    line-height: 1.25;
+    color: var(--color-on-surface);
+    margin: 0;
+    font-weight: 500;
+}
+
+/* ── Hero section: all desktop overrides consolidated ── */
+@media (min-width: 901px) {
+    .recipe-hero-actions {
+        justify-content: flex-end;
+    }
+    .recipe-hero-bottom {
+        flex-direction:  row;
+        align-items:     center;
+        justify-content: flex-start;
+        flex-wrap:       wrap;
+        gap:             8px 16px;
+        width:           100%;
+    }
+    .recipe-hero-text {
+        position: absolute;    /* Desktop: cinematic overlay */
+        bottom: 30px;
+        left: 5%;
+        right: 5%;
+        padding: 0;
+        align-items: flex-start;
+        text-align: left;
+        background: transparent;
+    }
+    .recipe-hero-text h1 {
+        color: #ffffff;
+        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.55);
+    }
+    .recipe-hero-meta {
+        align-items: flex-start;
+    }
+}
+
+
+/* Stack source + updated-by vertically */
+.recipe-hero-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;       /* Mobile: centered */
+    gap: 4px;
+    margin-top: 0;
+}
+
+
+/* Legacy title bar — kept minimal for skeleton loader only */
+.recipe-title-bar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 22px 5% 18px;
+    border-bottom: 1px solid var(--color-hairline);
+    flex-shrink: 0;
+}
+
+.recipe-title-left {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.recipe-title-left h1 {
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    line-height: 1.3;
+    color: var(--color-on-surface);
+    margin: 0;
+}
+
+/* ── Panels container ───────────────────────────────── */
+/* ── LEFT Panel — cooking content ─────────────────── */
+.recipe-left {
+    /* Structure */
+    flex:             1;
+    width:            100%;           /* prevent grid blowout */
+    min-width:        0;
+    overflow:         visible;        /* page scrolls, not this panel */
+    display:          flex;
+    flex-direction:   column;
+    gap:              0;
+    margin-top:       0;
+    /* Spacing — M3 canonical */
+    padding:          32px 32px 40px 40px;
+    /* Visual reset — inherits card surface */
+    background:       transparent;
+    border:           none;
+    border-radius:    0;
+    box-shadow:       none;
+    /* Responsive collapse transition */
+    transition:       flex    0.38s cubic-bezier(0.4, 0, 0.2, 1),
+                      padding 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.recipe-left::-webkit-scrollbar { width: 4px; }
+.recipe-left::-webkit-scrollbar-track { background: transparent; }
+.recipe-left::-webkit-scrollbar-thumb {
+    background: rgba(237, 208, 154, 0.15);
+    border-radius: 2px;
+}
+
+/* ── RIGHT Panel — media only ───────────────────────── */
+.recipe-right {
+    /* Structure — grid track (2fr 1fr) controls width; no fixed width needed */
+    display:        flex;
+    flex-direction: column;
+    align-items:    stretch;      /* nutrition panel fills the full column width */
+    align-self:     start;
+    gap:            20px;
+    /* Sticky sidebar */
+    position:       sticky;
+    top:            calc(var(--nav-height) + 16px);
+    /* Overflow */
+    overflow-y:     auto;
+    overflow-x:     clip;
+    margin-top:     0;
+    box-sizing:     border-box;
+    /* Spacing — left is 0 so card border aligns with triptych divider */
+    padding:        32px 40px 40px 0;
+    /* Column divider — the nutrition card's own border is the visual separator */
+    background:     transparent;
+    border:         none;
+    border-radius:  0;
+    box-shadow:     none;
+    transition:     opacity 0.25s ease,
+                    padding 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Utility bar: Prep·Cook | Serves·Convert ── */
+/* Sits as a direct child of .recipe-detail-wrapper (between hero-block and panels) */
+/* Naturally full-width — no negative margin hack needed */
+.recipe-stat-strip {
+    display:       flex;
+    align-items:   center;
+    gap:           12px;
+    width:         100%;
+    max-width:     100%;              /* prevent inheritance from page containers */
+    flex-shrink:   0;
+    box-sizing:    border-box;
+    font-size:     0.85rem;
+    color:         var(--color-on-surface-muted);
+    /* M3: padding matches panel side padding */
+    padding:       16px 40px;
+    margin:        0;
+    background:    var(--color-surface);
+    border:        none;
+    border-bottom: 1px solid var(--color-hairline);
+    border-radius: 0;
+    box-shadow:    none;
+}
+
+/* Left: unified info group (Prep · Cook · Serves · Convert) */
+.recipe-stat-strip strong {
+    color: var(--color-on-surface);
+    font-weight: 700;          /* bolder for scannability */
+}
+
+.recipe-stat-sep {
+    opacity: 0.3;
+    user-select: none;
+}
+
+/* New Minimalist Controls */
+.recipe-stat-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-on-surface);
+}
+
+.recipe-stat-btn {
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    font-size: 1.1rem;
+    padding: 0 4px;
+    cursor: pointer;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s;
+}
+
+.recipe-stat-btn:hover {
+    opacity: 0.7;
+}
+
+.recipe-stat-link-btn {
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.recipe-stat-link-btn:hover {
+    opacity: 0.7;
+}
+
+
+/* ── Right panel — description text ────────────────── */
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   NUTRITION PANEL
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* ── Summary row ── */
+.nutrition-kcal strong {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    letter-spacing: -0.02em;
+}
+
+.macro-value {
+    font-family: var(--font-brand);
+    font-size:   0.75rem;    /* gram label below bar */
+    font-weight: 500;
+    color:       var(--color-on-surface-muted);
+    line-height: 1;
+    white-space: nowrap;
+    width:       100%;
+    text-align:  left;
+    display:     block;
+}
+
+/* Separator dots between macro pills */
+.macro-pill + .macro-pill::before {
+    content: '·';
+    margin-right: 4px;
+    opacity: 0.3;
+}
+
+.nutrition-per-serving {
+    font-family:    var(--font-body);
+    font-size:      0.75rem;
+    font-weight:    600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color:          var(--color-on-surface-muted);
+    white-space:    nowrap;
+    flex-shrink:    0;
+}
+
+.nutrition-toggle {
+    display:               inline-flex;
+    align-items:           center;
+    gap:                   4px;
+    min-width:             0;
+    flex-shrink:           1;
+    white-space:           nowrap;
+    overflow:              hidden;
+    background:            none;
+    border:                none;
+    color:                 var(--color-primary);
+    font-family:           var(--font-body);
+    font-size:             0.78rem;
+    font-weight:           600;
+    cursor:                pointer;
+    padding:               0;
+    text-decoration:       underline;
+    text-underline-offset: 2px;
+    transition:            color 150ms;
+}
+.nutrition-toggle:hover { opacity: 1; }
+
+/* ── Expandable breakdown ── */
+.nutrition-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+}
+
+.nutrition-table th {
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.45;
+    padding: 4px 8px 8px 0;
+    border-bottom: 1px solid rgba(237, 208, 154, 0.1);
+}
+
+.nutrition-table th:last-child,
+.nutrition-table td:last-child {
+    text-align: right;
+}
+
+.nutrition-table td {
+    padding: 5px 8px 5px 0;
+    border-bottom: 1px solid rgba(237, 208, 154, 0.04);
+    color: var(--color-on-surface);
+    opacity: 0.75;
+}
+
+.nutrition-row--skipped td {
+    opacity: 0.35;
+    font-style: italic;
+}
+
+.nutrition-grams {
+    font-size: 0.75rem;
+    opacity: 0.5;
+    white-space: nowrap;
+}
+
+.nutrition-unknown {
+    opacity: 0.3;
+    font-weight: 400;
+}
+
+
+/* ── USDA match sub-label ── */
+/* ── Confidence badge (H / M / L) ── */
+/* ── kcal/100g column ── */
+.nutrition-th-100g {
+    text-align: right;
+}
+
+.nutrition-100g-cell {
+    text-align: right;
+    font-size: 0.75rem;
+    opacity: 0.45;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ── kcal total column ── */
+.nutrition-th-kcal {
+    text-align: right;
+}
+
+.nutrition-kcal-cell {
+    font-weight: 600;
+    text-align: right;
+}
+
+.nutrition-row--low-confidence td {
+    opacity: 0.75;
+    font-style: italic;
+}
+
+.nutrition-total-row td {
+    padding-top: 10px;
+    border-top: 1px solid rgba(237, 208, 154, 0.15);
+    border-bottom: none;
+    font-weight: 700;
+    color: var(--color-primary);
+    opacity: 1;
+}
+
+/* ── Flag bad match button ── */
+.nutrition-th-flag {
+    width: 24px;
+    text-align: right;
+}
+
+.nutrition-flag-cell {
+    width: 24px;
+    text-align: right;
+    padding-left: 4px;
+}
+
+.nutrition-row:hover .nutrition-flag-btn {
+    opacity: 0.6;
+}
+
+.nutrition-row:hover .nutrition-flag-btn:hover,
+.nutrition-flag-btn:hover {
+    opacity: 1;    /* 4-class selector beats 3-class parent hover */
+}
+
+.nutrition-flag-btn:disabled {
+    cursor: default;
+    opacity: 0.4;
+}
+
+
+/* ----------------------------------
+   Cooking Mode View (legacy — kept for compatibility)
+----------------------------------- */
+/* Scrollbar styling for the recipe side */
+/* Cap readable line length */
+.cooking-header {
+    margin-bottom: 40px;
+}
+
+.cooking-reference {
+    color: var(--color-primary);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.cooking-title {
+    font-size: 4rem;
+    margin-bottom: 15px;
+}
+
+.cooking-meta-row {
+    display: flex;
+    gap: 25px;
+    color: var(--color-on-surface-muted);
+    font-size: 1.1rem;
+    border-bottom: 1px solid var(--color-hairline);
+    padding-bottom: 25px;
+}
+
+/* Ingredients */
+
+.checkbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--color-hairline);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--motion-standard);
+}
+
+
+/* Steps */
+.steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+
+.step-card:hover {
+    border-color: rgba(237, 208, 154, 0.3);
+}
+
+/* Step States */
+.step-card.active {
+    background-color: rgba(46, 62, 56, 1);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 20px var(--color-primary-glow);
+    transform: scale(1.02);
+}
+
+.step-card.active .step-text {
+    color: #ffffff;
+    /* Brighter when active */
+}
+
+.step-card.completed {
+    opacity: 0.5;
+    background-color: transparent;
+    border-color: transparent;
+}
+
+.step-card.completed .step-number {
+    color: var(--color-on-surface-muted);
+}
+
+.step-card.completed .step-text {
+    text-decoration: line-through;
+}
+
+
+.timer-widget {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    width: 140px;
+    height: 140px;
+    border-radius: 24px;
+    background: rgba(46, 62, 56, 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--color-glass-border);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px inset rgba(255, 255, 255, 0.1);
+    transition: all var(--motion-standard);
+    cursor: pointer;
+    z-index: 100;
+}
+
+.timer-widget:hover {
+    transform: translateY(-5px);
+    border-color: var(--color-primary);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6), 0 0 20px var(--color-primary-glow);
+}
+
+.timer-ring {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    border-radius: 50%;
+    border: 4px solid rgba(176, 173, 218, 0.2);
+    border-top-color: var(--color-primary);
+    /* Fake animation for visual effect */
+    animation: pulse 4s infinite linear;
+}
+
+.timer-time {
+    font-size: 2.2rem;
+    font-family: var(--font-body);
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    color: #fff;
+    z-index: 2;
+}
+
+.timer-label {
+    font-size: 0.75rem;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 5px;
+    z-index: 2;
+}
+
+@keyframes pulse {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Utilities */
+.hidden {
+    display: none !important;
+}
+
+/* Empty state for recipe library */
+/* Toast notification */
+.toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(0);
+    background: var(--color-surface);
+    border: 1px solid var(--color-primary);
+    color: var(--color-on-surface);
+    padding: 14px 28px;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 500;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 16px var(--color-primary-glow);
+    z-index: 1000;
+    animation: toast-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes toast-in {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.highlight {
+    color: var(--color-primary);
+    display: inline-block;
+    cursor: pointer;
+    border-bottom: 1px dashed var(--color-primary);
+}
+
+/* --- Add Recipe Styles --- */
+.form-container {
+    max-width:     1200px;   /* updated to match .pp-page-card / .home-wrapper */
+    margin:        40px auto;
+    background:    var(--color-surface);
+    padding:       40px;
+    border-radius: 20px;
+    border:        1px solid var(--color-hairline);
+    box-shadow:    0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.form-control {
+    width: 100%;
+    background: rgba(18, 16, 16, 0.5);
+    border: 1px solid var(--color-hairline);
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: var(--color-on-surface);
+    font-size: 1.1rem;
+    transition: border-color var(--motion-standard);
+}
+
+.form-control:focus {
+    border-color: var(--color-primary);
+    background: rgba(18, 16, 16, 0.8);
+    outline: none;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.dynamic-list {
+    margin-bottom: 30px;
+}
+
+.btn-add {
+    background: transparent;
+    color: var(--color-primary);
+    border: 1px dashed var(--color-primary);
+    padding: 10px 20px;
+    border-radius: 8px;
+    margin-top: 5px;
+    cursor: pointer;
+    transition: background var(--motion-standard);
+}
+
+.btn-add:hover {
+    background: var(--color-primary-glow);
+}
+
+.btn-submit {
+    background: var(--color-primary);
+    color: var(--color-bg);
+    border: none;
+    padding: 16px 32px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border-radius: 30px;
+    width: 100%;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: transform var(--motion-bounce), box-shadow var(--motion-standard);
+}
+
+.btn-submit:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(176, 173, 218, 0.3);
+}
+
+.btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Form List Actions */
+.ingredient-edit-row,
+.ingredient-edit-row {
+    grid-template-columns: min-content 110px 110px 1.4fr 1fr min-content;
+}
+
+.ingredient-edit-row.is-section {
+    grid-template-columns: min-content 1fr min-content;
+    background: transparent;
+    border: none;
+    padding: 0;
+    gap: 15px;
+}
+
+.ingredient-edit-row.is-section>div:nth-child(2) {
+    grid-column: 2 / 3;
+}
+
+.step-edit-row {
+    grid-template-columns: min-content 1fr min-content;
+    align-items: flex-start;
+    display: grid;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 8px;
+    border-radius: 12px;
+    border: 1px solid var(--color-hairline);
+    transition: all var(--motion-expressive);
+}
+
+.ingredient-edit-row:hover,
+.step-edit-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(237, 208, 154, 0.2);
+}
+
+
+.remove-btn {
+    color: var(--color-primary);
+    opacity: 0.5;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    border-radius: 50%;
+}
+
+.remove-btn:hover {
+    opacity: 1;
+    background: rgba(229, 62, 62, 0.1);
+    color: #fc8181;
+}
+
+.remove-btn.v-centered {
+    margin-top: 8px;
+}
+
+/* ingredient-edit-row mobile layout — see ≤600px block below */
+
+/* ── Ingredient row — 2-row mobile layout ────────────────────────────────
+   At ≤600px the 6 columns won't fit. Switches to:
+     Row 1:  [⠿] [qty] [unit] [name ............] [×]
+     Row 2:       [Prep ...........................]
+   Section rows (.is-section) keep their own 3-column grid (handle|name|×).
+────────────────────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+    .ingredient-edit-row:not(.is-section) {
+        grid-template-columns: 32px 68px 68px 1fr 32px;
+        grid-template-rows:    auto auto;
+        grid-template-areas:
+            "handle qty  unit  name  remove"
+            ".      prep prep  prep  prep";
+        gap: 6px;
+    }
+
+    /* Assign each direct child to its named area */
+    .ingredient-edit-row:not(.is-section) > *:nth-child(1) { /* drag handle */
+        grid-area: handle;
+        align-self: center;
+    }
+    .ingredient-edit-row:not(.is-section) > *:nth-child(2) { /* qty */
+        grid-area: qty;
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+    .ingredient-edit-row:not(.is-section) > *:nth-child(3) { /* unit */
+        grid-area: unit;
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+    .ingredient-edit-row:not(.is-section) > *:nth-child(4) { /* ingredient name */
+        grid-area: name;
+    }
+    .ingredient-edit-row:not(.is-section) > *:nth-child(5) { /* prep */
+        grid-area: prep;
+        font-size: 0.9rem;
+    }
+    .ingredient-edit-row:not(.is-section) > *:nth-child(6) { /* remove × */
+        grid-area: remove;
+        align-self: center;
+    }
+}
+
+/* Scanner Styles */
+.scanner-panel {
+    background: rgba(176, 173, 218, 0.05);
+    border: 1px dashed var(--color-primary);
+    border-radius: 12px;
+    padding: 25px;
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.btn-scan {
+    background: transparent;
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all var(--motion-standard);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-scan:hover {
+    background: var(--color-primary);
+    color: var(--color-bg);
+}
+
+.loader-text {
+    display: none;
+    color: var(--color-primary);
+    font-size: 1.1rem;
+    margin-top: 15px;
+}
+
+.pulse-anim {
+    animation: pulse-glow 1.5s infinite alternate;
+}
+
+@keyframes pulse-glow {
+    from {
+        opacity: 0.6;
+        text-shadow: 0 0 5px var(--color-primary-glow);
+    }
+
+    to {
+        opacity: 1;
+        text-shadow: 0 0 15px var(--color-primary);
+    }
+}
+
+/* Skeleton shimmer for loading states */
+@keyframes skeleton-shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.highlight:hover {
+    background: var(--color-primary-glow);
+}
+
+/* ==========================================
+   MOBILE RESPONSIVE — Mobile-First Additions
+   Breakpoints: 768px (tablet), 480px (phone)
+   ========================================== */
+
+/* iOS: prevent zoom on input focus (font-size must be ≥ 16px) */
+@supports (-webkit-touch-callout: none) {
+
+    input,
+    textarea,
+    select {
+        font-size: 16px;
+    }
+}
+
+/* Touch target minimum — all interactive elements */
+button,
+a,
+[role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+/* ---- Tablet & Mobile (≤ 768px) ---- */
+@media (max-width: 768px) {
+
+    /* Gallery page */
+    .view-gallery {
+        padding: 20px 4%;
+    }
+
+    .gallery-search {
+        width: 100%;
+    }
+
+    .btn-add-recipe {
+        width: 100%;
+        text-align: center;
+        padding: 12px 20px;
+    }
+
+    .recipe-grid {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 16px;
+    }
+
+    /* Cooking view — stack vertically */
+    .cooking-title {
+        font-size: 2.2rem;
+    }
+
+    .cooking-meta-row {
+        flex-wrap: wrap;
+        gap: 12px;
+        font-size: 0.95rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        margin: 28px 0 16px;
+    }
+
+    .step-card {
+        padding: 18px 20px;
+    }
+
+    .step-text {
+        font-size: 1rem;
+    }
+
+    /* Timer — move to bottom center on mobile */
+    .timer-widget {
+        right: 50%;
+        transform: translateX(50%);
+        bottom: 16px;
+        width: 120px;
+        height: 120px;
+    }
+
+    .timer-widget:hover {
+        transform: translateX(50%) translateY(-3px);
+    }
+
+    .timer-time {
+        font-size: 1.8rem;
+    }
+
+    /* Add / Edit form */
+    .form-container {
+        padding: 24px 20px;
+        margin: 0;
+        border-radius: 12px;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    /* Ingredient rows — 2-column grid on mobile */
+    .ingredient-row-mobile {
+        display: grid;
+        grid-template-columns: 70px 90px 1fr;
+        gap: 6px;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    /* Scanner panel */
+    .scanner-panel {
+        padding: 18px;
+    }
+
+    .btn-scan {
+        width: 100%;
+        justify-content: center;
+        padding: 14px 20px;
+    }
+
+    /* Submit button area */
+    .btn-submit {
+        font-size: 1rem;
+        padding: 14px 24px;
+    }
+}
+
+/* ---- Small Phones (≤ 480px) ---- */
+@media (max-width: 480px) {
+
+    .recipe-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .recipe-card-img-wrapper {
+        height: 180px;
+    }
+
+    .cooking-title {
+        font-size: 1.8rem;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+    }
+
+    .form-container {
+        padding: 18px 14px;
+    }
+
+    .tag {
+        padding: 6px 10px;
+        /* Ensure 44px touch area with surrounding space */
+    }
+
+    /* Reduce prep field width on very small screens */
+    /* ingredient-edit-row — display:flex removed; handled by grid-areas block */
+
+    .ingredient-edit-row:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .ingredient-edit-row.is-section {
+        background: rgba(176, 173, 218, 0.05);
+        border-left: 4px solid var(--color-primary);
+    }
+
+    .remove-btn {
+        background: none;
+        border: none;
+        color: #fc8181;
+        opacity: 0.6;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+    .remove-btn:hover {
+        opacity: 1;
+    }
+
+    .btn-add {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: var(--color-on-surface);
+        padding: 12px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+
+    .btn-add:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: var(--color-primary);
+    }
+
+    /* --- 🎠 IMAGE CAROUSEL SYSTEM (v9.4) --- */
+
+    .carousel-container {
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        height: 100%;
+        background-color: var(--color-bg);
+    }
+
+    .carousel-slide {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        transition: opacity 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+        z-index: 1;
+    }
+
+    .carousel-slide.active {
+        opacity: 1;
+        z-index: 2;
+    }
+
+    /* Ken Burns: cinematic editorial pan & zoom */
+    .ken-burns {
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* Full-Frame visibility, no cropping */
+        object-position: center center;
+        background-color: var(--color-bg); /* Matches the app theme */
+        transform-origin: center;
+        animation: none;
+    }
+
+    /* Hero (recipe detail): show the FULL portrait photo, no cropping */
+    .carousel-container.hero .ken-burns {
+        object-fit: contain;
+        object-position: center center;
+        background-color: var(--color-bg);
+    }
+
+    /* Hero Detail: Still retain cinematic movement */
+    .carousel-container.hero .carousel-slide.active .ken-burns {
+        animation: kenBurnsAnimation 10s linear infinite;
+        object-fit: contain;
+        object-position: center center;
+    }
+
+    /* Cards (Gallery): No animation for stable editorial feel */
+    .carousel-container.card .ken-burns {
+        animation: none;
+        object-fit: contain;
+        object-position: center center;
+        background-color: var(--color-bg);
+    }
+
+    /* Gentler Ken Burns for contained images (no zoom past the frame) */
+    .carousel-container.hero .carousel-slide.active .ken-burns {
+        animation: kenBurnsContainAnimation 12s linear infinite;
+    }
+
+    @keyframes kenBurnsAnimation {
+        0%   { transform: scale(1)    translateX(-2%); }
+        50%  { transform: scale(1.05) translateX(1%); }
+        100% { transform: scale(1)    translateX(-2%); }
+    }
+
+    @keyframes kenBurnsContainAnimation {
+        0%   { transform: scale(1)    translateY(0%); }
+        50%  { transform: scale(1.04) translateY(-2%); }
+        100% { transform: scale(1)    translateY(0%); }
+    }
+
+    /* Overlays & Accents */
+    .hero-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 60%;
+        background: linear-gradient(to top, rgba(18, 16, 16, 0.95) 0%, transparent 100%);
+        pointer-events: none;
+        z-index: 3;
+    }
+
+    /* Navigation Controls */
+    .carousel-controls {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 4;
+        pointer-events: none;
+    }
+
+    .carousel-nav-btn {
+        pointer-events: auto;
+        padding: 20px;
+        background: transparent;
+        border: none;
+        color: white;
+        opacity: 0;
+        cursor: pointer;
+        transition: opacity 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .carousel-container:hover .carousel-nav-btn {
+        opacity: 0.6;
+    }
+
+    .carousel-nav-btn:hover {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+
+    /* Indicators (Dots) */
+    .carousel-dots {
+        position: absolute;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 10px;
+        z-index: 5;
+    }
+
+    .carousel-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(237, 208, 154, 0.3);
+        border: 1px solid rgba(237, 208, 154, 0.1);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .carousel-dot.active {
+        background: var(--color-primary);
+        width: 24px;
+        border-radius: 4px;
+        box-shadow: 0 0 10px var(--color-primary-glow);
+    }
+
+    /* Placeholder State */
+    .carousel-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        background: var(--color-surface);
+        gap: 16px;
+        padding: 40px;
+        text-align: center;
+    }
+
+    .carousel-placeholder h3 {
+        font-family: var(--font-brand);
+        font-size: 1.5rem;
+        color: var(--color-on-surface);
+        opacity: 0.8;
+    }
+
+    /* Respect Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+        .carousel-slide.active .ken-burns {
+            animation: none !important;
+            transform: none !important;
+        }
+        .carousel-slide {
+            transition: none !important;
+        }
+    }
+}
+/* ----------------------------------
+   Print Optimization (@media print)
+----------------------------------- */
+@media print {
+    :root {
+        --color-bg:          #ffffff;
+        --color-on-surface:  #000000;
+        --color-surface:     #ffffff;
+        --color-hairline:    #eeeeee;
+        --color-primary:     #000000;
+    }
+
+    body {
+        background: white;
+        color: black;
+        font-size: 11pt;
+    }
+
+    /* Hide UI Elements */
+    .timer-widget,
+    .toast,
+    .btn-scan,
+    footer,
+    .carousel-controls,
+    .carousel-dots,
+    .recipe-notes form,
+    .btn-add,
+    .auth-status-container,
+    nav,
+    aside,
+    .recipe-hero-block,
+    .nav-header {
+        display: none !important;
+    }
+
+    /* Show stat strip in print but strip interactivity */
+    .recipe-stat-strip {
+        background: none;
+        border: none;
+        border-bottom: 1px solid #ccc;
+        padding: 6pt 0;
+    }
+    .recipe-stat-btn,
+    .recipe-stat-link-btn {
+        display: none !important;
+    }
+    .recipe-stat-controls strong {
+        margin: 0 4pt;
+    }
+
+    /* Expand Content */
+    .cooking-title {
+        font-size: 28pt;
+        margin-top: 20pt;
+        color: black;
+    }
+
+    .section-title {
+        font-size: 18pt;
+        margin-top: 20pt;
+        border-bottom: 2px solid #000;
+        padding-bottom: 5pt;
+    }
+
+    .step-card {
+        page-break-inside: avoid;
+        background: white;
+        border: 1px solid #ddd;
+        box-shadow: none;
+        margin-bottom: 10pt;
+    }
+
+    .ingredient-item {
+        border-bottom: 1px solid #eee;
+    }
+
+    .checkbox {
+        display: none !important; /* Don't print checkboxes */
+    }
+
+    /* Standardized Recipe Card Layout */
+    .cooking-meta-row {
+        margin-bottom: 20pt;
+        border-top: 1px solid #000;
+        padding-top: 10pt;
+    }
+
+    /* Recipe detail — collapse panels to single column, add title back */
+    .recipe-detail-wrapper {
+        padding-top: 0;
+    }
+
+    .recipe-panels {
+        display: block !important;
+    }
+
+    .recipe-left,
+    .recipe-right {
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible;
+        padding: 0;
+    }
+
+    /* Print title at top since the hero is hidden */
+    .recipe-detail-wrapper::before {
+        content: attr(data-title);
+        display: block;
+        font-size: 24pt;
+        font-weight: bold;
+        margin-bottom: 12pt;
+        color: black;
+        font-family: Georgia, serif;
+    }
+
+    /* Ensure text is black */
+    p, span, h1, h2, h3, li, strong {
+        color: black;
+    }
+}
+
+/* ----------------------------------
+   Recipe Detail — Responsive (Mobile/Tablet) v3
+----------------------------------- */
+
+/* Tablet */
+@media (max-width: 900px) {
+    .recipe-detail-wrapper {
+        height: auto;
+        min-height: 100vh;
+        overflow: auto;
+    }
+
+    .recipe-hero {
+        height: 55vh;  /* tablet: slightly taller than half, content peeks below */
+    }
+
+    .recipe-hero-text h1 {
+        font-size: clamp(1.4rem, 5vw, 2rem);
+    }
+
+    .recipe-hero-actions {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+
+    .recipe-panels {
+        flex-direction: column;
+        overflow: visible;
+    }
+
+    .recipe-left {
+        width: 100%;
+        border-right: none;
+        padding: 20px 5% 40px;
+    }
+
+    .recipe-right {
+        width: 100%;
+        padding: 16px 5% 20px;
+    }
+
+    .recipe-right.collapsed {
+        width: 100%;
+        height: 0;
+        padding: 0;
+    }
+}
+
+/* Phone */
+@media (max-width: 480px) {
+    .recipe-hero {
+        height: 45vh;  /* phones: less hero, more content immediately visible */
+    }
+
+    .recipe-hero-text h1 {
+        font-size: 1.35rem;
+    }
+
+    .recipe-stat-strip {
+        font-size: 0.78rem;
+        gap: 4px;
+    }
+}
+
+
+/* ── PRETZEL PREP — M3 GALLERY & CARD OVERRIDES  (appended 2026-04-09) ── */
+
+/* ── Global view wrapper ─────────────────────────────────────────────── */
+.view-gallery {
+    padding: 32px var(--pp-content-padding, 32px);
+    max-width: var(--pp-content-max, 1320px);
+    margin: 0 auto;
+}
+
+/* ── Gallery header ──────────────────────────────────────────────────── */
+/* Display title: Poppins, wheat colour */
+/* View subtitle — rendered below the main title */
+/* ── Search bar ──────────────────────────────────────────────────────── */
+.gallery-search {
+    display:      flex;
+    align-items:  center;
+    background: var(--md-sys-color-surface-container-high, #323030);
+    border: 1px solid transparent;
+    border-radius: var(--radius-pill);
+    padding: 0 20px;
+    height: 48px;
+    gap: 10px;
+    transition:
+        border-color var(--motion-fast),
+        background   var(--motion-fast);
+    box-shadow: none;
+}
+
+.gallery-search:focus-within {
+    border-color: var(--color-primary);
+    background: var(--md-sys-color-surface-container-highest, #3A3737);
+    box-shadow: 0 0 0 1px var(--color-primary);
+}
+
+.gallery-search input {
+    font-family: var(--font-body);
+    font-size: var(--pp-type-body-large-size, 1rem);
+    color: var(--color-on-surface);
+    background: transparent;
+    border: none;
+    outline: none;
+}
+
+.gallery-search input::placeholder {
+    color: var(--color-on-surface-disabled);
+    font-style: normal;
+}
+
+/* ── Gallery actions row ─────────────────────────────────────────────── */
+/* Add recipe button (kept for the header version + used as template) */
+.btn-add-recipe {
+    background: var(--md-sys-color-primary-container, #2A2749);
+    color:      var(--md-sys-color-on-primary-container, #D4D2ED);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-brand);
+    font-size:   var(--pp-type-label-large-size, 0.875rem);
+    font-weight: 600;
+    letter-spacing: 0.007em;
+    padding: 10px 22px;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    transition:
+        background  var(--motion-fast),
+        transform   var(--motion-fast),
+        box-shadow  var(--motion-fast);
+    box-shadow: none;
+}
+
+.btn-add-recipe:hover {
+    background: var(--pp-primary-40, #3D366A);
+    color:      var(--pp-primary-90, #D4D2ED);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+    filter: none;
+    text-decoration: none;
+}
+
+/* ── Recipe grid ─────────────────────────────────────────────────────── */
+.recipe-grid {
+    gap: var(--pp-grid-gap, 24px);
+    grid-template-columns: repeat(auto-fill, minmax(var(--pp-card-min-w, 280px), 1fr));
+    display: grid;
+}
+
+/* ── Recipe card — M3 surface container ─────────────────────────────── */
+.recipe-card {
+    position:      relative;
+    cursor:        pointer;
+    overflow:      hidden;
+    background:    var(--pp-surface-card, #2A2727);
+    border-radius: var(--radius-lg);
+    border:        1px solid var(--color-hairline);
+    box-shadow:    none;
+    transition:
+        transform    var(--motion-fast) var(--md-sys-motion-easing-standard, cubic-bezier(0.2,0,0,1)),
+        box-shadow   var(--motion-fast) var(--md-sys-motion-easing-standard, cubic-bezier(0.2,0,0,1)),
+        border-color var(--motion-fast);
+}
+
+.recipe-card:hover {
+    transform:    translateY(-6px);
+    box-shadow:   var(--shadow-md);
+    border-color: rgba(176, 173, 218, 0.30); /* primary/80 at 30% */
+}
+
+/* Image wrapper: fixed height, cover crop */
+.recipe-card-img-wrapper {
+    height: 220px;
+    overflow: hidden;
+    border-radius: 0;
+    position: relative;
+    background: var(--md-sys-color-surface-container-highest, #3A3737);
+    width: 100%;
+}
+
+/* Content area */
+.recipe-card-content {
+    padding: 18px 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Card title: Poppins semibold, wheat */
+.recipe-card-title {
+    font-family: var(--font-brand);
+    font-size:   var(--pp-type-title-large-size, 1.375rem);
+    font-weight: 600;
+    color:       var(--color-on-surface);
+    line-height: 1.25;
+    margin:      0;
+    font-style:  normal;
+
+    /* Clamp to 2 lines */
+    display:            -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp:         2;
+    -webkit-box-orient: vertical;
+    overflow:           hidden;
+    margin-bottom: 8px;
+}
+
+/* Card meta row: Nunito, muted wheat/mauve */
+.recipe-card-meta {
+    font-family: var(--font-body);
+    font-size:   var(--pp-type-body-small-size, 0.75rem);
+    color:       var(--color-on-surface-muted);
+    gap:         14px;
+    margin:      0;
+    flex-wrap:   wrap;
+    display: flex;
+    margin-bottom: 15px;
+}
+
+/* Tags: M3 secondary chip — burgundy container */
+.tag {
+    background:     var(--md-sys-color-secondary-container, #481E20);
+    color:          var(--md-sys-color-on-secondary-container, #E5B8BA);
+    border-radius:  var(--radius-xs);
+    padding:        3px 10px;
+    font-family:    var(--font-body);
+    font-size:      var(--pp-type-label-small-size, 0.6875rem);
+    font-weight:    600;
+    letter-spacing: 0.04em;
+    text-transform: none;
+    border:         none;
+    display:        inline-block;
+    background-color: var(--color-bg);
+}
+
+/* ── Skeleton loading ────────────────────────────────────────────────── */
+@keyframes pp-shimmer {
+    0%   { background-position: -800px 0; }
+    100% { background-position:  800px 0; }
+}
+
+.skeleton-card {
+    background:    var(--md-sys-color-surface-container, #2A2727);
+    border-radius: var(--radius-lg);
+    border:        1px solid var(--color-hairline);
+    overflow:      hidden;
+}
+
+.skeleton-block {
+    background: linear-gradient(
+        90deg,
+        var(--md-sys-color-surface-container,      #2A2727) 0%,
+        var(--md-sys-color-surface-container-high, #323030) 50%,
+        var(--md-sys-color-surface-container,      #2A2727) 100%
+    );
+    background-size: 800px 100%;
+    animation: pp-shimmer 1.6s infinite linear;
+    border-radius: var(--radius-sm);
+}
+
+/* ── Empty state ─────────────────────────────────────────────────────── */
+.empty-state {
+    grid-column: 1 / -1;
+    padding: 80px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.empty-state-icon {
+    margin-bottom: 16px;
+    opacity: 0.6;
+    font-size: 4rem;
+}
+
+.empty-state-title {
+    font-family:   var(--font-brand);
+    font-size:     1.4rem;
+    font-weight:   700;
+    color:         var(--color-on-surface);
+    margin-bottom: 8px;
+}
+
+.empty-state-text {
+    font-family: var(--font-body);
+    font-size:   var(--pp-type-body-medium-size, 0.875rem);
+    color:       var(--color-on-surface-muted);
+    max-width:   400px;
+    margin:      0 auto 24px;
+    line-height: 1.7;
+}
+
+/* ── Unauthenticated join banner ─────────────────────────────────────── */
+
+/* ── PRETZEL PREP — AUTH PAGES  (login / signup / confirmation) ── */
+
+/* ── Page shell ──────────────────────────────────────────────────────── */
+.pp-auth-page {
+    display: flex;
+    min-height: 100vh;
+    background: var(--md-sys-color-background, #2E2B2B);
+}
+
+/* ── Left decorative panel ───────────────────────────────────────────── */
+/* ── Auth page: left decorative panel ────────────────────────────── */
+.pp-auth-left {
+    flex:            0 0 52%;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    position:        relative;
+    overflow:        hidden;
+    border-right:    1px solid rgba(176, 173, 218, 0.15);   /* indigo hairline */
+    background: linear-gradient(
+        160deg,
+        var(--pp-neutral-20,  #322F2F) 0%,
+        var(--pp-primary-20,  #1B1930) 60%,
+        var(--pp-secondary-20, #2E1315) 100%
+    ) !important; /* M3 gradient — !important guards against body bg inheritance */
+    padding:         64px 56px;
+}
+
+
+/* Decorative large pretzel — background element */
+.pp-auth-left::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 60% 60% at 30% 70%, rgba(77,67,120,0.25) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 70% 30%, rgba(107,46,48,0.20) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+/* Logo row */
+.pp-auth-left__logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 48px;
+}
+
+/* Headline */
+/* Feature list */
+.pp-auth-left__features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+}
+
+.pp-auth-left__features li {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: var(--color-on-surface-muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1.4;
+}
+
+/* ── Right form panel ────────────────────────────────────────────────── */
+.pp-auth-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 32px;
+    background: var(--md-sys-color-background, #2E2B2B);
+}
+
+/* Form card */
+.pp-auth-card {
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Mobile-only logo (hidden on desktop — left panel shows brand) */
+.pp-auth-card__logo {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 32px;
+}
+
+.pp-auth-card__logo-name {
+    font-family: var(--font-brand);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-on-surface);
+    letter-spacing: -0.01em;
+}
+
+/* Title */
+.pp-auth-card__title {
+    font-family: var(--font-brand);
+    font-size: clamp(1.75rem, 3vw, 2.2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: var(--color-on-surface);
+    margin-bottom: 8px;
+}
+
+/* Subtitle */
+.pp-auth-card__subtitle {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    color: var(--color-on-surface-muted);
+    margin-bottom: 32px;
+    line-height: 1.5;
+}
+
+/* ── Form ────────────────────────────────────────────────────────────── */
+.pp-auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Field wrapper */
+.pp-auth-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Field label */
+.pp-auth-label {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-on-surface-muted);
+}
+
+/* Input */
+.pp-auth-input {
+    width: 100%;
+    padding: 13px 16px;
+    background: var(--md-sys-color-surface-container-high, #323030);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-sm);
+    color: var(--color-on-surface);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    outline: none;
+    transition:
+        border-color 200ms cubic-bezier(0.2,0,0,1),
+        box-shadow   200ms cubic-bezier(0.2,0,0,1),
+        background   200ms;
+    caret-color: var(--color-primary);
+}
+
+.pp-auth-input::placeholder {
+    color: var(--pp-salt-faint, rgba(237,208,154,0.4));
+    font-style: normal;
+}
+
+.pp-auth-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(176,173,218,0.18);
+    background: var(--md-sys-color-surface-container-highest, #3A3737);
+}
+
+/* Password row (label + forgot-password link on same line) */
+.pp-auth-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pp-auth-forgot {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    color: var(--color-on-surface-muted);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 150ms;
+}
+
+.pp-auth-forgot:hover {
+    color: var(--color-primary);
+}
+
+/* Submit button */
+.pp-auth-submit {
+    margin-top: 8px;
+    padding: 14px 24px;
+    border-radius: var(--radius-pill);
+    border: none;
+    background: var(--md-sys-color-primary-container, #2A2749);
+    color:      var(--md-sys-color-on-primary-container, #D4D2ED);
+    font-family: var(--font-brand);
+    font-size:   0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    width: 100%;
+    transition:
+        background 200ms,
+        transform  200ms,
+        box-shadow 200ms;
+}
+
+.pp-auth-submit:hover {
+    background: var(--pp-primary-40, #3D366A);
+    color:      var(--pp-primary-90, #D4D2ED);
+    transform:  translateY(-2px);
+    box-shadow: 0 4px 16px rgba(77,67,120,0.4);
+}
+
+.pp-auth-submit:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+/* ── Banners ─────────────────────────────────────────────────────────── */
+.pp-auth-banner {
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.pp-auth-banner--success {
+    background: rgba(0, 200, 150, 0.10);
+    border:     1px solid rgba(0, 200, 150, 0.30);
+    color:      rgba(0, 200, 150, 0.95);
+}
+
+.pp-auth-banner--error {
+    background: var(--md-sys-color-error-container, #93000A);
+    border:     1px solid rgba(255, 180, 171, 0.25);
+    color:      var(--md-sys-color-on-error-container, #FFDAD6);
+}
+
+.pp-auth-banner__title {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+/* ── Toggle (sign in ↔ sign up) ──────────────────────────────────────── */
+.pp-auth-toggle {
+    margin-top: 28px;
+    text-align: center;
+    font-family: var(--font-body);
+    font-size: 0.875rem;
+    color: var(--color-on-surface-muted);
+}
+
+.pp-auth-toggle button {
+    background: none;
+    border:     none;
+    color:      var(--color-primary);
+    font-family: inherit;
+    font-size:  inherit;
+    font-weight: 700;
+    margin-left: 6px;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 150ms;
+}
+
+.pp-auth-toggle button:hover {
+    color: var(--pp-primary-90, #D4D2ED);
+}
+
+/* ── Confirmation / pending state card ───────────────────────────────── */
+.pp-auth-confirm-card {
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    padding: 48px 40px;
+    background: var(--md-sys-color-surface-container, #2A2727);
+    border:  1px solid var(--color-hairline);
+    border-radius: var(--radius-xl);
+}
+
+.pp-auth-confirm-card__icon {
+    font-size: 3.5rem;
+    margin-bottom: 16px;
+    line-height: 1;
+}
+
+.pp-auth-confirm-card__title {
+    font-family: var(--font-brand);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--color-on-surface);
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+}
+
+.pp-auth-confirm-card__body {
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    color: var(--color-on-surface-muted);
+    line-height: 1.7;
+    margin-bottom: 28px;
+}
+
+.pp-auth-confirm-card__hint {
+    padding: 14px 16px;
+    background: var(--md-sys-color-surface-container-high, #323030);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    color: var(--color-on-surface-muted);
+}
+
+.pp-auth-confirm-card__hint a,
+.pp-auth-confirm-card__hint button {
+    background: none;
+    border: none;
+    color: var(--color-primary);
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    padding: 0;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .pp-auth-left {
+        display: none;   /* hide decorative panel — show form only on mobile */
+    }
+
+    .pp-auth-right {
+        padding: 40px 24px;
+    }
+
+    .pp-auth-card__logo {
+        display: flex;   /* show mobile logo when left panel is hidden */
+    }
+
+    .pp-auth-page {
+        flex-direction: column;
+    }
+}
+
+
+/* ── PRETZEL PREP — RECIPE DETAIL  (appended 2026-04-09) ── */
+
+/* ── Hero: title overlay ─────────────────────────────────────────────── */
+.recipe-hero-text h1 {
+    font-family: var(--font-brand);
+    font-size:   clamp(2rem, 5vw, 3.4rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height:  1.1;
+    color:        var(--color-on-surface);
+    font-style:   normal;
+    text-shadow:  0 2px 24px rgba(0,0,0,0.55);
+    margin:       0;
+}
+
+/* Time + servings pill badge — sits below the title in the hero */
+/* Source / actions bottom-of-hero row */
+.recipe-hero-actions button,
+.recipe-hero-actions a {
+    font-family: var(--font-body);
+    font-size:   0.75rem;
+    font-weight: 600;
+}
+
+/* ── Stat strip: triptych layout ─────────────────────────────────────── */
+
+
+/* Triptych grid — 3 equal columns */
+.recipe-stat-cell:last-child {
+    border-right: none;
+}
+
+.recipe-stat-cell__value {
+    font-family: var(--font-brand);
+    font-size:   1.2rem;
+    font-weight: 700;
+    color:       var(--color-on-surface);
+    line-height: 1;
+}
+
+.recipe-stat-cell__label {
+    font-family:    var(--font-body);
+    font-size:      0.68rem;
+    font-weight:    700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color:          var(--color-on-surface-muted);
+}
+
+/* Servings stepper inside the triptych */
+.recipe-stat-stepper {
+    display:     flex;
+    align-items: center;
+    gap:         12px;
+}
+
+.recipe-stat-stepper__btn {
+    width:           28px;
+    height:          28px;
+    border-radius:   50%;
+    border:          1px solid var(--color-hairline);
+    background:      var(--md-sys-color-surface-container-high, #323030);
+    color:           var(--color-on-surface);
+    font-size:       1.1rem;
+    line-height:     1;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    cursor:          pointer;
+    transition:      background 150ms, border-color 150ms;
+}
+
+.recipe-stat-stepper__btn:hover {
+    background:    var(--md-sys-color-primary-container, #2A2749);
+    border-color:  var(--color-primary);
+    color:         var(--md-sys-color-on-primary-container, #D4D2ED);
+}
+
+/* Grams toggle — compact link style */
+/* ── Two-column recipe panels ────────────────────────────────────────── */
+/* Right column: sticky nutrition sidebar */
+
+
+.recipe-right > div {
+    width: 100%;  /* child panels fill the column */
+}
+
+/* Description in the right sidebar */
+.recipe-description {
+    font-family:  var(--font-body);
+    font-size:    0.88rem;
+    line-height:  1.7;
+    color:        var(--color-on-surface-muted);
+    font-style:   italic;
+    padding:      16px;
+    background:   var(--md-sys-color-surface-container, #2A2727);
+    border:       1px solid var(--color-hairline);
+    border-radius: var(--radius-md);
+    margin:       0;
+    padding-left: 14px;
+    border-left: 2px solid rgba(237, 208, 154, 0.25);
+}
+
+/* ── Section headings ────────────────────────────────────────────────── */
+/* Section headings — Ingredients + Method
+   Both use --color-on-surface (#EDD09A salt).
+   Hierarchy vs h1 is size only (1.4rem vs 2.2rem).
+   NOTE: font-family + font-weight are set by .section-title at line ~1479.
+*/
+.section-title--ingredients {
+    color: var(--color-on-surface);
+}
+
+.section-title--method {
+    color: var(--color-on-surface);
+    margin-top: 36px;
+}
+
+/* ── Ingredient list rows ─────────────────────────────────────────────── */
+/* Every ingredient row */
+
+
+/* Ingredient text — name left, quantity right */
+/* Section header rows (with sub-group titles) */
+.ingredient-section-header {
+    font-family:    var(--font-brand);
+    font-size:      0.72rem;
+    font-weight:    700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color:          var(--color-on-surface-muted);
+    padding:        10px 14px 6px;
+    background:     var(--md-sys-color-surface-container-highest, #3A3737);
+    border-bottom:  1px solid var(--color-hairline);
+    list-style: none;
+    margin: 0;
+    pointer-events: none;
+}
+
+/* ── Method step cards ────────────────────────────────────────────────── */
+.step-card {
+    display:        flex;
+    gap:            16px;
+    padding:        18px 20px;   
+    margin-bottom:  8px;
+    border-radius:  var(--radius-md);
+    border:         1px solid var(--color-hairline);
+    cursor:         pointer;
+    position:       relative;     /* ← needed for ::before overlays */
+    overflow:       hidden;
+    transition:     background 200ms, border-color 200ms;
+    background:     var(--md-sys-color-surface-container, #2A2727);
+}
+
+.step-card.active {
+    background:    var(--md-sys-color-surface-container-high, #323030);
+    border-color:  rgba(176, 173, 218, 0.25); /* primary tint */
+}
+
+.step-card.completed {
+    opacity: 0.55;
+}
+
+.step-card:hover {
+    background: var(--md-sys-color-surface-container-high, #323030);
+}
+
+/* Step number: burgundy circle */
+/* ── Recipe right panel: unstick on narrow viewports ────────────────── */
+@media (max-width: 900px) {
+    .recipe-right {
+        position: static;   /* disable sticky sidebar — 3152 block switches panel to flex-column */
+    }
+}
+
+
+/* Remove the old 4-item flex children that are no longer used */
+.recipe-stat-info-group { display: none; }
+
+
+
+/* Stack summary vertically */
+/* Large calorie headline */
+.nutrition-tilde {
+    font-size:  1rem;
+    color:      var(--color-on-surface-muted);
+    font-weight: 400;
+    opacity: 0.6;
+}
+
+.nutrition-kcal strong {
+    font-family: var(--font-brand);
+    font-size:   2.2rem;
+    font-weight: 700;
+    color:       var(--color-on-surface);
+    line-height: 1;
+}
+
+/* Macro section — vertical bar graph layout (final design) */
+.nutrition-macros {
+    display:        flex;
+    flex-direction: column;
+    align-items:    stretch;   /* pills fill full width */
+    gap:            16px;
+    padding:        0;         /* outer panel has padding */
+    background:     none;
+    width:          100%;
+    box-sizing:     border-box;
+    flex-wrap: wrap;
+}
+
+.macro-pill {
+    display:        flex;
+    flex-direction: column;
+    align-items:    stretch;
+    gap:            6px;
+    background:     none;      /* panel provides bg */
+    border:         none;
+    padding:        0;
+    min-width:      0;
+    overflow:       visible;
+    width:          100%;
+    box-sizing:     border-box;
+}
+
+
+/* Per serving + Details row */
+
+.nutrition-toggle:hover {
+    color: var(--pp-primary-90, #D4D2ED);
+}
+
+/* Skeleton while loading */
+.nutrition-skeleton {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.nutrition-skeleton-bar {
+    height:    14px;
+    border-radius: 4px;
+    background: var(--md-sys-color-surface-container-high, #323030);
+    animation: pp-shimmer 1.5s infinite;
+}
+
+
+/* ── Ingredient rows — canonical (grid, LL-053) ─────────────────────── */
+.ingredient-item {
+    display:               grid;
+    grid-template-columns: 28px auto 1fr auto 36px;
+    grid-template-areas:   "cb qty name prep cart";
+    align-items:           center;
+    gap:                   0 12px;
+    padding:               13px 16px;
+    min-height:            48px;           /* WCAG tap target */
+    cursor:                pointer;
+    border-bottom:         1px solid var(--color-hairline);
+    font-family:           var(--font-body);
+    font-size:             0.9rem;
+    color:                 var(--color-on-surface);
+    transition:            background 150ms;
+}
+
+.ingredient-item > .checkbox            { grid-area: cb;   }
+.ingredient-item > .ingredient-qty      { grid-area: qty;  }
+.ingredient-item > .ingredient-name     { grid-area: name; }
+.ingredient-item > .ingredient-prep     { grid-area: prep; }
+.ingredient-item > .ingredient-cart-btn { grid-area: cart; }
+
+.ingredient-item:last-child             { border-bottom: none; }
+.ingredient-item:nth-child(even)        { background: rgba(107, 46, 48, 0.10); }
+.ingredient-item:nth-child(odd)         { background: var(--md-sys-color-surface-container, #2A2727); }
+.ingredient-item:hover                  { background: var(--md-sys-color-surface-container-high, #323030); }
+.ingredient-item:hover .ingredient-cart-btn { opacity: 1; }
+
+.ingredient-item.checked {
+    opacity: 0.45;
+    text-decoration: line-through;
+}
+.ingredient-item.checked .checkbox {
+    background-color: var(--color-primary);
+    border-color:     var(--color-primary);
+}
+
+/* Quantity — bold, muted wheat */
+/* Ingredient name — primary text */
+/* Prep note — italic, dim */
+/* ── Ingredient prep note — italic, dim ────────────── */
+.ingredient-prep {
+    font-family: var(--font-body);
+    font-size:   0.85rem;         /* ← L4059 override merged */
+    font-style:  italic;
+    color:       var(--color-on-surface-bright); /* ← L4457 final value */
+    text-align:  right;
+}
+
+/* "Added" badge */
+/* Legacy .ingredient-text — hide if still rendered */
+.ingredient-text { display: contents; }
+
+
+
+.ingredient-cart-btn {
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    width:           28px;
+    height:          28px;
+    border-radius:   50%;
+    border:          1px solid transparent;
+    background:      transparent;
+    color:           var(--color-on-surface-disabled);
+    cursor:          pointer;
+    opacity:         0;            /* hidden by default on desktop */
+    transition:      opacity 150ms, color 150ms, background 150ms, border-color 150ms;
+    padding:         0;
+    flex-shrink:     0;
+}
+
+
+.ingredient-cart-btn:hover {
+    color:         var(--color-on-surface);
+    background:    var(--md-sys-color-primary-container, #2A2749);
+    border-color:  var(--color-primary);
+}
+
+/* "Added" state — always visible, green */
+/* On mobile — cart button always visible */
+@media (hover: none) {
+    .ingredient-cart-btn {
+        opacity: 0.6;
+    }
+}
+
+
+/* All main-content pages now clear the fixed top bar */
+#app {
+    padding-top: var(--nav-height);
+}
+
+/* Recipe hero block: fill the viewport BELOW the nav (not behind it) */
+@media (min-width: 901px) {
+    .recipe-hero-block {
+        height: calc(100dvh - var(--nav-height));
+    }
+}
+
+/* Right-sidebar sticky: recalculate from corrected nav height */
+
+
+/* More vertical breathing room per row */
+
+
+/* Ingredient name — body-large (1rem / Nunito) */
+/* Quantity — title-small-ish, still muted */
+/* Prep note — small but legible */
+
+
+/* Section headings — Ingredients + Method */
+.section-title {
+    font-size: 1.4rem;
+    margin-bottom: 16px;
+    margin: 40px 0 20px;
+    color: var(--color-on-surface);
+}
+
+/* Step text — body-large */
+.step-text {
+    font-size: 1rem;
+    line-height: 1.7;
+    font-family: var(--font-body);
+    color: var(--color-on-surface);
+    margin: 0;
+}
+
+/* Step card — more padding for cook-mode legibility */
+
+
+/* Step number circle — slightly larger */
+.step-number {
+    flex-shrink:     0;
+    width:           28px;
+    height:          28px;
+    border-radius:   50%;
+    background:      var(--md-sys-color-secondary-container, #481E20);
+    color:           var(--color-primary);
+    font-family:     var(--font-brand);
+    font-size:       0.88rem;
+    font-weight:     700;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    margin-top:      1px;
+}
+
+
+/* Nutrition-meta row: ensure it doesn't overflow on 280px content width */
+.nutrition-meta {
+    flex-wrap: nowrap;
+    gap: 8px;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    justify-content: space-between;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-hairline);
+}
+
+
+/* Kcal label matches new salt color */
+.nutrition-kcal strong {
+    color: var(--color-on-surface);
+}
+
+
+/* ── VISUAL POLISH PASS — 9-issue fix (2026-04-09) ── */
+
+.nutrition-kcal {
+    white-space: nowrap;
+    flex-wrap: nowrap;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    flex-shrink: 0;
+}
+.nutrition-tilde,
+.nutrition-unit {
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-size: 0.78rem;
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-family: var(--font-body);
+    font-weight: 700;
+    color: var(--color-on-surface-muted);
+}
+
+
+.ingredients-list {
+    width: 100%;
+    box-sizing: border-box;
+    list-style: none;
+    font-size: 1.15rem;
+    margin: 0;
+    padding: 0;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--color-hairline);
+}
+
+
+/* (The JSX already has ⚖ icon — just clean up the border colour) */
+.ingredients-list ~ button,
+.ingredients-list + button {
+    border-color: rgba(237, 208, 154, 0.25);
+}
+
+
+/* nutrition-toggle: never wider than available space */
+
+
+/* ── Recipe panels mobile: single column below 900px ───────────────── */
+@media (max-width: 900px) {
+    .recipe-panels {
+        display:        flex;
+        flex-direction: column;
+        width:          100%;
+        gap:            32px;
+    }
+    .recipe-left  { order: 1; }
+    .recipe-right { order: 2; width: 100%; min-width: 0; }
+}
+
+/* ── Macro progress bars ────────────────────────────────────────────── */
+.macro-progress-bar {
+    width:            100%;
+    height:           8px;
+    background-color: rgba(255, 255, 255, 0.07);
+    border-radius:    10px;
+    overflow:         hidden;
+}
+
+.macro-progress-fill {
+    height:        100%;
+    border-radius: 10px;
+    transition:    width 600ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+/* ── Nutrition table alignment ──────────────────────────────────────── */
+th.nutrition-th-100g, td.nutrition-100g-cell {
+    text-align: right;
+}
+
+/* ── Stat strip triptych: 3-column grid ─────────────────────────────── */
+.recipe-stat-triptych {
+    display:               grid;
+    grid-template-columns: repeat(3, 1fr);
+    width:                 100%;
+    max-width: var(--pp-content-max, 1320px);
+    margin: 0 auto;
+}
+
+.recipe-stat-cell {
+    display:         flex;
+    flex-direction:  column;
+    align-items:     center;
+    text-align:      center;
+    justify-content: center;
+    gap: 4px;
+    padding: 18px 20px;
+    border-right: 1px solid var(--color-hairline);
+}
+
+
+/* ── COMPANION STYLES — New nutrition-header + macro-pill__header elements ── */
+
+.nutrition-panel--loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 120px;
+    padding: 12px 36px;
+}
+
+.nutrition-panel--locked {
+    position: relative;
+}
+
+.nutrition-locked-overlay {
+    position: absolute;
+    top: 48px; /* Below the header */
+    left: 0; right: 0; bottom: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(3px);
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    padding: var(--space-4);
+}
+
+@media (prefers-color-scheme: dark) {
+    .nutrition-locked-overlay {
+        background: rgba(0, 0, 0, 0.4);
+    }
+}
+
+/* Panel header: "Nutrition" title left, kcal right */
+.nutrition-title {
+  font-family:    var(--font-brand);
+  font-size:      1.1rem;
+  font-weight:    700;
+  color:          var(--color-on-surface);
+  margin:         0;
+  letter-spacing: -0.01em;
+}
+
+/* Kcal in header — smaller than old standalone display */
+.nutrition-header .nutrition-kcal {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+.nutrition-header .nutrition-kcal strong {
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-family: var(--font-brand);
+  color: var(--color-on-surface);
+}
+.nutrition-header .nutrition-tilde { opacity: 0.5; font-size: 0.8rem; }
+.nutrition-header .nutrition-unit  {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-on-surface-muted);
+}
+
+/* Macro pill header row: label left, % right */
+.macro-label {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-on-surface);
+  text-transform: capitalize;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+    opacity: 0.55;
+}
+
+.macro-pct {
+  font-family: var(--font-brand);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-on-surface);
+}
+
+/* Gram value below the bar */
+
+
+/* Nutrition meta row font refinement */
+
+
+/* macro-pill__header: label + percentage row */
+.macro-pill__header {
+    display:         flex;
+    flex-direction:  row;
+    justify-content: space-between;
+    align-items:     center;
+    width:           100%;
+    box-sizing:      border-box;
+}
+
+/* Gram value: left-aligned below bar */
+
+
+/* ── NUTRITION DETAILS FULL-WIDTH EXPAND ── */
+
+/* Span both grid columns when Details panel is open */
+@media (min-width: 901px) {
+    .recipe-right--expanded {
+        grid-column: 1 / -1;        /* span full row */
+        width:       100%;
+        max-width:   100%;
+        position:    relative;      /* disable sticky while expanded */
+        top:         auto;
+    }
+
+    /* Hide the ingredient/steps panel while details table is open */
+    .recipe-panels:has(.recipe-right--expanded) .recipe-left {
+        display: none;
+    }
+
+    /* Grid collapses to single column when right is spanning */
+    .recipe-panels:has(.recipe-right--expanded) {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Expanded nutrition panel: allow content to breathe */
+.recipe-right--expanded .nutrition-panel {
+    max-width: 100%;
+    overflow:  visible;
+}
+
+/* Breakdown table: wider layout at full width */
+.recipe-right--expanded .nutrition-breakdown {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+/* Macro bars stay a reasonable width in full-width mode */
+.recipe-right--expanded .nutrition-macros {
+    max-width: 560px;
+}
+
+/* Smooth fade-in for the breakdown content */
+.nutrition-breakdown {
+    animation: nutrition-expand 240ms cubic-bezier(0.2, 0, 0, 1);
+    padding: 0 36px 16px;
+    border-top: 1px solid rgba(237, 208, 154, 0.06);
+}
+
+@keyframes nutrition-expand {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0);    }
+}
+
+
+/* ── INGREDIENTS SECTION HEADER — h2 + "Show in grams" on same row ── */
+
+/* Section becomes a flex row that wraps */
+.recipe-left section:first-child {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 16px;
+    row-gap: 16px;
+}
+
+/* h2 "Ingredients" — takes all remaining space, button sits to its right */
+.recipe-left section:first-child > h2 {
+    flex: 1 1 auto;
+    margin-bottom: 0;
+}
+
+/* IngredientsList wrapper div: suppress its box, pass children to section flex */
+.recipe-left section:first-child > div:first-of-type {
+    display: contents;
+}
+
+/* "Show in grams" button — now a direct flex item beside the h2 */
+.recipe-left section:first-child > div:first-of-type > button {
+    flex: 0 0 auto;
+    margin-bottom: 0;   /* override inline style from component */
+    align-self: center;
+}
+
+/* Ingredient list — pushed to its own full-width second row */
+.recipe-left section:first-child > div:first-of-type > ul {
+    flex: 0 0 100%;
+    width: 100%;
+    margin-top: 0;                  /* row-gap handles the spacing */
+}
+
+
+/* ── INGREDIENT ROW — New column order + green bag icon ── */
+
+/* column order set in source above — no override needed */
+
+/* Name: left-aligned, bold */
+.ingredient-name {
+    grid-area:   name;         /* col 3 — 1fr, the wide name column */
+    min-width:   0;            /* allow 1fr to shrink; prevent min-width:auto overflow */
+    text-align:  left;
+    font-family: var(--font-body);
+    font-size:   0.9rem;
+    font-weight: 600;
+    color:       var(--color-on-surface);
+    line-height: 1.4;
+}
+
+/* Prep note: muted, centred in its cell */
+
+
+/* Qty: right-aligned in the 4th column */
+.ingredient-qty {
+    grid-area:   qty;          /* col 2 — auto, sized to qty text */
+    text-align:  right;
+    font-family: var(--font-brand);
+    font-size:   0.82rem;
+    font-weight: 600;
+    color:       var(--color-on-surface-muted);
+    white-space: nowrap;
+}
+
+/* ── Green bag when ingredient is in shopping list ─────────────────── */
+.ingredient-cart-btn--added {
+    color: #4CAF50;      /* Material green */
+    stroke: #4CAF50;
+    opacity: 1;          /* always fully visible when added */
+    cursor: default;
+    border-color: rgba(0, 200, 150, 0.3);
+    background: rgba(0, 200, 150, 0.08);
+}
+
+.ingredient-cart-btn--added svg {
+    stroke: #4CAF50; /* green — item already in cart */
+}
+
+.ingredient-cart-btn--added:hover {
+    background: rgba(76, 175, 80, 0.12);
+    transform: none;     /* suppress hover lift when already added */
+}
+
+
+
+/* ── UNIFIED CONTENT ZONE — collapse compounding top-spacing ── */
+
+.recipe-panels {
+    display:               grid;
+    grid-template-columns: 2fr 1fr;     /* 2/3 content · 1/3 nutrition — aligns with triptych 3rd cell */
+    gap:                   0;
+    align-items:           start;
+    width:                 100%;        /* normal flow — content after hero */
+    padding:               0;           /* columns have their own padding */
+    overflow-x:            clip;
+    background:            transparent;
+}
+
+/* Left column: no extra margin */
+
+
+/* First section (Ingredients): no top margin */
+.recipe-left > section:first-child {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+/* "Ingredients" h2: butt against the top of the section */
+.recipe-left > section:first-child > h2 {
+    margin-top: 0;
+    padding-top: 0;
+    line-height: 1.15;
+}
+
+/* Right column: top alignment */
+
+
+/* Nutrition panel: no extra space above the "Nutrition" title */
+.nutrition-panel {
+    margin-top: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.12);
+    border-bottom: 1px solid var(--color-hairline);
+    font-size: 0.84rem;
+    color: var(--color-on-surface-muted);
+    box-sizing: border-box;
+    border: 1px solid rgba(237, 208, 154, 0.22);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    font-family: var(--font-body);
+    max-width: 100%;
+    overflow-x: clip;          /* clip horizontal spillage */;
+    overflow-y: visible;       /* allow Details panel to expand below */;
+}
+
+.nutrition-header {
+    margin-top: 0;
+    padding-top: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--color-hairline);
+}
+
+
+/* ── NUTRITION PANEL — sits flush at top of the right column ── */
+.recipe-right .nutrition-panel {
+    margin-top:  0;
+    padding-top: 20px;   /* normal card internal padding */
+}
+
+
+/* ── NUTRITION BREAKDOWN — readability overhaul ── */
+
+/* ── Disclaimer paragraph ────────────────────────────────────────────── */
+.nutrition-disclaimer {
+    font-size:    0.9rem;
+    line-height:  1.6;
+    color:        var(--color-on-surface);
+    background:   rgba(237, 208, 154, 0.06);
+    border-left:  3px solid var(--color-on-surface-muted);
+    border-radius: 0 6px 6px 0;
+    padding:      10px 14px;
+    margin-bottom: 20px;
+    opacity: 0.45;
+    margin: 10px 0 12px;
+}
+
+.nutrition-low-confidence-warning {
+    color:       #FFA726;
+    font-style:  normal;
+    font-size: 0.8em;
+}
+
+/* ── Table headers ───────────────────────────────────────────────────── */
+.nutrition-table thead th {
+    font-size:       0.72rem;
+    font-weight:     700;
+    color:           var(--color-on-surface);
+    letter-spacing:  0.08em;
+    text-transform:  uppercase;
+    padding-bottom:  10px;
+    border-bottom:   2px solid rgba(237,208,154,0.15);
+}
+
+/* ── Table body ──────────────────────────────────────────────────────── */
+.nutrition-table tbody tr {
+    border-bottom: 1px solid rgba(237,208,154,0.05);
+}
+
+.nutrition-table tbody td {
+    font-size:   0.87rem;
+    color:       var(--color-on-surface);
+    padding:     10px 8px;
+    line-height: 1.4;
+    vertical-align: top;
+}
+
+/* ── Ingredient name column ──────────────────────────────────────────── */
+.nutrition-ing-name {
+    display:     block;
+    font-weight: 600;
+    color:       var(--color-on-surface-bright);
+    font-size:   0.9rem;
+}
+
+.nutrition-usda-match {
+    display:     flex;
+    align-items: center;
+    gap:         5px;
+    margin-top:  3px;
+}
+
+.nutrition-matched-term {
+    font-size:   0.75rem;
+    color:       var(--color-on-surface-muted);
+    font-style:  normal;
+    font-weight: 400;
+    opacity: 0.42;
+    letter-spacing: 0.01em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 28ch;
+    cursor: default;
+}
+
+/* ── Confidence badges ───────────────────────────────────────────────── */
+.nutrition-conf-badge {
+    display:         inline-flex;
+    align-items:     center;
+    justify-content: center;
+    width:           18px;
+    height:          18px;
+    border-radius:   4px;
+    font-size:       0.65rem;
+    font-weight:     700;
+    flex-shrink:     0;
+    line-height: 1;
+    padding: 1px 3px;
+    letter-spacing: 0.02em;
+}
+/* ── Low-confidence rows: amber text, not italic ─────────────────────── */
+.nutrition-row--low-confidence td     { font-style: normal; }
+.nutrition-row--low-confidence .nutrition-ing-name { color: #FFA726; }
+
+/* ── Skipped rows ────────────────────────────────────────────────────── */
+.nutrition-row--skipped td { opacity: 0.4; font-style: italic; }
+
+/* ── Numeric columns ─────────────────────────────────────────────────── */
+td.nutrition-grams,
+td.nutrition-100g-cell,
+td.nutrition-kcal-cell {
+    font-variant-numeric: tabular-nums;
+    text-align:  right;   /* td + class beats td alone */
+    color:       var(--color-on-surface);
+    font-size:   0.87rem;
+    white-space: nowrap;
+}
+
+th.nutrition-th-amt,
+th.nutrition-th-100g,
+th.nutrition-th-kcal {
+    text-align: right;
+}
+
+/* ── Totals row ──────────────────────────────────────────────────────── */
+.nutrition-total-row td {
+    font-weight: 700;
+    color:       var(--color-on-surface-bright);
+    font-size:   0.9rem;
+    border-top:  2px solid rgba(237,208,154,0.12);
+    padding-top: 12px;
+}
+
+/* ── Flag button ─────────────────────────────────────────────────────── */
+.nutrition-flag-btn {
+    background:  none;
+    border:      none;
+    cursor:      pointer;
+    color:       inherit;
+    font-size:   0.75rem;
+    padding:     2px 4px;
+    opacity:     0.4;
+    line-height: 1;
+    transition:  opacity 150ms;
+}
+.nutrition-flag-btn:hover { opacity: 1; color: #EF5350; }
+.nutrition-flag-done {
+    color:           #EF5350;
+    font-size:       0.75rem;
+    font-weight:     700;
+    display:         inline-flex;
+    align-items:     center;
+    justify-content: center;
+    padding:         2px 4px;
+}
+
+
+/* ── HERO TEXT — pill + bottom on same row ── */
+
+/* ── recipe-hero-text h1: always full-width first row ─────────────────── */
+.recipe-hero-text > h1 {
+    flex:          0 0 100%;
+    width:         100%;
+    text-align:    left;
+    margin-bottom: 0;
+}
+
+/* ── recipe-hero-pill: shrink-wrap ──────────────────────────────────────── */
+.recipe-hero-pill {
+    flex:       0 0 auto;
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 5px 16px;
+    background: var(--md-sys-color-primary-container, #2A2749);
+    color: var(--md-sys-color-on-primary-container, #D4D2ED);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    backdrop-filter: blur(8px);
+}
+
+/* ── recipe-hero-bottom: fills remainder of row ────────────────────────── */
+.recipe-hero-bottom {
+    flex:            1 1 auto;
+    display:         flex;
+    flex-direction:  row;
+    align-items:     center;
+    justify-content: flex-start;
+    flex-wrap:       wrap;
+    gap:             8px 16px;
+    width:           100%;
+}
+
+.recipe-hero-bottom .recipe-hero-pill    { flex: 0 0 auto; margin: 0; order: 0; }
+.recipe-hero-bottom .recipe-hero-meta    { flex: 1 1 auto; order: 1; }
+.recipe-hero-bottom .recipe-hero-actions { flex: 0 0 auto; margin-left: auto; order: 2; }
+
+
+/* recipe-panels styling merged into M3 source (card = .recipe-detail-wrapper, not panels) */
+
+
+/* ── Login page — cooking illustration ─────────────────────────────────── */
+
+/* ── Login page — pretzel background pattern ─────────────────────────── */
+
+
+/* Scattered pretzel tile — pseudo-element so opacity doesn't affect content */
+.pp-auth-left::before {
+    content: '';
+    position: absolute;
+    inset: -40px;          /* bleed so rotated tile covers corners */
+    background-image: url('/logo-wheat.svg');
+    background-size: 90px 90px;
+    background-repeat: repeat;
+    opacity: 0.07;
+    transform: rotate(15deg);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Ensure content sits above the pattern */
+.pp-auth-left__content {
+    position: relative;
+    z-index: 1;
+    max-width: 360px;
+    width: 100%;
+}
+
+
+/* ── Login left panel — palette colour enrichment ───────────────────────── */
+
+/* Gradient background: charcoal → deep indigo */
+
+
+/* Brand name — salt wheat */
+.pp-auth-left__brand {
+    color: var(--color-on-surface);
+    font-family: var(--font-brand);
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+/* Feature list — alternating palette accent colours per item */
+.pp-auth-left__features li:nth-child(1) span { color: var(--color-on-surface); }
+.pp-auth-left__features li:nth-child(2) span { color: var(--pp-tertiary-70,   #A888B3); }
+.pp-auth-left__features li:nth-child(3) span { color: var(--pp-primary-80,    #B0ADDA); }
+.pp-auth-left__features li:nth-child(4) span { color: var(--pp-secondary-80,  #CC9093); }
+
+/* Feature text — slightly brighter */
+.pp-auth-left__features li {
+    color: var(--color-on-surface-bright);
+}
+
+/* Thin accent border on left edge of left panel */
+
+
+/* ── RECIPE DETAIL — UNIFIED CARD LAYOUT ── */
+
+/* 1 ── wrapper IS the card (values now in base definition at §H) ─────── */
+
+/* 2 ── hero block: edge-to-edge at the card top, no extra spacing ────── */
+.recipe-hero-block {
+    border-radius: 0;
+    margin:        0;
+    box-shadow:    none;
+    position: relative;        /* Anchor for absolute children on desktop */;
+    width: 100%;
+}
+
+/* 3 ── stat strip: thin divider row, same bg as card ─────────────────── */
+
+
+/* 4 ── panels: values now in M3 source block ─────────────────────────── */
+
+/* 5 ── left column: just padding, inherits card background ───────────── */
+
+
+/* 6 ── right column: column divider line only ────────────────────────── */
+
+
+/* Mobile: stack columns, remove divider line */
+/* Mobile: stack columns — single consolidated 768px block */
+@media (max-width: 768px) {
+    .recipe-detail-wrapper {
+        margin:        12px;
+        border-radius: 16px;
+    }
+    .recipe-panels {
+        grid-template-columns: 1fr;
+        padding: 24px 20px 32px;
+    }
+    .recipe-left {
+        padding: 0 0 24px 0;
+    }
+    .recipe-right {
+        border-left:  none;
+        border-top:   1px solid var(--color-hairline);
+        padding:      24px 0 0 0;
+    }
+    .recipe-stat-strip {
+        padding: 12px 20px;
+    }
+}
+
+
+/* ── HOMEPAGE — Hero + Content card layout ── */
+
+/* ── Hero banner ──────────────────────────────────────────────────────── */
+/* Same scattered pretzel tile as login page */
+.home-hero__pattern {
+    position:   absolute;
+    inset:      -40px;
+    background-image:  url('/logo-wheat.svg');
+    background-size:   100px 100px;
+    background-repeat: repeat;
+    opacity:    0.06;
+    transform:  rotate(15deg);
+    pointer-events: none;
+}
+
+/* Centred content stack */
+.home-hero__content {
+    position:        relative;
+    z-index:         1;
+    display:         flex;
+    flex-direction:  column;
+    align-items:     center;
+    text-align:      center;
+    gap:             16px;
+    padding:         48px 24px 56px;
+    width:           100%;
+    max-width:       700px;
+}
+
+/* Logo */
+.home-hero__logo {
+    width:  80px;
+    height: 80px;
+    display: block;
+    filter: drop-shadow(0 4px 16px rgba(0,0,0,0.4));
+}
+
+/* Title */
+.home-hero__title {
+    font-family:    var(--font-brand);
+    font-size:      clamp(2rem, 5vw, 3rem);
+    font-weight:    700;
+    color:          var(--color-on-surface);
+    letter-spacing: -0.02em;
+    line-height:    1.1;
+    margin:         0;
+}
+
+/* Subtitle */
+.home-hero__subtitle {
+    font-size:  1rem;
+    color:      var(--color-on-surface-muted);
+    margin:     0;
+    opacity:    0.9;
+}
+
+/* Search bar */
+.home-hero__search {
+    display:      flex;
+    align-items:  center;
+    gap:          10px;
+    background:   rgba(255,255,255,0.07);
+    border:       1px solid rgba(237,208,154,0.15);
+    border-radius: var(--radius-pill);
+    padding:      10px 20px;
+    width:        100%;
+    max-width:    480px;
+    backdrop-filter: blur(8px);
+    transition:   border-color 200ms, background 200ms;
+}
+.home-hero__search:focus-within {
+    border-color: rgba(237,208,154,0.4);
+    background:   rgba(255,255,255,0.10);
+}
+.home-hero__search input {
+    background:  transparent;
+    border:      none;
+    outline:     none;
+    color:       var(--color-on-surface);
+    font-size:   0.95rem;
+    width:       100%;
+}
+.home-hero__search input::placeholder {
+    color: var(--pp-salt-faint, rgba(237,208,154,0.45));
+}
+
+/* Join CTA inside hero */
+.home-hero__join {
+    font-size:   0.85rem;
+    color:       var(--color-on-surface-muted);
+    margin-top:  4px;
+}
+.home-hero__join a {
+    color:           var(--color-on-surface);
+    font-weight:     600;
+    text-decoration: underline;
+}
+
+/* ── Content card (recipe grid) ───────────────────────────────────────── */
+.home-content {
+    max-width:     1200px;
+    margin:        32px auto 60px;
+    padding:       0 24px;
+}
+
+/* ── home-wrapper: the card (mirrors .recipe-detail-wrapper) ─────────── */
+.home-wrapper {
+    max-width:     1200px;
+    margin:        40px auto;
+    background:    var(--color-surface);
+    border:        1px solid var(--color-hairline);
+    border-radius: 20px;
+    box-shadow:    0 20px 40px rgba(0,0,0,0.3);
+    overflow:      hidden;   /* hero clips to rounded top corners */
+}
+
+/* hero needs no radius of its own — wrapper handles it */
+.home-hero {
+    position:        relative;
+    min-height:      45vh;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    overflow:        hidden;
+    background: linear-gradient(
+        160deg,
+        var(--pp-neutral-20,   #322F2F) 0%,
+        var(--pp-primary-20,   #1B1930) 55%,
+        var(--pp-secondary-20, #2E1315) 100%
+    );
+    border-radius:   0;
+}
+
+/* content area inside card: reset layout constraints set by standalone home-content rule */
+.home-wrapper .home-content {
+    max-width:  none;
+    margin:     0;
+    padding:    32px 40px 40px;
+    background: transparent;
+}
+
+/* Mobile adjustments — home page consolidated */
+@media (max-width: 768px) {
+    .home-hero { min-height: 38vh; }
+    .home-hero__logo { width: 60px; height: 60px; }
+    .home-hero__title { font-size: 1.8rem; }
+    .home-content { margin: 20px auto 40px; padding: 0 12px; }
+    .home-wrapper {
+        margin:        12px;
+        border-radius: 16px;
+    }
+    .home-wrapper .home-content { padding: 24px 20px 32px; }
+}
+
+
+
+/* ── SHARED PAGE CARD — universal container for all interior pages ── */
+.pp-page-card {
+    max-width:     1200px;
+    margin:        40px auto;
+    background:    var(--color-surface);
+    border:        1px solid var(--color-hairline);
+    border-radius: 20px;
+    box-shadow:    0 20px 40px rgba(0,0,0,0.3);
+    padding:       40px;
+    box-sizing:    border-box;
+}
+
+/* Also update .form-container to match same width — source updated at line ~1697 */
+
+@media (max-width: 768px) {
+    .pp-page-card {
+        margin:        12px;
+        border-radius: 16px;
+        padding:       24px 20px;
+    }
+    .form-container {
+        margin: 12px;
+    }
+}
+
+
+/* ── STEP DRAG-TO-REORDER ── */
+
+/* Grip handle — replaces the ▲▼ buttons */
+.step-drag-handle {
+    display:     flex;
+    align-items: center;
+    justify-content: center;
+    width:       32px;
+    flex-shrink: 0;
+    cursor:      grab;
+    color:       var(--color-on-surface-muted);
+    padding:     4px;
+    border-radius: 6px;
+    transition:  color 150ms, background 150ms;
+    align-self:  stretch;   /* fills the full row height */
+}
+.step-drag-handle:hover {
+    color:       var(--color-on-surface);
+    background:  rgba(237,208,154,0.08);
+}
+.step-drag-handle:active {
+    cursor: grabbing;
+}
+
+/* Step textarea — responsive height
+   Desktop : 80px  (~2 lines) — compact, width does the work
+   ≤ 600px : 140px (~4 lines) — mobile has less width, needs more vertical room */
+.step-input {
+    min-height: 80px;
+}
+@media (max-width: 600px) {
+    .step-input {
+        min-height: 140px;
+    }
+}
+
+/* Row being dragged — ghost / faded */
+.step-edit-row.step-dragging {
+    opacity:      0.35;
+    border-color: transparent;
+}
+
+/* Row under the dragged step — insertion indicator */
+.step-edit-row.step-drag-over {
+    border-top: 2px solid var(--color-on-surface);
+    background: rgba(237,208,154,0.04);
+}
+
+/* ── Ingredient drag states (mirrors steps) ──────────────────────── */
+.ingredient-edit-row.ing-dragging {
+    opacity:      0.35;
+    border-color: transparent;
+}
+.ingredient-edit-row.ing-drag-over {
+    border-top: 2px solid var(--color-on-surface);
+    background: rgba(237,208,154,0.04);
+}
+
+
+/* ─────────────────────────────────────────────────────────────────────────
+   §12  Site Footer — Legal compliance (Impressum, Datenschutz, AGB)
+   ───────────────────────────────────────────────────────────────────────── */
+
+.site-footer {
+    width:            100%;
+    background:       var(--color-surface);
+    border-top:       1px solid var(--color-outline-variant, var(--color-border));
+    padding:          1rem 1.5rem;
+    margin-top:       auto;
+}
+
+.site-footer__inner {
+    max-width:        1280px;
+    margin:           0 auto;
+    display:          flex;
+    align-items:      center;
+    justify-content:  space-between;
+    flex-wrap:        wrap;
+    gap:              0.5rem 1.5rem;
+}
+
+.site-footer__copy {
+    font-size:   0.8rem;
+    color:       var(--color-text-secondary);
+    font-family: var(--pp-font-body);
+}
+
+.site-footer__nav {
+    display:     flex;
+    align-items: center;
+    gap:         0.5rem;
+    flex-wrap:   wrap;
+}
+
+.site-footer__nav a {
+    font-size:       0.8rem;
+    color:           var(--color-text-secondary);
+    text-decoration: none;
+    transition:      color 0.15s ease;
+    /* Override global 44px touch target — these are desktop legal links */
+    min-height: unset;
+    min-width:  unset;
+    line-height: 1;
+}
+
+.site-footer__nav a:hover,
+.site-footer__nav a:focus-visible {
+    color:           var(--color-primary);
+    text-decoration: underline;
+}
+
+.site-footer__nav span[aria-hidden] {
+    color:       var(--color-outline-variant, var(--color-border));
+    font-size:   0.8rem;
+    line-height: 1;
+    align-self:  center;
+    user-select: none;
+}
+
+@media (max-width: 480px) {
+    .site-footer__inner {
+        flex-direction: column;
+        align-items:    flex-start;
+    }
+}
+
+@media print {
+    .site-footer { display: none !important; }
+}
