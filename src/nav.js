@@ -64,22 +64,10 @@ function generateHtml(state) {
         return `<a href="${link.href}" class="site-nav__link ${isActive ? 'site-nav__link--active' : ''}">${link.label}</a>`;
     }).join('');
 
-    // Page-specific action (Save PDF for CV)
-    let actionHtml = '';
-    if (state.isCV) {
-        actionHtml = `
-            <a href="/assets/downloads/Jane_Scott_CV_Short.pdf" class="site-nav__action" aria-label="Download Executive Summary PDF">
-                <svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M3 10v3h10v-3M5 7l3 3 3-3M8 2v8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Save PDF
-            </a>
-        `;
-    }
-
     nav.innerHTML = `
         ${brand}
         <div class="site-nav__links">
             ${linksHtml}
-            ${actionHtml}
         </div>
     `;
 
