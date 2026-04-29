@@ -1,5 +1,5 @@
 # Roadmap & Backlog — janeblog.com
-**Last Updated:** 2026-04-24 (session 3)
+**Last Updated:** 2026-04-29 (session 4)
 
 ---
 
@@ -14,11 +14,12 @@ New ideas and improvements that are not yet being built. All backlog items must 
 | B3 | `/publish` pre-flight workflow | Simple checklist: verify correct repo, check for uncommitted changes, confirm branch is `main`, push | 2026-04-23 |
 | B4 | Architecture Decision Records (ADRs) | Document 3–4 key decisions: CSS token architecture, static HTML vs framework choice, Cloudflare Pages deployment, Vite dev server | 2026-04-23 |
 | B5 | CSS_ARCHITECTURE.md | Consolidate `design/cartographic-mind.md` + `css-architecture` skill into one canonical reference doc | 2026-04-23 |
-| B6 | Accessibility audit | Run full WCAG 2.1 AA audit across all pages. Known gap: heading hierarchy on blog.html | 2026-04-23 |
+| B6 | Accessibility audit | Run full WCAG 2.1 AA audit across all pages. **Partially Done**: Added ARIA tablist roles and focus-visible rings to CV. | 2026-04-23 |
 | B7 | `unified-knowledge-software.html` layout | New article page needs the same nav/shell structure as the main pages | 2026-04-23 |
-| B8 | **Extract shared nav to a single JS component — highest architectural priority** | Nav HTML is copy-pasted into 6+ HTML files. Adding a nav link, renaming a page, or fixing a typo currently requires editing every file. Fix: `src/nav.js` injects the nav once; all pages reference it. One change = instant site-wide propagation. Zero migration risk. See Technical Debt section for full context. | ✅ Done (2026-04-28) |
-| B9 | Extract shared `<head>` to a Vite Head Agent | Created `src/head.js` to centralize site-wide fonts, secondary CSS, and shared metadata. All pages refactored to use the modular injection pattern. | ✅ Done (2026-04-28) |
-| B10 | Split `.agent/` directory — janeblog vs LivingCookbook | The `.agent/` at Anti root still contains living-cookbook skills and workflows. Now that LivingCookbook is a separate directory, these should move to `/Users/janescott/Projects/LivingCookbook/.agent/`. Janeblog `.agent/` should contain only janeblog-relevant context. Low risk, low urgency — deferred from LL-005. | 2026-04-24 |
+| B8 | **Extract shared nav to a single JS component** | One change = instant site-wide propagation. | ✅ Done (2026-04-28) |
+| B9 | Extract shared `<head>` to a Vite Head Agent | Created `src/head.js` to centralize site-wide fonts, secondary CSS, and shared metadata. | ✅ Done (2026-04-28) |
+| B10 | Split `.agent/` directory — janeblog vs LivingCookbook | Janeblog `.agent/` should contain only janeblog-relevant context. | 2026-04-24 |
+| B11 | CV PDF Fidelity & Density | Optimize PDF generation for 2-page/4-page strict limits and professional whitespace. | ✅ Done (2026-04-29) |
 
 ---
 

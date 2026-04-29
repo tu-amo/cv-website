@@ -7,16 +7,22 @@ Format follows [Keep a Changelog](https://keepachangelog.com). Versions are date
 
 ## [Unreleased]
 
-### Added
-- **Head Boilerplate Extraction (B9)**: Created `src/head.js` to manage site-wide font loading, navigation styling, and shared metadata.
-    - Refactored all 7+ pages to use the modular "Head Agent" pattern.
-    - Reduced boilerplate duplication by ~40 lines per page.
-    - Standardized injection sequence for global components.
 - **Shared Navigation Component (B8)**: Extracted redundant navigation and background globes into `src/nav.js`.
     - Automated active state detection based on URL.
     - Page-specific actions (e.g., "Save PDF" on CV page).
     - Reduced architectural technical debt to O(1) for site-wide navigation updates.
-- Standardized blog articles (`unified-knowledge-software.html`, `knowledge-sharing-digital-workplace.html`) to use the shared framework CSS and Nav.
+- **Head Boilerplate Extraction (B9)**: Created `src/head.js` to manage site-wide font loading, navigation styling, and shared metadata.
+    - Refactored all 7+ pages to use the modular "Head Agent" pattern.
+    - Standardized injection sequence for global components.
+- **CV Professionalization & Availability**:
+    - Synchronized notice period to **1 Month** across all CV assets (`cv.html`, `404.html`, `cv-old.html`).
+    - Streamlined the interactive CV header for high-density professional presentation.
+    - Optimized PDF generation engine (`generate_cv_files.py`) for strict page-limit density (2 pages Executive / 4 pages Master).
+    - Hardened CV accessibility with ARIA tablist roles, dynamic states, and improved focus-visible rings.
+- **UX & Print Improvements**:
+    - Fixed print-version margin clipping issue by adding horizontal padding to `src/print.css` and removing conflicting inline styles.
+    - Updated Global Navigation "Save PDF" button to a direct link for the Executive Summary, providing immediate download utility.
+    - Removed legacy "Download Word" functionality per user preference to focus on PDF fidelity.
 
 ---
 

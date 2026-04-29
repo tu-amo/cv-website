@@ -98,6 +98,25 @@
 **Context:** The `cv-website` Vercel project (janeblog) is connected to `tu-amo/cv-website`. Every `git push` to main triggers it. This is expected and correct. The living-cookbook Vercel project is separately connected to `tu-amo/living-cookbook` — janeblog pushes do NOT trigger it.
 **Rule:** The two projects are now fully independent. A push from `/Users/janescott/Projects/Anti/` (janeblog) only triggers the janeblog Vercel build. A push from `/Users/janescott/Projects/LivingCookbook/` only triggers the living-cookbook Vercel build. Always run `git rev-parse --show-toplevel` to confirm which repo you're in before pushing.
 
+---
+
+### LL-009 · Print Margin Clipping — Conflicting Inline vs External Styles
+**Date:** 2026-04-29
+**Type:** 🐛 Bug (layout) — ✅ Resolved
+**Symptom:** The print version of the CV had text touching the paper edges, making it unreadable and prone to hardware clipping.
+**Root Cause:** A legacy `@media print` block inside the HTML file's `<style>` tag was forcing `padding: 0 !important` and `margin: 0 !important`. This was conflicting with and overriding the intended professional margins in the external `src/print.css`.
+**Fix:** Removed the redundant print block from the HTML file and consolidated all print logic into `src/print.css`, adding explicit `1.0cm` horizontal padding to content wrappers.
+**Rule:** Consolidation is safety. Never keep `@media print` blocks in HTML files if an external print stylesheet exists. Conflicting `!important` flags in separate files are the #1 cause of "uncaught" layout bugs.
+
+---
+
+### LL-010 · Browser Print vs Direct PDF Download — Nav Bar Logic
+**Date:** 2026-04-29
+**Type:** 💡 Pattern — ✅ Established
+**Context:** The "Save PDF" button in the global navigation initially triggered `window.print()`. While functional, users expected an immediate download of their most concise document.
+**Decision:** Updated the global nav button to link directly to the **Executive Summary PDF**. The in-page CV "Download PDF" button remains dynamic (updates based on selected tab).
+**Rule:** Primary global actions should be predictable. If a button says "Save PDF," it should trigger a direct download of the core value document (Executive Summary) rather than opening a print dialog which requires 3+ additional clicks.
+
 | Pattern | Anti-Pattern |
 |---|---|
 | Declare `vercel.json` framework + outputDirectory at repo root on day one | Relying on Vercel auto-detection in a repo with multiple projects |
@@ -108,3 +127,4 @@
 | All layout constraints come from `tokens.css` and `shells.css` | Per-section inline CSS overrides in page-specific `<style>` blocks |
 | Run `git rev-parse --show-toplevel` before any `git push` | Assuming the terminal is in the right directory |
 | Log every bug/decision to JANEBLOG_LESSONS_LEARNT.md in the same session | Assuming you'll remember the root cause next session |
+| Consolidate all print logic in `print.css`, avoid inline `@media print` | Splitting print overrides between HTML and CSS files |
