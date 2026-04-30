@@ -6,19 +6,20 @@
 .site-nav {
     position: sticky;
     top: 0;
-    z-index: 100;
+    z-index: 1000;
     width: 100%;
+    height: var(--nav-height);
     align-self: stretch;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem 2rem;
-    margin-bottom: 3rem;
+    padding: 0 2rem;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     background: rgba(13, 26, 22, 0.75);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     box-sizing: border-box;
+    touch-action: manipulation;
 }
 
 /* Brand / Logo */
@@ -115,16 +116,22 @@
 /* Mobile: collapse links */
 @media (max-width: 640px) {
     .site-nav {
-        flex-wrap: wrap;
+        height: var(--nav-height-mobile);
+        flex-wrap: nowrap; /* Keep it on one line if possible, or scroll */
         gap: 0.75rem;
-        padding: 0.75rem 0;
+        padding: 0 1rem;
         margin-bottom: 2rem;
     }
 
     .site-nav__links {
-        gap: 1.25rem;
-        flex-wrap: wrap;
+        gap: 1rem;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px; /* Space for scrollbar if it appears */
     }
+
+    .site-nav__links::-webkit-scrollbar { display: none; }
 
     .site-nav__brand-sub { display: none; }
 }
