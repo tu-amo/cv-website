@@ -753,6 +753,39 @@ brain artifacts      ← scratch/working notes ONLY — always mirrored before s
 | **Always destructure `{error}` from every Supabase mutation** | `await supabase.from().insert()` without error check — silent data loss |
 | **Use explicit FK hint `table!fk_col(*)` when PostgREST join returns null** | Assuming `related_table(*)` will auto-resolve for non-conventional FK names |
 | **All B-series backlog items go in `docs/ROADMAP.md` first, then REQUIREMENTS.md** | Logging backlog only in brain artifacts or inline in another document |
+| **`position: fixed` is its own containing block — never add `position: relative` to the same rule** | Adding `position: relative` after `position: fixed` in the same CSS rule (last declaration wins, fixed is lost) |
+| **Give SVG overlays `pointer-events: none` whenever interactive children sit behind them in the DOM** | Rendering an SVG above clickable buttons without `pointer-events: none` — the SVG silently swallows all clicks |
+
+---
+
+### LL-061 · `position: relative` Silently Overrides `position: fixed` When Both Appear in the Same Rule
+**Date:** 2026-05-20
+**Type:** 🐛 Bug (CSS) — ✅ Resolved
+**Symptom:** The timer widget disappeared from its fixed bottom-right position after a CSS fix was applied. The widget was no longer overlaid on the page — it appeared inline in the document flow.
+**Root Cause:** `position: fixed` was declared at line 1679 of `.timer-widget`. A subsequent fix added `position: relative` at line 1692 of the **same rule block** with the comment `/* ← required: anchors .timer-close absolute positioning */`. CSS last-declaration-wins: `position: relative` silently overrode `position: fixed`, removing the viewport-relative positioning entirely. The mistake was compounded by a well-intentioned but incorrect assumption that `position: relative` is needed to establish a containing block for `position: absolute` children.
+**Why the assumption was wrong:** `position: fixed` elements already act as containing blocks for `position: absolute` children in all modern browsers (Chrome 90+, Firefox, Safari). No additional `position: relative` is needed or correct on a `position: fixed` element.
+**Fix:** Removed `position: relative` from `.timer-widget`. The SVG click-swallow bug (LL-062) was the actual cause of the close button not working — not a missing containing block.
+**Rule:** Never add `position: relative` to an element that already has `position: fixed` or `position: absolute`. `fixed` and `absolute` are self-sufficient containing blocks. If two `position` declarations exist in the same rule block, only the last one applies — search for duplicates before adding any `position` declaration.
+
+---
+
+### LL-062 · SVG Overlay Without `pointer-events: none` Silently Swallows All Clicks
+**Date:** 2026-05-20
+**Type:** 🐛 Bug (CSS/interactivity) — ✅ Resolved
+**Symptom:** The timer widget's ✕ close button appeared visually correct and had `z-index: 1` and `e.stopPropagation()` in its `onClick`, but clicking it had no effect — the timer neither closed nor paused. The `onClose is not a function` TypeError later confirmed the click never reached the React handler at all on the public page; on the authenticated page the SVG swallowed the click before `stopPropagation` could fire.
+**Root Cause:** `.timer-ring-svg` was `position: absolute; inset: 12px` — covering nearly the full card face. By default SVG elements receive pointer events (`pointer-events: auto`). The SVG sat above the `timer-close` button in the paint order (rendered after it in the DOM, same stacking context), so every click on the close-button area was intercepted by the SVG and discarded.
+**Why `z-index: 1` and `stopPropagation` didn't help:** `stopPropagation` only stops event *bubbling up* the DOM tree. It cannot prevent the SVG from capturing a click that never reached the button in the first place. `z-index` on the close button was `1` — the same as the SVG's stacking level — so paint order (DOM order) determined the winner, and SVG won.
+**Fix:**
+```css
+.timer-ring-svg {
+    pointer-events: none; /* SVG must not swallow clicks meant for close button or card body */
+}
+.timer-close {
+    z-index: 10; /* safely above SVG and timer-inner */
+}
+```
+**Also found:** The `TimerWidget` component was used in two places (`/recipe/[id]/page.js` and `PublicRecipeClient.js`). The authenticated page had never been updated to the new prop API (`onToggle`, `onClose`, `totalSeconds`); it still passed the old `onClick` with no `onClose`, causing a separate TypeError. Both issues were fixed in the same commit.
+**Rule:** Any decorative SVG, canvas, or overlay element rendered above interactive children must have `pointer-events: none`. Default `pointer-events: auto` on layered SVGs is the most common invisible interactivity killer in card-based UIs.
 
 ---
 
@@ -766,7 +799,7 @@ brain artifacts      ← scratch/working notes ONLY — always mirrored before s
 | `vercel-deployment-checklist` | LL-020, 022, 023 | Pre-flight git status, eager init crash, env var availability at build time |
 | `supabase-staging-setup` | LL-030, 031, 033, 034 | Schema ordering, bigint vs UUID IDs, PostgREST cache reload, idempotent seeds |
 | `recipe-seed-data` | LL-031, 035, 036, 037 | Correct column names, bigint ids, ingredient_id=null pattern, DO block debugging |
-| `css-architecture` | LL-044, 045, 046, 047, 048, 053, 054, 057 | M3 token system, !important elimination, icon library, font double-load, grid-area canonical, min-width:0 grid children |
+| `css-architecture` | LL-044, 045, 046, 047, 048, 053, 054, 057, 061, 062 | M3 token system, !important elimination, icon library, font double-load, grid-area canonical, min-width:0 grid children, position:fixed containing block, SVG pointer-events |
 | **`supabase-schema-hygiene`** *(new — draft)* | **LL-059, 060, 042, 033** | **Schema/code mismatch patterns, silent error swallowing, PostgREST FK hints, FK constraint requirements, migration file discipline** |
 | **`css-automated-cleanup`** *(new — draft)* | **LL-055, 056** | **Safe batch CSS operations: canonical marking, multi-line value preservation, orphaned-property detection, post-transform verification gate** |
 | **`documentation-hygiene`** *(new — draft)* | **LL-058** | **Single-source-of-truth rules for backlog, active plans, brain artifact mirroring, cross-document linking** |
