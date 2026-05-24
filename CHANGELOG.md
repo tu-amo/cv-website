@@ -7,6 +7,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com). Versions are date
 
 ## [Unreleased]
 
+### Added
+- "Civilization-Scale Synchronization Crisis" blog post (`civilization-scale-synchronization-crisis.html`)
+- `janeblog-publisher` agent skill and Python CLI script for automated markdown-to-HTML blog publishing
+- "Civilization-Scale Synchronization Crisis" Manifesto integrated into Civilization Pulse dashboard as a modal overlay
+
+### Fixed
+- Image upload mix-up (image from chat attachment stream incorrectly referenced)
+- TypeScript and React unescaped entities lint errors in the Civilization Pulse frontend (`ManifestoModal.tsx`, `SignalDrawer.tsx`)
+
 - **Shared Navigation Component (B8)**: Extracted redundant navigation and background globes into `src/nav.js`.
     - Automated active state detection based on URL.
     - Page-specific actions (e.g., "Save PDF" on CV page).

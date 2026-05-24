@@ -117,8 +117,28 @@
 **Decision:** Updated the global nav button to link directly to the **Executive Summary PDF**. The in-page CV "Download PDF" button remains dynamic (updates based on selected tab).
 **Rule:** Primary global actions should be predictable. If a button says "Save PDF," it should trigger a direct download of the core value document (Executive Summary) rather than opening a print dialog which requires 3+ additional clicks.
 
+### LL-011 · Image File Attachment Mix-Up
+**Date:** 2026-05-24
+**Type:** 🐛 Bug (operator error) — ✅ Resolved
+**Symptom:** When generating a blog post, an old temporary image was used instead of the newly provided chat attachment.
+**Root Cause:** Chat attachments stream into `.tempmediaStorage/` or the conversation root (`/Users/janescott/.gemini/antigravity/brain/<id>/`) rather than a known project directory.
+**Fix:** Manually located the file in the conversation root and copied it to the project's public folder.
+**Rule:** Check the conversation root and `.tempmediaStorage/` for images attached via chat.
+
+---
+
+### LL-012 · Next.js Unescaped Entities in JSX
+**Date:** 2026-05-24
+**Type:** 🐛 Bug (linting) — ✅ Resolved
+**Symptom:** Next.js build failed with `react/no-unescaped-entities` due to unescaped quote marks (`"`, `'`) inside JSX.
+**Root Cause:** Next.js (eslint-plugin-react) strictly enforces escaping quotes in JSX to prevent rendering issues.
+**Fix:** Replaced quotes with HTML entities (`&quot;`, `&apos;`).
+**Rule:** Always escape quotes in JSX text nodes (`&quot;`, `&apos;`).
+
 | Pattern | Anti-Pattern |
 |---|---|
+| Check conversation root and `.tempmediaStorage/` for images attached via chat | Assuming chat attachments will magically appear in project folders |
+| Always escape quotes in JSX text nodes (`&quot;`, `&apos;`) | Leaving unescaped quotes in JSX strings |
 | Declare `vercel.json` framework + outputDirectory at repo root on day one | Relying on Vercel auto-detection in a repo with multiple projects |
 | Add `.vercelignore` to exclude sibling projects before first deploy | Letting Vercel scan the entire repo including unrelated subdirectories |
 | Audit Vercel Root Directory settings before removing any subdirectory from a repo | Discovering the broken setting only after a failed build |

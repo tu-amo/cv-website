@@ -20,6 +20,7 @@ New ideas and improvements that are not yet being built. All backlog items must 
 | B9 | Extract shared `<head>` to a Vite Head Agent | Created `src/head.js` to centralize site-wide fonts, secondary CSS, and shared metadata. | ✅ Done (2026-04-28) |
 | B10 | Split `.agent/` directory — janeblog vs LivingCookbook | Janeblog `.agent/` should contain only janeblog-relevant context. | 2026-04-24 |
 | B11 | CV PDF Fidelity & Density | Optimize PDF generation for 2-page/4-page strict limits and professional whitespace. | ✅ Done (2026-04-29) |
+| B12 | Civilization Pulse Micro-Simulations | Integrate multi-agent simulation (borrowed from MiroFish) into Civilization Pulse to generate "Tension" and "Emergence" summaries using distinct agent personas reacting to daily signals. | 2026-05-24 |
 
 ---
 

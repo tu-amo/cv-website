@@ -46,6 +46,7 @@ A personal portfolio and writing site for Jane Petra Scott — Senior SAP Retail
 | `cv.html` | `/cv` | Curriculum vitae (also at `cv.janeblog.com`) |
 | `booking.html` | `/booking` | Calendly booking integration |
 | `knowledge-sharing-digital-workplace.html` | `/knowledge-sharing-digital-workplace` | Article: Knowledge Sharing in Digital Workplace |
+| `civilization-scale-synchronization-crisis.html` | `/civilization-scale-synchronization-crisis` | Article: Civilization-Scale Synchronization Crisis |
 | `unified-knowledge-software.html` | `/unified-knowledge-software` | Article: Unified Knowledge Systems |
 | `404.html` | — | Custom 404 error page |
 
@@ -124,6 +125,7 @@ Every page must follow this exact structure. Deviating from it breaks nav and sh
 | `css-architecture` | Making **any** styling change — tokens, layout, heading levels | **janeblog** |
 | `seo-fundamentals` | Editing any public-facing page | Both |
 | `seo-meta-optimizer` | Writing meta titles/descriptions | Both |
+| `janeblog-publisher` | Automates publishing a new blog post via python CLI | **janeblog** |
 | `accessibility-compliance-accessibility-audit` | Accessibility audit or fix | Both |
 | `ui-ux-designer` | New component or layout decision | Both |
 
