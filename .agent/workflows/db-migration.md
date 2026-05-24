@@ -5,8 +5,8 @@ description: Safe Database Migration Checklist (Schema + RLS + Client Sync)
 # 🔐 Database Migration Safety Workflow
 **Last Reviewed:** 2026-05-24
 
-> **The Supabase CLI is the migration tool.** As of 2026-04-08, all schema changes go through
-> `npm run db:new` → `npm run db:push:staging` → test → `npm run db:push:prod`.  
+> **The Supabase CLI + GitHub Branching is the migration tool.** As of 2026-05-24, all schema changes go through
+> `npm run db:new` → `npm run db:push` (on preview branch) → test → merge to main.  
 > Manual SQL editor sessions are no longer part of the migration process.
 
 ---
@@ -20,11 +20,8 @@ npm run db:diff      # shows structural drift between migration files and live p
 
 If `db:diff` shows unexpected changes, **stop and investigate before proceeding.**
 
-> ⚠️ **Two environments:**
-> | Environment | Supabase Project | Who Points Here |
-> |---|---|---|
-> | Staging (dev) | `hbgxotjjpapdqlqrofqz` (living-cookbook-dev) | `localhost:3000` / `.env.local` |
-> | Production | `hiuhjnodzodcgwltweoc` (living-cookbook) | Vercel / `.env.local.production` |
+> ⚠️ **Database Branching:** We use a single Supabase project (`living-cookbook`) with Database Branching.
+> Production is `main`. Your local development should be linked to a preview branch (e.g. `dev`).
 
 ---
 
@@ -53,19 +50,19 @@ CREATE POLICY "auth_read" ON my_table
 
 ---
 
-## Step 2: Apply to Staging First
+## Step 2: Apply to Preview Branch
 
 ```bash
-npm run db:push:staging
+npm run db:push
 ```
 
-This applies all pending migrations to staging. Test at `localhost:3000`.
+This applies all pending migrations to your active preview branch. Test at `localhost:3000`.
 
 ---
 
 ## Step 3: Verify Policies Are Complete
 
-Run this in the [Staging SQL Editor](https://supabase.com/dashboard/project/hbgxotjjpapdqlqrofqz/sql):
+Run this in the [Preview Branch SQL Editor](https://supabase.com/dashboard/project/hiuhjnodzodcgwltweoc/sql):
 
 ```sql
 SELECT
@@ -104,18 +101,13 @@ git push origin main
 
 ---
 
-## Step 6: Apply to Production at Deploy Time
+## Step 6: Merge to Production (Automated)
 
-**DB push happens BEFORE or simultaneously with `git push`.** Never push code that depends on a schema change without applying it to production first.
+**DB migrations happen automatically on merge.** 
+When you merge your GitHub PR into `main` (or push directly to it), Supabase will automatically apply any new migrations to the production database.
 
 ```bash
-npm run db:push:prod     # pushes pending migrations to production
-git push origin main     # triggers Vercel deploy
-```
-
-Verify status after:
-```bash
-npm run db:status        # all migrations should show Local = Remote
+git push origin main
 ```
 
 ---

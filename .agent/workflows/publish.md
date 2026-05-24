@@ -51,18 +51,12 @@ If either command shows changes → **stop, commit them first.**
 2. Update `CHANGELOG.md` — move `[Unreleased]` to a version number
 3. Verify Vercel environment variables are set (see below)
 
-### Step 1.5 — Apply pending SQL migrations to production
+### Step 1.5 — Database Migrations (Automated)
 
-> ⚠️ **Critical.** All migrations in `supabase/migrations/` must be applied to **production** before `git push origin main`. Pushing code that depends on a schema change without syncing production first causes silent data blackouts (LL-033, LL-052).
+> 💡 **Branching Automation:** Since we use Supabase Branching with GitHub integration, you no longer need to push migrations to production manually. When you merge your branch into `main` (or push directly to it), Supabase will automatically apply any new migrations in `supabase/migrations/` to the production database.
 
-1. Check sync state and apply:
-   ```bash
-   npm run db:status            # confirm which migrations are pending on Remote
-   npm run db:push:prod         # apply all pending migrations to production
-   npm run db:status            # verify: all rows now show Local = Remote
-   ```
-2. Verify with the RLS audit query from `/db-migration` Step 3 in the [Production SQL Editor](https://supabase.com/dashboard/project/hiuhjnodzodcgwltweoc/sql)
-3. Only then proceed to Step 2
+1. Ensure your local migrations have been applied to your feature branch and tested (`npm run db:push`).
+2. Proceed to Step 2 to push to GitHub.
 
 ### Step 2 — Push to main
 ```bash
