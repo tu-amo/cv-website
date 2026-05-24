@@ -4,7 +4,7 @@ project: janeblog
 ---
 
 # 📚 janeblog — Document Update Workflow
-**Last Reviewed:** 2026-04-24
+**Last Reviewed:** 2026-05-24
 
 Run this at the end of every session where you changed or built something.  
 Takes ~5 minutes. Prevents documentation drift.

@@ -3,7 +3,7 @@ description: Production deployment checklist for Living Cookbook
 ---
 
 # Living Cookbook — Production Deployment Checklist
-**Last Reviewed:** 2026-04-20
+**Last Reviewed:** 2026-05-24
 
 Run these steps in order before and after every merge to `main`.
 

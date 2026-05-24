@@ -3,7 +3,7 @@ description: How to verify the Image Carousel and AI Image Generation feature en
 ---
 
 # Carousel & Image Feature Verification Workflow
-**Last Reviewed:** 2026-04-20
+**Last Reviewed:** 2026-05-24
 
 This workflow validates all layers of the carousel and AI image system: logic, data, prompts, performance, and visual behaviour.
 

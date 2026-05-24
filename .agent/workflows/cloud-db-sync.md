@@ -3,7 +3,7 @@ description: Cloud Database Sync — Deliver SQL before code when touching Supab
 ---
 
 # ☁️ Cloud Database Sync Workflow
-**Last Reviewed:** 2026-04-15
+**Last Reviewed:** 2026-05-24
 
 ## When to Use This Workflow
 

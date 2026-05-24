@@ -3,7 +3,7 @@ description: Emergency Server Recovery (Clear Port 3000 + Restart)
 ---
 
 # 🔄 Local Chef Recovery Workflow
-**Last Reviewed:** 2026-04-20
+**Last Reviewed:** 2026-05-24
 
 Use this if `http://localhost:3000` is unreachable or "Connection Refused".
 

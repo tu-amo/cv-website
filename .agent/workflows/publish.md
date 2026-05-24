@@ -3,7 +3,7 @@ description: how to publish / deploy the site to production
 ---
 
 # 🚀 Publishing Workflow
-**Last Reviewed:** 2026-04-20
+**Last Reviewed:** 2026-05-24
 
 > ⚠️ **All work is committed and pushed directly to `main`.** Never push broken or untested changes to `main`.
 

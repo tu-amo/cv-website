@@ -1,5 +1,5 @@
 # 🚀 Publish Workflow — janeblog.com
-**Last Reviewed:** 2026-04-23
+**Last Reviewed:** 2026-05-24
 
 Run this before every production push. Takes ~2 minutes.
 

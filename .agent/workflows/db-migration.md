@@ -3,7 +3,7 @@ description: Safe Database Migration Checklist (Schema + RLS + Client Sync)
 ---
 
 # 🔐 Database Migration Safety Workflow
-**Last Reviewed:** 2026-04-20
+**Last Reviewed:** 2026-05-24
 
 > **The Supabase CLI is the migration tool.** As of 2026-04-08, all schema changes go through
 > `npm run db:new` → `npm run db:push:staging` → test → `npm run db:push:prod`.  

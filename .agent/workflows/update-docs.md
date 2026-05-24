@@ -3,7 +3,7 @@ description: How to keep all project documents up to date after a feature or dep
 ---
 
 # 📚 Document Update Workflow
-**Last Reviewed:** 2026-04-20
+**Last Reviewed:** 2026-05-24
 
 Run this after every feature completion or production deployment.  
 Takes ~5 minutes. Keeps the project's documentation honest and navigable.
