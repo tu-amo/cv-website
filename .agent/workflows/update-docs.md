@@ -1,110 +1,80 @@
----
-description: How to keep all project documents up to date after a feature or deployment
----
-
 # 📚 Document Update Workflow
-**Last Reviewed:** 2026-05-24
+**Last Reviewed:** 2026-08-28
 
-Run this after every feature completion or production deployment.  
-Takes ~5 minutes. Keeps the project's documentation honest and navigable.
-
----
-
-## Step 1: Open the Document Catalogue
-
-Open [CATALOGUE.md](file:///Users/janescott/Projects/Anti/.agent/docs/CATALOGUE.md) and review the **Document Health Status** section.
-
-Ask for each document:
-- Is it still accurate?
-- Did anything in this session change something it covers?
+Run this after every feature completion, bugfix, or production deployment.  
+Takes ~2 minutes. Keeps documentation accurate, minimal, and free of redundant churn.
 
 ---
 
-## Step 2: Update ROADMAP.md — Backlog & Active Plans
+## Core Document Boundaries & Rules
 
-File: `living-cookbook/docs/ROADMAP.md`
-
-**Backlog rule:** Any new feature idea or issue noticed during the session that isn't being built immediately must be logged here as a B-series item — **never only in a brain artifact or chat.**
-
-- [ ] Did any new items surface this session that should become a backlog item?
-  - If yes: add a row to the **Feature Backlog** table in `ROADMAP.md` with a B-number, description, notes, and today's date
-  - Then add a **summary row** in `REQUIREMENTS.md` (P2 tier, same B-number) with a link → `docs/ROADMAP.md`
-- [ ] Were any existing backlog items (B1–Bn) completed or changed in scope?
-  - If yes: update or remove the row in `ROADMAP.md` and `REQUIREMENTS.md`
-
-**Active Engineering Plans rule:** Any long-running plan (CSS audit, business implementation, etc.) must have its status kept current.
-
-- [ ] Update the **Active Engineering Plans** table at the bottom of `ROADMAP.md` with current phase/sprint status
-- [ ] Update the matching rows in `.agent/docs/CATALOGUE.md` → Active Engineering Plans section
-- [ ] Update the **Active Engineering Plans** section in `project_nexus.md` if phase or blocker changed
+| Document | Boundary / Role | Update When |
+|---|---|---|
+| **`CHANGELOG.md`** | **What changed** (Historical release record) | Every feature, fix, or release shipped. |
+| **`REQUIREMENTS.md`** | **What the app guarantees** (Functional contract) | A capability is completed, changed, or removed. |
+| **`docs/ROADMAP.md`** | **What we want to build next** (Forward-looking B-series) | A new feature idea/issue surfaces; archive completed items. |
+| **`project_nexus.md`** | **Technical architecture map** (Stack, routes, tables) | Architecture, database schema, or core patterns change. |
 
 ---
 
-## Step 3: Update REQUIREMENTS.md
-
-File: `living-cookbook/REQUIREMENTS.md`
-
-For any feature touched in this session:
-- Mark completed items `✅ Done`
-- Mark broken/reverted items `⚠️ Partial` or `🔲 Pending`
-- Add new requirements if the scope expanded
-- Move anything to "Out of Scope" if it was explicitly de-prioritised
-- Ensure any new B-series items added to `ROADMAP.md` have a matching summary row here
-
-
-## Step 4: Update CHANGELOG.md
+## Step 1: Record What Changed (`CHANGELOG.md`)
 
 File: `living-cookbook/CHANGELOG.md`
 
-Under `## [Unreleased]`, add entries for everything done this session using these categories:
-
+Under `## [Unreleased]`, add brief entries:
 ```markdown
 ### Added
-- Short, plain-English description of new feature or document
+- Plain-English description of new feature
 
 ### Fixed
-- Short description of bug fixed and root cause (one line)
-
-### Changed
-- Short description of behaviour that changed
+- Description of bug fixed and root cause
 ```
 
-If this is a **production deployment**, rename `[Unreleased]` to the version number and date:
-```markdown
-## [3.1.0] — YYYY-MM-DD
-```
+*(If deploying a versioned release, rename `[Unreleased]` to `## [X.Y.Z] — YYYY-MM-DD`)*.
 
 ---
 
-## Step 5: Update project_nexus.md (if architecture changed)
+## Step 2: Update System Contract & Backlog
+
+### 2a. Requirements (`REQUIREMENTS.md`)
+- Mark completed requirements as `✅ Done (YYYY-MM-DD)`.
+- Update version and `Last Updated` in the header.
+
+### 2b. Backlog & Active Plans (`docs/ROADMAP.md`)
+- **New ideas/issues discovered during session:** Add a row to the **Feature Backlog** (B-series) table. Never leave backlog items only in chat or temporary scratchpads.
+- **Completed items:** Mark `DONE` or archive from the active backlog.
+- **Active Plans:** Update phase/status of long-running plans (e.g. CSS migration, Pro Kitchen sprints).
+
+---
+
+## Step 3: Update Architecture Map (If Changed)
 
 File: `living-cookbook/project_nexus.md`
 
-Update only if any of these changed:
-- A new Supabase client pattern was introduced
-- A new route type was added (e.g. public, protected, join)
-- A new core component was built
-- The auth or RLS model changed
+Update only if:
+- New database tables, RPC functions, or migrations were introduced.
+- New routes, pages, or core hooks were added.
+- The auth/RLS model or third-party service integration changed.
+- Update `Version:` and `Updated:` date in the top header.
 
 ---
 
-## Step 6: Update README.md (if setup changed)
+## Step 4: Commit and Push Documentation
 
-File: `living-cookbook/README.md`
+Run the commit command from the **LivingCookbook** project directory:
 
-Update if:
-- A new environment variable was added to `.env.local`
-- A new `npm` script is now required
-- Setup steps or prerequisites changed
-
----
-
-## Step 7: Commit the documentation
-
-// turbo
 ```bash
-git add REQUIREMENTS.md CHANGELOG.md project_nexus.md README.md docs/ROADMAP.md && git commit -m "docs: update documentation after session" && git push origin main
+cd /Users/janescott/Projects/LivingCookbook
+git add REQUIREMENTS.md CHANGELOG.md project_nexus.md docs/ROADMAP.md README.md
+git commit -m "docs: update project requirements, changelog, and roadmap"
+git push origin dev
+git checkout main
+git merge dev
+git push origin main
+git checkout dev
 ```
+
+*(If agent-specific docs in `/Users/janescott/Projects/Anti/.agent/` were modified, commit them separately within that repo).*
 
 ---
 
