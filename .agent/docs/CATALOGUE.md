@@ -9,12 +9,12 @@
 
 | # | Document | Location | Owner | Update Trigger | Last Reviewed |
 |---|----------|----------|-------|----------------|---------------|
-| 1 | **Requirements** | `living-cookbook/REQUIREMENTS.md` | Product | Any new feature, status change, or scope decision | 2026-04-16 |
-| 2 | **Architecture Nexus** | `living-cookbook/project_nexus.md` | Engineering | Any change to data flow, auth, infrastructure, or document catalog | 2026-04-16 |
-| 3 | **Roadmap & Backlog** | `living-cookbook/docs/ROADMAP.md` | Product | New backlog items (B-series), milestone completions, phase changes | 2026-04-16 |
-| 4 | **Changelog** | `living-cookbook/CHANGELOG.md` | Engineering | Every production deployment | 2026-03-30 |
-| 5 | **README** | `living-cookbook/README.md` | Engineering | Onboarding steps change, new env vars, new scripts | 2026-03-30 |
-| 6 | **Feature Specification** | `(artifact) feature_spec.md` | Product | Feature scope or status changes | 2026-04-10 |
+| 1 | **Requirements** | `living-cookbook/REQUIREMENTS.md` | Product | Any new feature, status change, or scope decision | 2026-08-28 |
+| 2 | **Architecture Nexus** | `living-cookbook/project_nexus.md` | Engineering | Any change to data flow, auth, infrastructure, or document catalog | 2026-08-28 |
+| 3 | **Roadmap & Backlog** | `living-cookbook/docs/ROADMAP.md` | Product | New backlog items (B-series), milestone completions, phase changes | 2026-08-28 |
+| 4 | **Changelog** | `living-cookbook/CHANGELOG.md` | Engineering | Every production deployment | 2026-08-28 |
+| 5 | **README** | `living-cookbook/README.md` | Engineering | Onboarding steps change, new env vars, new scripts | 2026-08-28 |
+| 6 | **Feature Specification** | `(artifact) feature_spec.md` | Product | Feature scope or status changes | 2026-08-28 |
 
 ---
 
@@ -24,28 +24,28 @@ Long-running plans tracked in brain artifacts — not versioned in the repo but 
 
 | # | Plan | Location | Status | Last Reviewed |
 |---|------|----------|--------|---------------|
-| P1 | **CSS Architecture Audit** | `(artifact) implementation_plan.md` | 🟡 Phase 5 done — Phase 6 (@media consolidation) outstanding | 2026-04-16 |
-| P2 | **Business Implementation Plan** | `(artifact) pretzel_prep_business_plan.md` | 🟡 7/15 sprints done — Sprint 8 (Launch Strategy) next | 2026-04-16 |
+| P1 | **CSS Architecture Audit** | `(artifact) implementation_plan.md` | 🟡 Phase 5 done — Phase 6 (@media consolidation) outstanding | 2026-08-28 |
+| P2 | **Business Implementation Plan** | `(artifact) pretzel_prep_business_plan.md` | 🟡 7/15 sprints done — Sprint 8 (Launch Strategy) next | 2026-08-28 |
 
 
 ## Agent & Workflow Documents
 
 | # | Document | Location | Owner | Update Trigger | Last Reviewed |
 |---|----------|----------|-------|----------------|---------------|
-| 6 | **Document Catalogue** *(this file)* | `.agent/docs/CATALOGUE.md` | Both | Any new doc added or removed | 2026-03-30 |
-| 7 | **DB Migration Workflow** | `.agent/workflows/db-migration.md` | Engineering | Any new pattern found during migration work | 2026-03-30 |
-| 8 | **Cloud DB Sync Workflow** | `.agent/workflows/cloud-db-sync.md` | Engineering | SQL-first protocol — run before any schema-dependent code | 2026-03-30 |
-| 9 | **Regression Workflow** | `.agent/workflows/regression.md` | Engineering | New features added to the regression checklist | 2026-03-30 |
-| 10 | **Restart Workflow** | `.agent/workflows/restart.md` | Engineering | Server setup changes | 2026-03-25 |
-| 11 | **Publish Workflow** | `.agent/workflows/publish.md` | Engineering | Deployment process changes | 2026-03-30 |
-| 12 | **Update Docs Workflow** | `.agent/workflows/update-docs.md` | Both | Doc update process changes | 2026-03-30 |
-| 13 | **Lessons Learnt** | `.agent/docs/LESSONS_LEARNT.md` | Both | Any new bug resolved — log immediately | 2026-03-30 |
-| 14 | **Onboarding Architecture** | `.agent/docs/ONBOARDING_ARCHITECTURE.md` | Both | Any change to signup, invite, or auth callback flow | 2026-03-31 |
-| 15 | **Brand Guide** | `.agent/docs/BRAND_GUIDE.md` | Product | Design, palette, or imagery vision changes | 2026-03-31 |
-| 16 | **Flow Prompt Guide** | `.agent/docs/FLOW_PROMPT_GUIDE.md` | Product | AI image gen templates or prompt refinements | 2026-03-31 |
-| 17 | **Meta Analysis** | `.agent/docs/META_ANALYSIS.md` | Both | Periodic skill and interaction audit | 2026-03-30 |
-| 18 | **Production Health Review** | `.agent/docs/PRODUCTION_HEALTH.md` | Both | After any deploy, or whenever a new monitoring check is identified | 2026-03-31 |
-| 19 | **CSS Architecture Skill** | `.agent/skills/css-architecture/SKILL.md` | Engineering | Any time you touch CSS, tokens, icons, fonts, or heading hierarchy | 2026-04-11 |
+| 6 | **Document Catalogue** *(this file)* | `.agent/docs/CATALOGUE.md` | Both | Any new doc added or removed | 2026-08-28 |
+| 7 | **DB Migration Workflow** | `.agent/workflows/db-migration.md` | Engineering | Any new pattern found during migration work | 2026-08-28 |
+| 8 | **Cloud DB Sync Workflow** | `.agent/workflows/cloud-db-sync.md` | Engineering | SQL-first protocol — run before any schema-dependent code | 2026-08-28 |
+| 9 | **Regression Workflow** | `.agent/workflows/regression.md` | Engineering | New features added to the regression checklist | 2026-08-28 |
+| 10 | **Restart Workflow** | `.agent/workflows/restart.md` | Engineering | Server setup changes | 2026-08-28 |
+| 11 | **Publish Workflow** | `.agent/workflows/publish.md` | Engineering | Deployment process changes | 2026-08-28 |
+| 12 | **Update Docs Workflow** | `.agent/workflows/update-docs.md` | Both | Doc update process changes | 2026-08-28 |
+| 13 | **Lessons Learnt** | `.agent/docs/LESSONS_LEARNT.md` | Both | Any new bug resolved — log immediately | 2026-08-28 |
+| 14 | **Onboarding Architecture** | `.agent/docs/ONBOARDING_ARCHITECTURE.md` | Both | Any change to signup, invite, or auth callback flow | 2026-08-28 |
+| 15 | **Brand Guide** | `.agent/docs/BRAND_GUIDE.md` | Product | Design, palette, or imagery vision changes | 2026-08-28 |
+| 16 | **Flow Prompt Guide** | `.agent/docs/FLOW_PROMPT_GUIDE.md` | Product | AI image gen templates or prompt refinements | 2026-08-28 |
+| 17 | **Meta Analysis** | `.agent/docs/META_ANALYSIS.md` | Both | Periodic skill and interaction audit | 2026-08-28 |
+| 18 | **Production Health Review** | `.agent/docs/PRODUCTION_HEALTH.md` | Both | After any deploy, or whenever a new monitoring check is identified | 2026-08-28 |
+| 19 | **CSS Architecture Skill** | `.agent/skills/css-architecture/SKILL.md` | Engineering | Any time you touch CSS, tokens, icons, fonts, or heading hierarchy | 2026-08-28 |
 
 ---
 

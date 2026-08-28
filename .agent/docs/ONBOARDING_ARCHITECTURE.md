@@ -1,7 +1,7 @@
 # 🧑‍🍳 Onboarding Architecture — The Living Cookbook
 
 **Purpose:** Architectural reference for the two user entry paths into the app.  
-**Last Updated:** 2026-04-22  
+**Last Updated:** 2026-08-28  
 **Status:** ✅ Both processes fully implemented. M1 household context added. See open items at the bottom.
 
 ---
