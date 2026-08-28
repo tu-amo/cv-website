@@ -14,6 +14,8 @@ Takes ~2 minutes. Keeps documentation accurate, minimal, and free of redundant c
 | **`REQUIREMENTS.md`** | **What the app guarantees** (Functional contract) | A capability is completed, changed, or removed. |
 | **`docs/ROADMAP.md`** | **What we want to build next** (Forward-looking B-series) | A new feature idea/issue surfaces; archive completed items. |
 | **`project_nexus.md`** | **Technical architecture map** (Stack, routes, tables) | Architecture, database schema, or core patterns change. |
+| **`docs/HANDOVER.md`** | **Master system handover & runbooks** (Operations guide) | Third-party services, fragile gotchas, or runbooks change. |
+| **`QUICKSTART.md`** | **10-minute developer onboarding guide** (Bootstrap) | Local setup, `.env.local` keys, or smoke tests change. |
 
 ---
 
@@ -47,15 +49,11 @@ Under `## [Unreleased]`, add brief entries:
 
 ---
 
-## Step 3: Update Architecture Map (If Changed)
+## Step 3: Update Architecture & Handover Guides (If Changed)
 
-File: `living-cookbook/project_nexus.md`
-
-Update only if:
-- New database tables, RPC functions, or migrations were introduced.
-- New routes, pages, or core hooks were added.
-- The auth/RLS model or third-party service integration changed.
-- Update `Version:` and `Updated:` date in the top header.
+- **`project_nexus.md`**: Update if new routes, tables, or architecture patterns change.
+- **`docs/HANDOVER.md`**: Update if third-party keys, "hidden knives"/gotchas, or operations runbooks change.
+- **`QUICKSTART.md`**: Update if setup prerequisites, `.env.local` vars, or smoke-test steps change.
 
 ---
 
@@ -65,7 +63,7 @@ Run the commit command from the **LivingCookbook** project directory:
 
 ```bash
 cd /Users/janescott/Projects/LivingCookbook
-git add REQUIREMENTS.md CHANGELOG.md project_nexus.md docs/ROADMAP.md README.md
+git add REQUIREMENTS.md CHANGELOG.md project_nexus.md docs/ROADMAP.md README.md docs/HANDOVER.md QUICKSTART.md
 git commit -m "docs: update project requirements, changelog, and roadmap"
 git push origin dev
 git checkout main
